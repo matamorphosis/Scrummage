@@ -8,6 +8,10 @@ if [ -f /etc/lsb-release ]; then
   apt install -y python3 python3-pip python3-psycopg2 postgresql postgresql-contrib ruby rubygems build-essential wget unzip
 fi
 
+mkdir ../bin/static/protected
+mkdir ../bin/static/protected/output
+mkdir ../bin/static/protected/screenshots
+
 mkdir chrome_dev
 cd chrome_dev
 wget https://chromedriver.storage.googleapis.com/76.0.3809.12/chromedriver_linux64.zip
