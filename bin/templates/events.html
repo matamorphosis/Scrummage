@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script>	
+		<script type="text/javascript" src="static/js/datatables.min.js"></script>
+		<script type="text/javascript" src="static/js/main.js"></script>
+        <title>Scrummage Events</title>
+    </head>
+    <body>
+	    {% extends "template.html" %}
+	    {% block content %}
+    	<div class="field-container">
+    		<table id="paginate">
+    			<thead>
+	    			<tr>
+	    				<th>ID</th>
+	    				<th>Description</th>
+	    				<th>Timestamp</th>
+	    			</tr>
+    			</thead>
+    			<tbody>
+					{% for event in events %}
+		    			<tr>
+		    				<td class="nonscreenshottab">{{event[0]}}</td>
+		    				<td class="nonscreenshottab">{{event[1]}}</td>
+		    				<td class="nonscreenshottab">{{event[2]}}</td>
+		    			</tr>
+	    			{% endfor %}
+    			</tbody>
+    		</table>
+    	</div>
+		<p class="message">This page only loads the latest 1000 entries.</p>
+    	{% endblock %}
+    </body>
+</html>

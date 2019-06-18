@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <link rel="shortcut icon" href="static/icons/main.ico" />
+      <title>Scrummage Welcome</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}     
+<!--       {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %} -->
+      {% if loggedout %}
+         <p id="logintitle">Logged out. Log in to continue.</p>
+         <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
+            <dl>
+               <dd>
+                  <input class="textarea" type=text name=username placeholder="Username">
+               </dd>
+               <dd>
+                  <input class="textarea" type=password name=password placeholder="Password">
+               </dd>
+            </dl>
+            <p style="padding-top: 10px;"><input class="button" type=submit value=Login></p>
+         </form>
+      {% else %}
+         <p id="logintitle">Welcome to Scrummage! Please log in to continue.</p>
+         <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
+            <dl>
+               <dd>
+                  <input class="textarea" type=text name=username placeholder="Username">
+               </dd>
+               <dd>
+                  <input class="textarea" type=password name=password placeholder="Password">
+               </dd>
+            </dl>
+            <p style="padding-top: 10px;"><input class="button" type=submit value=Login></p>
+         </form>
+      {% endif %}
+      {% if error %}
+         <p class="message"><strong>Error:</strong> {{ error }}</p>
+      {% endif %}
+      {% endwith %}
+      {% endblock %}
+   </body>
+</html>

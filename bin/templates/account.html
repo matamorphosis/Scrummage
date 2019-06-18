@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script>	
+		<script type="text/javascript" src="static/js/datatables.min.js"></script>
+		<script type="text/javascript" src="static/js/main.js"></script>
+        <title>Scrummage Events</title>
+    </head>
+    <body>
+	    {% extends "template.html" %}
+	    {% block content %}
+		{% if error %}
+			<p class="message" style="padding-top: 30px;"><strong>Error:</strong> {{error}}</p>
+		{% elif message %}
+			<p class="message" style="padding-top: 30px;"><strong>Message:</strong> {{message}}</p>
+		{% endif %}
+		<div class="field-container">
+            <form class="form" action="" method=post autocomplete="off">
+                <dl>
+                    <dd>
+                        <input class="field_textarea" type=password name=Current_Password placeholder="Current Password">
+                    </dd>
+                    <dd>
+                        <input class="field_textarea" type=password name=New_Password placeholder="New Password">
+                    </dd>
+                    <dd>
+                        <input class="field_textarea" type=password name=New_Password_Retype placeholder="Retype Password">
+                    </dd>
+                </dl>
+                <p style="padding-top: 10px;"><input class="button" name="change_password" type=submit value="Change Password"></p>
+            </form>
+    	</div>
+        {% if requirement_error %}
+        <div class="field-container">
+            <div style="text-align: center; width: 51%;">
+            {% for error in requirement_error %}
+                <p class="message" style="text-align: left;">{{error}}</p>
+            {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    	{% endblock %}
+    </body>
+</html>

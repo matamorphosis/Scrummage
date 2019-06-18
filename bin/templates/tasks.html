@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script>	
+		<script type="text/javascript" src="static/js/datatables.min.js"></script>
+		<script type="text/javascript" src="static/js/main.js"></script>
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <title>Scrummage Tasks</title>
+    </head>
+    <body>
+	    {% extends "template.html" %}
+	    {% block content %}
+    	<div class="field-container">
+            {% if error %}
+                <p class="message"><strong>Error:</strong> {{ error }}</p>
+            {% elif message %}
+                <p class="message"><strong>Message:</strong> {{ message }}</p>
+            {% endif %}
+            {% if edit_task %}
+                {% if is_admin == True %}
+                    {% if form_step == 0 %}
+                    {% elif form_step == 1 %}
+                    <form class="form" action="" method=post autocomplete="off">
+                        <dl>
+                            <dd>
+                                <input class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{results[2]}}">
+
+                                <datalist id="browsers">
+                                    {% for plugin in Valid_Plugins%}
+                                    <option value="{{plugin}}">
+                                    {% endfor %}
+                                </datalist>
+                            </dd>
+                            <dd>
+                                <input class="field_textarea" type=text name=frequency placeholder="Frequency" value="{{results[4]}}">
+                            </dd>
+                            <dd>
+                                <input class="field_textarea" type=text name=description placeholder="Description" value="{{results[3]}}">
+                            </dd>
+                        </dl>
+                        <p style="padding-top: 10px; display: inline-block;"><input name="edittask" class="button" type=submit value="Next"></p>
+                    </form>
+                    <form class="form" action="" method=post autocomplete="off">
+                        <p style="padding-top: 10px; display: inline-block;"><input class="button" name="return" type=submit value="Return"></p>
+                    </form>
+                    {% elif form_step == 2 %}
+                        <form class="form" action="" method=post autocomplete="off">
+                            <dl>
+                                {% if phish_sites %}
+                                <dd>
+                                    <input class="field_textarea" list="browsers" name=query onkeypress="return false;" placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
+
+                                    <datalist id="browsers">
+                                    {% for site in phish_sites%}
+                                    <option value="{{site[1]}}">
+                                    {% endfor %}
+                                    </datalist>
+                                </dd>
+                                {% else %}
+                                <dd>
+                                    <input class="field_textarea" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
+                                </dd>
+                                {% endif %}
+                                {% if use_limit %}
+                                <dd>
+                                    <input class="field_textarea" type=number name=limit placeholder="Limit" value="{{results[5]}}">
+                                </dd>
+                                {% endif %}
+                            </dl>
+                            <p style="padding-top: 10px; display: inline-block;""><input name="edittask" class="button" type=submit value="Update"></p>
+                        </form>
+                        <form class="form" action="" method=post autocomplete="off">
+                            <p style="padding-top: 10px; display: inline-block;"><input class="button" name="return" type=submit value="Return"></p>
+                        </form>
+                    {% else %}
+                        <p id="logintitle">404 Page Not Found.</p>
+                        <p class="error">The page you were looking for does not exist.</p>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            {% if form_step == 0 %}
+                <table id="paginate">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Query</th>
+                            <th>Plugin</th>
+                            <th>Description</th>
+                            <th>Frequency</th>
+                            <th>Limit</th>
+                            {% if is_admin %}
+                            <th>Functions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td class="nonscreenshottab">{{result[0]}}</td>
+                            <td class="nonscreenshottab" style="max-width: 200px; word-wrap: break-word">{{result[1]}}</td>
+                            <td class="nonscreenshottab">{{result[2]}}</td>
+                            <td class="nonscreenshottab">{{result[3]}}</td>
+                            <td class="nonscreenshottab">{{result[4]}}</td>
+                            <td class="nonscreenshottab">{{result[5]}}</td>
+                            {% if is_admin %}
+                                <td class="buttons_in_table">
+                                    <form class="task_buttons" action="" method=post autocomplete="off">
+                                        <input name="runtask" value="{{result[0]}}" type=hidden>
+                                        <input class="button" type=submit value="Run">
+                                    </form>
+                                    <form class="task_buttons" action="" method=post autocomplete="off">
+                                        <input name="edittask" value="{{result[0]}}" type=hidden>
+                                        <input class="button" type=submit value="Edit">
+                                    </form>
+                                    <form class="task_buttons" action="" method=post autocomplete="off">
+                                        <input name="dup0" value="{{result[0]}}" type=hidden>
+                                        <input class="button" type=submit value="Duplicate">
+                                    </form>
+                                    <form class="task_buttons" action="" method=post autocomplete="off">
+                                        <input name="delete_id" value="{{result[0]}}" type=hidden>
+                                        <input class="button" type=submit value="Delete">
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+                {% if is_admin %}
+                <form class="form_left" action="" method=post autocomplete="off">
+                    <input name="newtask" class="button" type=submit value="New Task">
+                </form>
+                {% endif %}
+            {% endif %}
+            {% if new_task %}
+                {% if is_admin %}
+                    {% if form_step == 0 %}
+                    {% elif form_step == 1 %}
+                    <form class="form" action="" method=post autocomplete="off">
+                        <dl>
+                            <dd>
+                                {% if task_type_field %}
+                                <input class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">
+                                {% else %}
+                                <input class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type">
+                                {% endif %}
+
+                                <datalist id="browsers">
+                                    {% for plugin in Valid_Plugins%}
+                                    <option value="{{plugin}}">
+                                    {% endfor %}
+                                </datalist>
+                            </dd>
+                            <dd>
+                                {% if frequency_field %}
+                                <input class="field_textarea" type=text name=frequency placeholder="Frequency" value="{{frequency_field}}">
+                                {% else %}
+                                <input class="field_textarea" type=text name=frequency placeholder="Frequency">
+                                {% endif %}
+                            </dd>
+                            <dd>
+                                {% if description_field %}
+                                <input class="field_textarea" type=text name=description placeholder="Description" value="{{description_field}}">
+                                {% else %}
+                                <input class="field_textarea" type=text name=description placeholder="Description">
+                                {% endif %}
+                            </dd>
+                        </dl>
+                        <p style="padding-top: 10px; display: inline-block;"><input name="newtask" class="button" type=submit value="Next"></p>
+                    </form>
+                    <form class="form" action="" method=post autocomplete="off">
+                        <p style="padding-top: 10px; display: inline-block;"><input class="button" name="return" type=submit value="Return"></p>
+                    </form>
+                    {% elif form_step == 2%}
+                    <form class="form" action="" method=post autocomplete="off">
+                        <dl>
+                            {% if phish_sites %}
+                            <dd>
+                                <input class="field_textarea" list="browsers" name=query onkeypress="return false;" placeholder="* Query, you can use commas (,) to enter multiple queries.">
+
+                                <datalist id="browsers">
+                                {% for site in phish_sites%}
+                                <option value="{{site[1]}}">
+                                {% endfor %}
+                                </datalist>
+                            </dd>
+                            {% else %}
+                            <dd>
+                                <input class="field_textarea" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries.">
+                            </dd>
+                            {% endif %}
+                            {% if use_limit %}
+                            <dd>
+                                <input class="field_textarea" type=text name=limit placeholder="Limit">
+                            </dd>
+                            {% endif %}
+                        </dl>
+                        <p style="padding-top: 10px; display: inline-block;"><input name="newtask" class="button" type=submit value="Finish"></p>
+                    </form>
+                    <form class="form" action="" method=post autocomplete="off">
+                        <p style="padding-top: 10px; display: inline-block;"><input class="button" name="return" type=submit value="Return"></p>
+                    </form>
+                    {% else %}
+                        <p id="logintitle">404 Page Not Found.</p>
+                        <p class="error">The page you were looking for does not exist.</p>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+    	</div>
+    	{% endblock %}
+    </body>
+</html>

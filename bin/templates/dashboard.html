@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <script type="text/javascript" src='static/js/Chart.min.js'></script>
+        <title>Scrummage Dashboard</title>
+    </head>
+    <div>
+    {% extends "template.html" %}
+    {% block content %}
+        <div class="dashboard_field-container">
+            <div class="dashboard_outer_div">
+                <div class="dashboard_div"><p style="font-weight: bold; padding-bottom: 20px;">Overview of Open Findings</p><canvas id="chart1" width="450" height="300"></canvas>
+                <script>
+                  var pieData1 = [
+                    {% for item, label, colors in open_set %}
+                      {
+                        value: {{item}},
+                        label: "{{label}}",
+                        color : "{{colors}}"
+                      },
+                    {% endfor %}
+                  ];
+                  // get bar chart canvas
+                  var mychart1 = document.getElementById("chart1").getContext("2d");
+                  steps = 10
+                  max = {{ max }}
+                  // draw pie chart
+                  new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData1);
+                </script></div>
+            </div>
+            <div class="dashboard_outer_div">
+                <div class="dashboard_div"><p style="font-weight: bold; padding-bottom: 20px;">Overview of Closed Findings</p><canvas id="chart2" width="450" height="300"></canvas>
+                <script>
+                  var pieData2 = [
+                    {% for item, label, colors in closed_set %}
+                      {
+                        value: {{item}},
+                        label: "{{label}}",
+                        color : "{{colors}}"
+                      },
+                    {% endfor %}
+                  ];
+                  // get bar chart canvas
+                  var mychart2 = document.getElementById("chart2").getContext("2d");
+                  steps = 10
+                  max = {{ max }}
+                  // draw pie chart
+                  new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2);
+                </script></div>
+            </div>
+            <div class="dashboard_outer_div">
+                <div class="dashboard_div"><p style="font-weight: bold; padding-bottom: 20px;">Overview of Findings Under Inspection or Review</p><canvas id="chart3" width="450" height="300"></canvas>
+                <script>
+                  var pieData3 = [
+                    {% for item, label, colors in mixed_set %}
+                      {
+                        value: {{item}},
+                        label: "{{label}}",
+                        color : "{{colors}}"
+                      },
+                    {% endfor %}
+                  ];
+                  // get bar chart canvas
+                  var mychart3 = document.getElementById("chart3").getContext("2d");
+                  steps = 10
+                  max = {{ max }}
+                  // draw pie chart
+                  new Chart(document.getElementById("chart3").getContext("2d")).Pie(pieData3);
+                </script></div>
+            </div>
+        </div>
+    {% endblock %}
+    </body>
+</html>

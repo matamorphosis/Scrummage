@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script>	
+		<script type="text/javascript" src="static/js/datatables.min.js"></script>
+		<script type="text/javascript" src="static/js/main.js"></script>
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <title>Scrummage Tasks</title>
+    </head>
+    <body>
+	    {% extends "template.html" %}
+	    {% block content %}
+		<p id="logintitle">Please log in to see data.</p>  
+        <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
+            <dl>
+                <dd>
+                   <input class="textarea" type=text name=username placeholder="Username">
+                </dd>
+                <dd>
+                   <input class="textarea" type=password name=password placeholder="Password">
+                </dd>
+            </dl>
+            <p style="padding-top: 10px;"><input class="button" type=submit value=Login></p>
+        </form>
+        {% if error %}
+            <p class="message"><strong>Error:</strong> {{ error }}</p>
+        {% endif %}
+    	{% endblock %}
+    </body>
+</html>

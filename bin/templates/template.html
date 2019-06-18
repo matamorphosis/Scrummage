@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Scrummage</title>
+        <link rel="shortcut icon" href="static/icons/main.ico" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <p class="title">Scrummage</p>
+                <div id="logocontainer"><div id="logo"></div></div>
+                <!--<img src="static/images/magnifyer.png" id="logo"/>-->
+                {% if session.get('user') == username %}
+                    <p class="follow">Logged in as {{ username }}  |  <a href="https://www.github.com/matamorphosis/Scrummage">Follow on GitHub</a></p>
+                {% else %}
+                    <p class="follow"><a href="https://www.github.com/matamorphosis/Scrummage">Follow on GitHub</a></p>
+                {% endif %}
+                <nav>
+                    <ul>
+                        {% if not username %}
+                            <li><a href="{{ url_for('login') }}">LOGIN</a></li>
+                            <li><a href="{{ url_for('about') }}">ABOUT</a></li>
+                        {% else %}
+                            {% if session.get('user') == username %}
+                            <li><a href="{{ url_for('dashboard') }}">DASHBOARD</a></li>
+                            <li><a href="{{ url_for('about') }}">ABOUT</a></li>
+                            <li><a href="{{ url_for('tasks') }}">TASKS</a></li>
+                            <li><a href="{{ url_for('results') }}">RESULTS</a></li>
+                            <li><a href="{{ url_for('events') }}">EVENTS</a></li>
+                            <li><a href="{{ url_for('account') }}">ACCOUNT</a></li>
+                            <li><a href="{{ url_for('dropsession') }}">LOGOUT</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
+    {% block content %}
+    {% endblock %}
+    </body>
+</html>

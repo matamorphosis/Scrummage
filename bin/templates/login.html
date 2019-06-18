@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <link rel="shortcut icon" href="static/icons/main.ico" />
+      <title>Scrummage Login</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}      
+      <p id="logintitle">Login</p>
+      <form class="form" action="" method=post autocomplete="off">
+         <dl>
+            <dd>
+               <input class="textarea" type=text name=username placeholder="Username">
+            </dd>
+            <dd>
+               <input class="textarea" type=password name=password placeholder="Password">
+            </dd>
+         </dl>
+         <p style="padding-top: 10px;"><input class="button" type=submit value=Login></p>
+      </form>
+      {% if error %}
+         <p class="message"><strong>Error:</strong> {{ error }}</p>
+      {% endif %}
+      {% endblock %}
+   </body>
+</html>
