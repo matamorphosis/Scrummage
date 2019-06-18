@@ -1,0 +1,16 @@
+praw
+pandas
+feedparser
+python-rtkit
+jira
+pyhibp
+bandit
+ebaysdk
+play-scraper
+google-api-python-client
+facebook-sdk
+selenium
+flask
+python-crontab
+instagram_explore
+slackclient==2.0.0
