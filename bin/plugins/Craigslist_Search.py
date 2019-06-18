@@ -56,7 +56,7 @@ def Search(Query_List, Task_ID, **kwargs):
         for Item in Craigslist_Items:
             Item_URL = Item["link"]
 
-            if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < Limit:
+            if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                 Craigslist_Response = requests.get(Item_URL).text
                 Local_URL = "https://" + Craigslist_Location.lower() + ".craigslist.org/"
                 Local_Domain = Craigslist_Location.lower() + ".craigslist.org/"

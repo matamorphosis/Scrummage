@@ -53,7 +53,7 @@ def Search(Query_List, Task_ID, **kwargs):
                     Domain = Domain.replace("http://", "")
                     Domain = Domain.replace("www.", "")
 
-                    if Feed.link not in Cached_Data and Feed.link not in Data_to_Cache and Current_Step < Limit:
+                    if Feed.link not in Cached_Data and Feed.link not in Data_to_Cache and Current_Step < int(Limit):
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Feed.description, File_Link, The_File_Extension)
 
                         if Output_file:

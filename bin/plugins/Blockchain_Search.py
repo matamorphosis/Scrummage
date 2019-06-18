@@ -53,7 +53,7 @@ def Transaction_Search(Query_List, Task_ID, Type, **kwargs):
                 for Transaction in Address_Regex:
                     Query_URL = "https://www.blockchain.com/" + Type + "/address/" + Transaction
 
-                    if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < Limit:
+                    if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(Limit):
                         Transaction_Response = requests.get(Query_URL).text
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, The_File_Extension)
 
@@ -118,7 +118,7 @@ def Address_Search(Query_List, Task_ID, Type, **kwargs):
                 for Transaction in Transaction_Regex:
                     Query_URL = "https://www.blockchain.com/" + Type + "/tx/" + Transaction
 
-                    if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < Limit:
+                    if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(Limit):
                         Transaction_Response = requests.get(Query_URL).text
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, The_File_Extension)
 

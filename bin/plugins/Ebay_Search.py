@@ -62,7 +62,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 for JSON_Line in JSON_Response['searchResult']['item']:
                     Ebay_Item_URL = JSON_Line['viewItemURL']
 
-                    if Ebay_Item_URL not in Cached_Data and Ebay_Item_URL not in Data_to_Cache and Current_Step < Limit:
+                    if Ebay_Item_URL not in Cached_Data and Ebay_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                         Ebay_Item_Regex = re.search(r"http\:\/\/www\.ebay\.com\/itm\/([\w\d\-]+)\-\/\d+", Ebay_Item_URL)
                         headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:66.0) Gecko/20100101 Firefox/66.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
                         Ebay_Item_Response = requests.get(Ebay_Item_URL, headers=headers).text

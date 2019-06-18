@@ -56,7 +56,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
                 if Output_file:
 
-                    if Current_Link not in Cached_Data and Current_Link not in Data_to_Cache and Current_Step < Limit:
+                    if Current_Link not in Cached_Data and Current_Link not in Data_to_Cache and Current_Step < int(Limit):
                         General.Connections(Output_file, Query, Plugin_Name, Current_Link, "phishtank.com", "Phishing", Task_ID, General.Get_Title(Current_Link))
                         Data_to_Cache.append(Current_Link)
                         Current_Step += 1

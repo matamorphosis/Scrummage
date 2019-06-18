@@ -61,7 +61,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                 Shortcode = Post["node"]["shortcode"]
                 URL = "https://www.instagram.com/p/" + Shortcode + "/"
 
-                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < Limit:
+                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
 
                     if Output_file:
                         General.Connections(Output_file, Query, Plugin_Name, URL, "instagram.com", "Data Leakage", Task_ID, General.Get_Title(URL))
@@ -81,7 +81,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                 Shortcode = Post["node"]["shortcode"]
                 URL = "https://www.instagram.com/p/" + Shortcode + "/"
 
-                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < Limit:
+                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
 
                     if Output_file:
                         General.Connections(Output_file, Query, Plugin_Name, URL, "instagram.com", "Data Leakage", Task_ID, General.Get_Title(URL))
@@ -101,7 +101,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                 Shortcode = Post["node"]["shortcode"]
                 URL = "https://www.instagram.com/p/" + Shortcode + "/"
 
-                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < Limit:
+                if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
 
                     if Output_file:
                         General.Connections(Output_file, Query, Plugin_Name, URL, "instagram.com", "Data Leakage", Task_ID, General.Get_Title(URL))

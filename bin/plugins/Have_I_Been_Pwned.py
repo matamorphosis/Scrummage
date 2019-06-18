@@ -127,7 +127,7 @@ def Search(Query_List, Task_ID, Type_of_Query, **kwargs):
                     JSON_Query_Response = json.dumps(Current_Response, indent=4, sort_keys=True)
                     Link = "https://" + Current_Response['Domain']
 
-                    if Current_Response['Domain'] not in Cached_Data and Current_Response['Domain'] not in Data_to_Cache and Current_Step < Limit:
+                    if Current_Response['Domain'] not in Cached_Data and Current_Response['Domain'] not in Data_to_Cache and Current_Step < int(Limit):
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, JSON_Query_Response, "account", The_File_Extension)
 
                         if Output_file:

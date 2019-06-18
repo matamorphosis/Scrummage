@@ -50,7 +50,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
                 for URL in Tor_Scrape_URLs:
 
-                    if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < Limit:
+                    if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
                         General.Connections(Output_file, Query, Tor_Plugin_Name, URL, "ahmia.fl", "Domain Spoof", Task_ID, General.Get_Title(URL))
                         Data_to_Cache.append(URL)
                         Current_Step += 1
@@ -66,7 +66,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
                 for URL in I2P_Scrape_URLs:
 
-                    if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < Limit:
+                    if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
                         General.Connections(Output_file, Query, I2P_Plugin_Name, URL, "ahmia.fl", "Domain Spoof", Task_ID, General.Get_Title(URL))
                         Data_to_Cache.append(URL)
                         Current_Step += 1
