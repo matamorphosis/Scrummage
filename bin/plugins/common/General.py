@@ -303,18 +303,18 @@ def Get_Latest_URLs(Pull_URL, Scrape_Regex_URL, Is_Tor):
             Content_String = str(Content)
 
     except:
-        sys.exit(str(datetime.datetime.now()) + " Failed to connect, if you are using the Tor network, please make sure you're running the Tor proxy and are connected to it.")
+        print(str(datetime.datetime.now()) + " Failed to connect, if you are using the Tor network, please make sure you're running the Tor proxy and are connected to it.")
 
     try:
         Scrape_URLs_Raw = re.findall(Scrape_Regex_URL, Content_String)
-        print(str(datetime.datetime.now()) + Scrape_URLs_Raw)
+
         for Temp_URL_Extensions in Scrape_URLs_Raw:
 
             if not Temp_URL_Extensions in Scrape_URLs:
                 Scrape_URLs.append(Temp_URL_Extensions)
 
     except:
-        sys.exit(str(datetime.datetime.now()) + " Failed to regex URLs.")
+        print(str(datetime.datetime.now()) + " Failed to regex URLs.")
 
     return Scrape_URLs
 
