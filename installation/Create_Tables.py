@@ -1,11 +1,34 @@
 import psycopg2
 
+def Load_Main_Database():
+
+    try:
+        with open('db.json') as JSON_File:
+            Configuration_Data = json.load(JSON_File)
+
+            for DB_Info in Configuration_Data['postgresql']:
+                DB_Host = DB_Info['host']
+                DB_Port = str(int(DB_Info['port']))
+                DB_Username = DB_Info['user']
+                DB_Password = DB_Info['password']
+                DB_Database = DB_Info['database']
+
+    except:
+        sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")
+
+    try:
+        DB_Connection = psycopg2.connect(user=DB_Username,
+                                      password=DB_Password,
+                                      host=DB_Host,
+                                      port=DB_Port,
+                                      database=DB_Database)
+        return DB_Connection
+
+    except:
+        sys.exit(str(datetime.datetime.now()) + " Failed to connect to database.")
+
 try:
-    connection = psycopg2.connect(user = "scrummage",
-                                  password = "scrummage",
-                                  host = "127.0.0.1",
-                                  port = "5432",
-                                  database = "scrummage")
+    connection = Load_Main_Database()
     cursor = connection.cursor()
 
     create_users_query = '''CREATE TABLE users
@@ -55,13 +78,10 @@ try:
     print("[+] Events table created successfully in PostgreSQL.")
     connection.commit()
     print("Table created successfully in PostgreSQL ")
+    
+    cursor.close()
+    connection.close()
+    print("PostgreSQL connection closed.")
 
 except (Exception, psycopg2.DatabaseError) as error :
     print ("Error while creating PostgreSQL table. ", error)
-
-finally:
-    #closing database connection.
-        if(connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection closed.")
