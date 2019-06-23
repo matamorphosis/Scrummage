@@ -16,6 +16,33 @@ if not Arguments.admin in Valid_Options:
 if not Arguments.blocked in Valid_Options:
     sys.exit("Only booleans allowed for --blocked option.")
 
+def Load_Main_Database():
+
+    try:
+        with open('db.json') as JSON_File:
+            Configuration_Data = json.load(JSON_File)
+
+            for DB_Info in Configuration_Data['postgresql']:
+                DB_Host = DB_Info['host']
+                DB_Port = str(int(DB_Info['port']))
+                DB_Username = DB_Info['user']
+                DB_Password = DB_Info['password']
+                DB_Database = DB_Info['database']
+
+    except:
+        sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")
+
+    try:
+        DB_Connection = psycopg2.connect(user=DB_Username,
+                                      password=DB_Password,
+                                      host=DB_Host,
+                                      port=DB_Port,
+                                      database=DB_Database)
+        return DB_Connection
+
+    except:
+        sys.exit(str(datetime.datetime.now()) + " Failed to connect to database.")
+
 def check_security_requirements(Password):
 
     if not len(Password) >= 8:
@@ -30,13 +57,7 @@ def check_security_requirements(Password):
             return False
 
         else:
-            Special_Character_Regex = re.search('[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+', Password)
-
-            if not Special_Character_Regex:
-                return False
-
-            else:
-                return True
+            return True
 
 def check_safe_username(Username):
 
@@ -49,12 +70,12 @@ def check_safe_username(Username):
 
     return Verdict
 
-username = generate_password_hash(Arguments.username)
+connection = Load_Main_Database()
+cursor = connection.cursor()
+username = Arguments.username
 
 if check_security_requirements(Arguments.password) and check_safe_username(Arguments.username):
     password = generate_password_hash(Arguments.password)
-    connection = psycopg2.connect(user = "scrummage", password = "scrummage", host = "127.0.0.1", port = "5432", database = "scrummage")
-    cursor = connection.cursor()
     cursor.execute('INSERT INTO users (username, password, blocked, is_admin) VALUES (%s,%s,%s,%s)', (username, password, Arguments.blocked, Arguments.admin,))
     connection.commit()
 
