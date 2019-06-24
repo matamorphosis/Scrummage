@@ -17,9 +17,7 @@ sudo bash dependencies.sh
 DATABASE="scrummage"
 USER="scrummage"
 
-    5. However, the final python script should be run alone, with a username, password, blocked status, and admin fields provided.
-
-python3 Create_User.py --username admin --password password --admin True --blocked False
+    5. When the script finishes, it should print out the username and database it has created; furthermore, a randomly generated password used. Please retain this information and update the config.json file located in the bin/plugins/common/configuration/ directory. Provide the details under "postgresql".
 
     6. Next navigate to the parent directory and then to the bin directory and start the server.
 
