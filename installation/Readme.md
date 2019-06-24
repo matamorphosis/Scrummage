@@ -109,7 +109,7 @@ This task doesn’t require an API key, and works by attempting to resolve a pro
 **Ebay Search**
 This task requires an API key, and works by performing an API search against the ebay.com website. Registration is free and easy. After obtaining the API key, please add it to the config.json file, under “ebay”:
 
-    	"ebay": [
+	"ebay": [
 		{
       			"access_key": ""
 		}
