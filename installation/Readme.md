@@ -1,5 +1,7 @@
 # Installation
 
+**This tool currently supports Debian, RHEL, and SUSE based linux distributions.**
+
     1. Clone this repository to the location where you want to run the web application from.
 
 git clone https://github.com/matamorphosis/Scrummage
