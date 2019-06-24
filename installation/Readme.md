@@ -38,11 +38,11 @@ Any files that need to be editted, can be found in the “bin/plugins/common/con
 **GENERAL:**
 Several of the plugins use location to assist in providing more relevant results, please ensure you set this in the config.json file, under “general”:
 
-  "general": [
-    {
-      "location": "au"
-    }
-  ],
+  	"general": [
+		{
+		      "location": "au"
+		}
+	],
   
 
 **Ahmia Darkweb Search**
@@ -64,12 +64,12 @@ This task doesn’t require an API key, and contains 2 subtasks, 1 for searching
 **Certificate Transparency**
 This task requires an API key, and works by performing an API search against the sslmate.com website. Registration is free and easy. After obtaining the API key, please add it to the config.json file, under “sslmate”:
 
-  "sslmate": [
-    {
-      "api_key": "",
-      "search_subdomain": "true or false"
-    }
-  ],
+  	"sslmate": [
+		{
+		      "api_key": "",
+		      "search_subdomain": "true or false"
+		}
+	],
 
 *Test query: google.com*
 
@@ -79,11 +79,11 @@ This task requires an API key, and works by performing an API search against the
 **Craigslist Search**
 This task doesn’t require an API key, and works by performing a search against the craigslist website. However, because Craigslist works based on a city location this will need to be prespecified in the configuration file.
 
-  "craigslist": [
-    {
-      "city": "Sydney"
-    }
-  ],
+  	"craigslist": [
+		{
+		      "city": "Sydney"
+		}
+	],
 
 *Test query: love*
 
@@ -109,11 +109,11 @@ This task doesn’t require an API key, and works by attempting to resolve a pro
 **Ebay Search**
 This task requires an API key, and works by performing an API search against the ebay.com website. Registration is free and easy. After obtaining the API key, please add it to the config.json file, under “ebay”:
 
-  "ebay": [
-    {
-      "access_key": ""
-    }
-  ],
+    	"ebay": [
+		{
+      			"access_key": ""
+		}
+	],
 
 *Test query: computer*
 
@@ -128,13 +128,13 @@ This task requires no API keys, and works by querying the play.google.com site.
 
 **Google Search**
 This task requires an API key, and works by performing an API search against the google.com website. Registration is free and easy. After obtaining the API key and Custom Search Engine (CSE) details, please add it to the config.json file, under “google”:
-  
-  "google": [
+
+  	"google": [
 		{
-      "cx": "",
-      "application_name": "",
-      "application_version": "",
-      "developer_key": ""
+		      "cx": "",
+		      "application_name": "",
+		      "application_version": "",
+		      "developer_key": ""
 		}
 	],
 
@@ -154,7 +154,8 @@ This task requires no API keys, and works by performing a search against the hav
 *Test query: password*
 
 
-Instagram Search - This task requires no API keys, and works by performing a search against the instagram.com site. There are 4 kinds of search options represented by four options in the web application:
+**Instagram Search**
+This task requires no API keys, and works by performing a search against the instagram.com site. There are 4 kinds of search options represented by four options in the web application:
 * User Search – Use this to search for an instagram user.
 *Test query: [Your username]*
 * Tag Search – Use this to search for an instagram tag.
@@ -182,12 +183,12 @@ This task requires an API key, and works by performing an API search against the
   
   	"reddit": [
 		{
-      "client_id": "",
-      "client_secret": "",
-      "user_agent": "",
-      "username": "",
-      "password": "",
-      "subreddits": "all"
+		      "client_id": "",
+		      "client_secret": "",
+		      "user_agent": "",
+		      "username": "",
+		      "password": "",
+		      "subreddits": "all"
 		}
 	],
 
@@ -260,7 +261,7 @@ On top of this Scrummage provides an additional 5 ways of alerting the user when
 The Scrummage team is well aware another open-source tool called Scumblr, developed by Netflix, performs some of the same functionality as Scrummage; furthermore, those who follow Scumblr know it currently is deprecated, and has been looking for a new developer for the last 6 months. The github repo can be found at https://github.com/Netflix-Skunkworks/Scumblr. Scrummage provides this functionality to current users of Scumblr by providing results to the Scumblr database so they dont have to view results in two different web applications, but can still benefit from both. To enable this, enter Scumblr’s backend postgresql database details to the config.json file, under “scumblr”:
 
 	"scumblr": [
-    {
+    		{
   		"host": "",
  			"port": 5432,
 			"database": "",
@@ -359,12 +360,12 @@ The dashboard is the home screen which the application directs a user to when th
 
 **Events**
 The events page shows anything that changes within the web application, from logins, to failed login attempts, to any actions performed against a task. This assists with understanding what has recently been happening in the web app, and can assist in matters such as detecting brute-force login attempts or tracking down who altered a task.
-Note: This page only loads the latest 1000 events, for optimisation of the web application.
+*Note: This page only loads the latest 1000 events, for optimisation of the web application.*
 
 
 **Results**
 The results page, simply shows results that have been created by a task. The results table shows the basic metadata of the result, but also provides a “Details” button which can be used to investigate the result further. As mentioned all results have some kind of output file, if a result is a link the file will be a copy of the HTML of the page. Furthermore screenshot functionality is provided to assist in keeping a photographic record of a result. Both the output and screenshot file will be deleted if the result is deleted.
-Note: This page only loads the latest 1000 results, for optimisation of the web application.
+*Note: This page only loads the latest 1000 results, for optimisation of the web application.*
 
 
 **Tasks**
@@ -374,3 +375,7 @@ Tasks have caching and logging for each which can be found in the “protected/o
 Plugins
 
 All the plugins are open-source, free to individuals, just like the rest of the code. Furthermore, feel free to use the pre-existing libraries used in other plugins. If you are creating or editting a plugin, make sure to understand that when you run it for the first time, the web app may reload to reload the python cache. This is normal.
+
+**Developer Information**
+Knock yourself out, create any plugins you like, and feel free to leverage existing libraries to help you.
+Please remember that the first time you run a plugin from the web app after changing the code, or creating a new plugin, you will need to click run and then restart the web app to allow for it to generate the pycache for the plugin. 
