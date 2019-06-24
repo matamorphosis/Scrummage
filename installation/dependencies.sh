@@ -1,12 +1,25 @@
-
+#!/bin/bash
 if [ -f /etc/redhat-release ]; then
-  yum update
-  yum install python3 python3-pip postgresql-server postgresql-contrib python3-psycopg2 ruby rubygems build-essential wget unzip
+	yum update
+	yum install -y yum-utils python36-setuptools postgresql postgresql-contrib python3-psycopg2 ruby ruby-devel rubygems wget unzip
+	easy_install-3.6 pip
 fi
 
 if [ -f /etc/lsb-release ]; then
-  apt update
-  apt install -y python3 python3-pip python3-psycopg2 postgresql postgresql-contrib ruby rubygems build-essential wget unzip
+	apt update
+	apt install -y python3 python3-pip python3-psycopg2 postgresql postgresql-contrib ruby rubygems build-essential wget unzip
+fi
+
+if [ -e /etc/os-release ]; then
+	. /etc/os-release
+else
+	. /usr/lib/os-release
+fi
+
+if [[ "$ID_LIKE" = *"suse"* ]]; then
+	zypper update
+	zypper install -n python3 python3-pip python3-psycopg2 postgresql postgresql-contrib ruby rubygems wget unzip
+	zypper install -n -t pattern devel_basis
 fi
 
 mkdir ../bin/static/protected
