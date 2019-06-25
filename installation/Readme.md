@@ -19,7 +19,9 @@ sudo bash dependencies.sh
 DATABASE="scrummage"
 USER="scrummage"
 
-    5. When the script finishes, it should print out the username and database it has created; furthermore, a randomly generated password used. Please retain this information and update the config.json file located in the bin/plugins/common/configuration/ directory. Provide the details under "postgresql".
+    5. When the script finishes, it should print out the username and database it has created; furthermore, a randomly generated password used. Please retain this information and update the config.json file located in the bin/plugins/common/configuration/ directory. Provide the details under "postgresql". If you would like to create a new user, use the "Create_User.py" script located in the installation directory. The command is as follows:
+    
+    python3 Create_User.py --username/-u Username --password/-p Password --admin/-a [True | False] --blocked/-b [True | False]
 
     6. Next navigate to the parent directory and then to the bin directory and start the server.
 
