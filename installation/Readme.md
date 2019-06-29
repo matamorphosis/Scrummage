@@ -2,31 +2,31 @@
 
 **This tool currently supports Debian, RHEL, and SUSE based linux distributions.**
 
-    1. Clone this repository to the location where you want to run the web application from.
+Clone this repository to the location where you want to run the web application from.
 
-git clone https://github.com/matamorphosis/Scrummage
+    1. git clone https://github.com/matamorphosis/Scrummage
 
-    2. Navigate to the installation directory.
+Navigate to the installation directory.
 
-cd installation
+    2. cd installation
 
-    3. Run the dependencies.sh bash script with root privileges, to install all necessary dependencies.
+Run the dependencies.sh bash script with root privileges, to install all necessary dependencies.
 
-sudo bash dependencies.sh
+    3. sudo bash dependencies.sh
 
-    4. As part of this script it will install all python dependencies in the python_requirements.txt file and run the Create_Tables.py script to create all necessary tables in the backend database. If you want to change the default username and database, which are both set to “Scrummage”, change the following lines in the script:
+As part of this script it will install all python dependencies in the python_requirements.txt file and run the Create_Tables.py script to create all necessary tables in the backend database. If you want to change the default username and database, which are both set to “Scrummage”, change the following lines in the script:
 
 DATABASE="scrummage"
 USER="scrummage"
 
-    5. When the script finishes, it should print out the username and database it has created; furthermore, a randomly generated password used. Please retain this information and update the config.json file located in the bin/plugins/common/configuration/ directory. Provide the details under "postgresql". If you would like to create a new user, use the "Create_User.py" script located in the installation directory. The command is as follows:
+When the script finishes, it should print out the username and database it has created; furthermore, a randomly generated password used. Please retain this information and update the config.json file located in the bin/plugins/common/configuration/ directory. Provide the details under "postgresql". If you would like to create a new user, use the "Create_User.py" script located in the installation directory. The command is as follows:
     
-    python3 Create_User.py --username/-u Username --password/-p Password --admin/-a [True | False] --blocked/-b [True | False]
+    4. python3 Create_User.py --username/-u Username --password/-p Password --admin/-a [True | False] --blocked/-b [True | False]
 
-    6. Next navigate to the parent directory and then to the bin directory and start the server.
+Next navigate to the parent directory and then to the bin directory and start the server.
 
-cd ../bin
-python3 main.py
+    5. cd ../bin
+    6. python3 main.py
 
 
 # Tasks and APIs
