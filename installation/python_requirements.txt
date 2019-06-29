@@ -14,3 +14,4 @@ flask
 python-crontab
 instagram_explore
 slackclient==2.0.0
+vulners
