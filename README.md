@@ -46,6 +46,13 @@ For optimisation purposes, the results table only displays some of the general i
 Furthermore, buttons for reviewing, inspecting and closing a result are provided to show other users where a result is at in terms of assessment. The buttons are colour coded and are coloured as the result progresses through the assessment.
 ![Results](/installation/Result_Details2.png)
 
+Results are categorised into the following:
+* Data Leakage
+* Domain Spoof
+* Phishing
+* Exploit
+* Blockchain Address
+* Blockchain Transaction
 
 **Tasks**
 The tasks page shows all created task, and provides the ability for the user to run each task.
