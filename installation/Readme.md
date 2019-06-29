@@ -221,6 +221,18 @@ This task requires an API key, and works by performing an API search against the
 
 *API Link: https://developer.twitter.com/en/docs.html*
 
+**Vulners Search**
+This task requires an API, and works by performing an API search against the vulners database for exploits and vulnerabilities that are similar to the provided query. fter obtaining the API key and other details, please add it to the config.json file, under “vulners”:
+
+	"vulners": [
+		{
+			"api_key": ""
+		}
+	]
+
+*Test query: hikvision*
+
+*API Link: https://vulners.com*
 
 **Windows Store Search**
 This task requires no API keys, and works by querying the microsoft.com site.
