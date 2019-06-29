@@ -38,6 +38,17 @@ def Call_Plugin(**kwargs):
         Thread_2 = threading.Thread(target=Stopper, args=[kwargs["Task_ID"]])
         Thread_2.start()
 
+    elif kwargs["Plugin_Name"] == "Vulners Search":
+        import plugins.Vulners_Search as Vulners_Search
+        Thread_0 = threading.Thread(target=Starter, args=[kwargs["Task_ID"]])
+        Thread_0.start()
+        Thread_0.join()
+        Thread_1 = threading.Thread(target=Vulners_Search.Search, args=(kwargs["Query"], kwargs["Task_ID"],), kwargs={"Limit": kwargs["Limit"],})
+        Thread_1.start()
+        Thread_1.join()
+        Thread_2 = threading.Thread(target=Stopper, args=[kwargs["Task_ID"]])
+        Thread_2.start()
+
     elif kwargs["Plugin_Name"] == "Twitter Scraper":
         import plugins.Twitter_Scraper as Twitter_Scrape
         Thread_0 = threading.Thread(target=Starter, args=[kwargs["Task_ID"]])
@@ -376,6 +387,8 @@ if __name__ == "__main__":
 	        result = cursor.fetchone()
 
 	        if result:
+	            print(result[2])
+	            print(result[5])
 	            Call_Plugin(Plugin_Name=result[2], Limit=result[5], Task_ID=Task_ID, Query=result[1])
 
         except:

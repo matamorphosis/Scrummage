@@ -20,11 +20,11 @@ app = Flask(__name__, instance_path=os.path.join(File_Path, 'static/protected'))
 app.permanent_session_lifetime = timedelta(minutes=5)
 Valid_Plugins = ["Ahmia Darkweb Search", "Blockchain Bitcoin Address Search", "Blockchain Bitcoin Cash Address Search", "Blockchain Ethereum Address Search", "Blockchain Bitcoin Transaction Search", "Blockchain Bitcoin Cash Transaction Search", "Blockchain Ethereum Transaction Search", "Certificate Transparency", "Craigslist Search", "Domain Fuzzer - All Extensions",
                  "Domain Fuzzer - Alpha-Linguistic Character Switcher", "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes", "Ebay Search", "Google Search", "Have I Been Pwned - Password Search",
-                 "Have I Been Pwned - Email Search", "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search", "Instagram Location Search", "Instagram Media Search", "Instagram Tag Search", "Instagram User Search", "iTunes Store Search", "PhishTank Search", "Google Play Store Search", "Reddit Search", "RSS Feed Search", "Twitter Scraper", "Windows Store Search", "YouTube Search"]
+                 "Have I Been Pwned - Email Search", "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search", "Instagram Location Search", "Instagram Media Search", "Instagram Tag Search", "Instagram User Search", "iTunes Store Search", "PhishTank Search", "Google Play Store Search", "Reddit Search", "RSS Feed Search", "Twitter Scraper", "Vulners Search", "Windows Store Search", "YouTube Search"]
 Plugins_without_Limit = ["Certificate Transparency", "Domain Fuzzer - All Extensions", "Domain Fuzzer - Alpha-Linguistic Character Switcher", "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search", "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search", "Instagram Media Search"]
 Phishing_Sites = [["All", "All"], [139, "ABL"], [201, "ABN"], [92, "ABSA Bank"], [68, "Accurint"], [207, "Adobe"], [209, "Aetna"], [211, "Alibaba.com"], [160, "Allegro"], [51, "Alliance Bank"], [28, "Amarillo"], [61, "Amazon.com"], [118, "American Airlines"], [184, "American Express"], [141, "American Greetings"], [15, "Ameritrade"], [133, "ANZ"], [110, "AOL"], [183, "Apple"], [170, "ArenaNet"], [144, "ASB"], [17, "Associated Bank"], [189, 'AT&T'], [165, "ATO"], [249, "B-tc.ws"], [73, "Banca di Roma"], [178, "Banca Intesa"], [124, "Bancasa"], [158, "Banco De Brasil"], [125, "Banco Real"], [208, "Bank Millennium"], [6, "Bank of America / MBNA"], [40, "Bank of KC"], [45, "Bank of the West"], [5, "Barclays"], [63, "BB&amp;T"], [27, "Bendigo"], [226, "Binance"], [217, "Bitfinex"], [224, "bitFlyer"], [229, "Bitmex"], [122, "Blizzard"], [210, "Blockchain"], [96, "BloomSpot"], [44, "BMO"], [82, "Bradesco"], [212, "BT"], [98, "BuyWithMe"], [126, "Cahoot"], [138, "Caixa"], [120, "Caixo"], [29, "Capital One"], [156, "Capitec Bank"], [65, "Career Builder"], [105, "Cariparma Credit Agricole"], [107, "Cartasi"], [131, "Centurylink"], [19, "Charter One"], [3, "Chase"], [32, "CIBC"], [137, "Cielo"], [150, "CIMB Bank"], [42, "Citibank"], [14, "Citizens"], [230, "CNB"], [146, "Co-operative Bank"], [214, "Coinbase"], [22, "Comerica"], [167, "Commonwealth Bank of Australia"], [30, "Compass"], [113, "Craigslist"], [219, "Credit Karma"], [31, "Crown"], [87, "CUA (Credit Union Australia)"], [33, "DBS"], [140, "Delta"], [185, "Deutsche Bank"], [197, "DHL"], [188, "Diners Club"], [187, "Discover Bank"], [186, "Discover Card"], [196, "Discovery"], [60, "Downey Savings"], [194, "Dropbox"], [59, "e-gold"], [2, "eBay"], [102, "Egg"], [77, "EPPICard"], [74, "Facebook"], [41, "FHB"], [48, "Fifth Third Bank"], [103, "First Direct"], [50, "First Federal Bank of California"], [91, "First National Bank (South Africa)"], [39, "Franklin"], [218, "GitHub"], [76, "Google"], [94, "Groupon"], [106, "Gruppo Carige"], [151, "GTBank"], [171, "GuildWars2"], [81, "Habbo"], [104, "Halifax"], [108, "HMRC"], [97, "HomeRun"], [154, "Hotmail"], [4, "HSBC"], [18, "Huntington"], [228, "IDEX"], [57, "Independent Bank"], [123, "ING"], [67, "Interactive Brokers"], [202, "Intesa Sanpaolo"], [62, "IRS"], [135, "Itau"], [72, "KCFCU (Kauai Credit Union)"], [20, "Key Bank"], [203, "Kiwibank"], [9, "LaSalle"], [204, "LinkedIn"], [152, "Littlewoods"], [112, "Live"], [95, "LivingSocial"], [182, "Lloyds Bank"], [215, "LocalBitcoins.com"], [179, "Lottomatica"], [12, "M &amp; I"], [130, "Mastercard"], [66, "MBTrading"], [173, "Metro Bank"], [177, "Microsoft"], [227, "MyCrypto"], [223, "MyEtherWallet"], [225, "MyMonero"], [78, "MySpace"], [164, "NAB"], [37, "Nantucket Bank"], [34, "National City"], [148, "Nationwide"], [26, "NatWest"], [71, "Nedbank"], [200, "Netflix"], [161, "Nets"], [205, "NetSuite"], [127, "NEXON"], [175, "Nordea"], [149, "Northern Rock"], [168, "Orange"], [89, "Orkut"], [8, "Other"], [159, "otoMoto"], [192, "PagSeguro"], [216, "Paxful"], [1, "PayPal"], [23, "Peoples"], [195, "Permanent TSB"], [180, "Pintrest"], [176, "PKO"], [114, "Playdom"], [115, "Playfish"], [100, "Plum District"], [69, "PNC Bank"], [64, "Poste"], [128, "Rabobank"], [221, "Rackspace"], [36, "RBC"], [70, "RBS"], [16, "Regions"], [134, "RuneScape"], [121, "Safra National Bank of New York"], [35, "Salem Five"], [75, "Salesforce"], [109, "Santander UK"], [84, "Scotiabank"], [55, "Sky Financial"], [117, "Skype"], [147, "Smile Bank"], [93, "South African Revenue Service"], [166, "St George Bank"], [90, "Standard Bank Ltd."], [86, "Steam"], [163, "Suncorp"], [172, "Swedbank"], [145, "Tagged"], [136, "TAM Fidelidade"], [43, "TD Canada Trust"], [193, "Tesco"], [85, "Tibia"], [99, "Tippr"], [181, "TSB"], [132, "Twitter"], [213, "Uber"], [220, "UniCredit"], [157, "US Airways"], [24, "US Bank"], [199, "USAA"], [169, "Verizon"], [153, "Very"], [248, "Virustotal"], [129, "Visa"], [155, "Vodafone"], [58, "Volksbanken Raiffeisenbanken"], [13, "Wachovia"], [56, "WalMart"], [21, "Washington Mutual"], [7, "Wells Fargo"], [53, "Western Union"], [25, "Westpac"], [206, "WhatsApp"], [88, "World of Warcraft"], [222, "Xapo"], [111, "Yahoo"], [116, "ZML"], [101, "Zynga"]]
 Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
-Finding_Types = ['Domain Spoof', 'Data Leakage', 'Phishing', 'Blockchain Transaction', 'Blockchain Address']
+Finding_Types = ['Domain Spoof', 'Data Leakage', 'Phishing', 'Blockchain Transaction', 'Blockchain Address', 'Exploit']
 
 Connection = Connectors.Load_Main_Database()
 Cursor = Connection.cursor()
@@ -69,60 +69,65 @@ def login():
             Cursor.execute(PSQL_Select_Query, (Username,))
             User = Cursor.fetchone()
 
-            if User[1] == Username:
-                User_Check = True
+            if User:
 
-            Password_Check = check_password_hash(User[2], Password)
+                if User[1] == Username:
+                    User_Check = True
 
-            if User_Check != True or Password_Check != True:
+                Password_Check = check_password_hash(User[2], Password)
 
-                for char in Username:
+                if User_Check != True or Password_Check != True:
 
-                    if char in Bad_Characters:
-                        User_Bad_Chars = 1
+                    for char in Username:
 
-                for char in Password:
+                        if char in Bad_Characters:
+                            User_Bad_Chars = 1
 
-                    if char in Bad_Characters:
-                        Password_Bad_Chars = 1
+                    for char in Password:
 
-                if User_Bad_Chars == 1 and Password_Bad_Chars == 1:
-                    Message = "Failed login attempt for a provided username and password, both with potentially dangerous characters."
-                    app.logger.warning(Message)
-                    Create_Event(Message)
+                        if char in Bad_Characters:
+                            Password_Bad_Chars = 1
 
-                elif User_Bad_Chars == 0 and Password_Bad_Chars == 1:
-                    Message = "Failed login attempt for the provided username: " + Username + " with a password that contains potentially dangerous characters."
-                    app.logger.warning(Message)
-                    Create_Event(Message)
+                    if User_Bad_Chars == 1 and Password_Bad_Chars == 1:
+                        Message = "Failed login attempt for a provided username and password, both with potentially dangerous characters."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
 
-                elif User_Bad_Chars == 1 and Password_Bad_Chars == 0:
-                    Message = "Failed login attempt for a provided username that contained potentially dangerous characters."
-                    app.logger.warning(Message)
-                    Create_Event(Message)
+                    elif User_Bad_Chars == 0 and Password_Bad_Chars == 1:
+                        Message = "Failed login attempt for the provided username: " + Username + " with a password that contains potentially dangerous characters."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+
+                    elif User_Bad_Chars == 1 and Password_Bad_Chars == 0:
+                        Message = "Failed login attempt for a provided username that contained potentially dangerous characters."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+
+                    else:
+                        Message = "Failed login attempt for the user: " + Username + "."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+
+                    return render_template('login.html', error='Login Unsuccessful')
 
                 else:
-                    Message = "Failed login attempt for the user: " + Username + "."
+                    session['user'] = Username
+                    session['is_admin'] = User[4]
+                    session['form_step'] = 0
+                    session['form_type'] = ""
+                    session['task_frequency'] = ""
+                    session['task_description'] = ""
+                    session['task_limit'] = 0
+                    session['task_query'] = ""
+                    session['task_id'] = ""
+                    Message = "Successful login from " + Username + "."
                     app.logger.warning(Message)
                     Create_Event(Message)
 
-                return render_template('login.html', error='Login Unsuccessful')
+                    return redirect(url_for('dashboard'))
 
             else:
-                session['user'] = Username
-                session['is_admin'] = User[4]
-                session['form_step'] = 0
-                session['form_type'] = ""
-                session['task_frequency'] = ""
-                session['task_description'] = ""
-                session['task_limit'] = 0
-                session['task_query'] = ""
-                session['task_id'] = ""
-                Message = "Successful login from " + Username + "."
-                app.logger.warning(Message)
-                Create_Event(Message)
-
-                return redirect(url_for('dashboard'))
+                return render_template('login.html')
 
         else:
             return render_template('login.html')
@@ -254,7 +259,7 @@ def dashboard():
 
         try:
             labels = Finding_Types
-            colors = ["#2471A3", "#8B008B", "#DC143C", "#FFA500", "#DAFF00"]
+            colors = ["#2471A3", "#8B008B", "#DC143C", "#FFA500", "#DAFF00", "#00FF7F"]
 
             PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
             Cursor.execute(PSQL_Select_Query, ("Open", "Domain Spoof",))
@@ -272,6 +277,10 @@ def dashboard():
             Cursor.execute(PSQL_Select_Query, ("Open", "Blockchain Address",))
             open_blockchain_address_results = Cursor.fetchall()
             PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
+            Cursor.execute(PSQL_Select_Query, ("Open", "Exploit",))
+            open_exploit_results = Cursor.fetchall()
+
+            PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
             Cursor.execute(PSQL_Select_Query, ("Closed", "Domain Spoof",))
             closed_domain_spoof_results = Cursor.fetchall()
             PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
@@ -286,6 +295,9 @@ def dashboard():
             PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
             Cursor.execute(PSQL_Select_Query, ("Closed", "Blockchain Address",))
             closed_blockchain_address_results = Cursor.fetchall()
+            PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
+            Cursor.execute(PSQL_Select_Query, ("Closed", "Exploit",))
+            closed_exploit_results = Cursor.fetchall()
 
             Mixed_Options = ['Inspecting', 'Reviewing']
 
@@ -304,10 +316,13 @@ def dashboard():
             PSQL_Select_Query = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
             Cursor.execute(PSQL_Select_Query, ("Blockchain Address", Mixed_Options,))
             mixed_blockchain_address_results = Cursor.fetchall()
+            PSQL_Select_Query = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
+            Cursor.execute(PSQL_Select_Query, ("Exploit", Mixed_Options,))
+            mixed_exploit_results = Cursor.fetchall()
 
-            open_values = [open_domain_spoof_results[0][0], open_data_leakages[0][0], open_phishing_results[0][0], open_blockchain_transaction_results[0][0], open_blockchain_address_results[0][0]]
-            closed_values = [closed_domain_spoof_results[0][0], closed_data_leakages[0][0], closed_phishing_results[0][0], closed_blockchain_transaction_results[0][0], closed_blockchain_address_results[0][0]]
-            mixed_values = [mixed_domain_spoof_results[0][0], mixed_data_leakages[0][0], mixed_phishing_results[0][0], mixed_blockchain_transaction_results[0][0], mixed_blockchain_address_results[0][0]]
+            open_values = [open_domain_spoof_results[0][0], open_data_leakages[0][0], open_phishing_results[0][0], open_blockchain_transaction_results[0][0], open_blockchain_address_results[0][0], open_exploit_results[0][0]]
+            closed_values = [closed_domain_spoof_results[0][0], closed_data_leakages[0][0], closed_phishing_results[0][0], closed_blockchain_transaction_results[0][0], closed_blockchain_address_results[0][0], closed_exploit_results[0][0]]
+            mixed_values = [mixed_domain_spoof_results[0][0], mixed_data_leakages[0][0], mixed_phishing_results[0][0], mixed_blockchain_transaction_results[0][0], mixed_blockchain_address_results[0][0], mixed_exploit_results[0][0]]
 
             return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=zip(open_values, labels, colors), closed_set=zip(closed_values, labels, colors), mixed_set=zip(mixed_values, labels, colors))
 
@@ -588,8 +603,7 @@ def tasks():
                                                                        error="Failed to update cron job.")
 
                                     PSQL_Update_Query = 'UPDATE tasks SET query = %s, plugin = %s, description = %s, frequency = %s, task_limit = %s, updated_at = %s WHERE task_id = %s'
-                                    Cursor.execute(PSQL_Update_Query, (session.get('task_query'), session.get('form_type'), session.get('task_description'), session.get('task_frequency'), session.get('task_limit'),
-                                    datetime.datetime.now(), session.get('task_id'),))
+                                    Cursor.execute(PSQL_Update_Query, (session.get('task_query'), session.get('form_type'), session.get('task_description'), session.get('task_frequency'), session.get('task_limit'), datetime.datetime.now(), session.get('task_id'),))
                                     Connection.commit()
                                     time.sleep(1)
 
