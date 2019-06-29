@@ -122,5 +122,10 @@
 			"api_key": "",
 			"search_subdomain": "true or false"
 		}
+	],
+	"vulners": [
+		{
+			"api_key": ""
+		}
 	]
 }
