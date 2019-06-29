@@ -29,7 +29,7 @@ Next navigate to the parent directory and then to the bin directory and start th
     6. python3 main.py
 
 
-# Tasks and APIs
+# Tasks and APIs  
 Here is listed the currently supported tasks and the requirements for each task:
 Note: All provided input is santised by the server-side code, please create an issue if you can find anyway to bypass it :).
 Each task has been provided with a test query to verify the plugin is working. All test queries are case-sensitive, or reference something you can use to test. While the provided test queries may appear random, they are queries that will generate a bounty of results.
@@ -37,7 +37,7 @@ Tasks are provided to allow users to search various corners of the web for a giv
 Multiple queries can be provided when creating a task, simply use a comma to separate the values.
 Any files that need to be editted, can be found in the “bin/plugins/common/configuration” directory.
 
-**GENERAL:**
+**GENERAL:**  
 Several of the plugins use location to assist in providing more relevant results, please ensure you set this in the config.json file, under “general”:
 
   	"general": [
@@ -47,13 +47,13 @@ Several of the plugins use location to assist in providing more relevant results
 	],
   
 
-**Ahmia Darkweb Search**
+**Ahmia Darkweb Search**  
 This task requires no API keys, and works by performing a search for both Tor and I2P sites on the provided query.
 
 *Test query: test*
 
 
-**Blockchain Search**
+**Blockchain Search**  
 This task doesn’t require an API key, and contains 2 subtasks, 1 for searching blockchain addresses and the other for search tasks. Furthermore, these tasks currently search for Bitcoin, Bitcoin Cash, and Ethereum. Therefore, in the web app there are 6 options:
 * Blockchain Bitcoin Address Search
 * Blockchain Bitcoin Cash Address Search
@@ -63,7 +63,7 @@ This task doesn’t require an API key, and contains 2 subtasks, 1 for searching
 * Blockchain Ethereum Transaction Search
 
 
-**Certificate Transparency**
+**Certificate Transparency**  
 This task requires an API key, and works by performing an API search against the sslmate.com website. Registration is free and easy. After obtaining the API key, please add it to the config.json file, under “sslmate”:
 
   	"sslmate": [
@@ -78,7 +78,7 @@ This task requires an API key, and works by performing an API search against the
 *API Link: https://sslmate.com/help/api/rest*
 
 
-**Craigslist Search**
+**Craigslist Search**  
 This task doesn’t require an API key, and works by performing a search against the craigslist website. However, because Craigslist works based on a city location this will need to be prespecified in the configuration file.
 
   	"craigslist": [
@@ -90,25 +90,25 @@ This task doesn’t require an API key, and works by performing a search against
 *Test query: love*
 
 
-**Domain Fuzzer**
+**Domain Fuzzer**  
 This task doesn’t require an API key, and works by attempting to resolve a provided list of domains. There are 4 different domain fuzzer tasks within this tool:
-* Character Switcher – This a unique tool works by calling a custom library called “Rotor.py” and uses it to generate every possible combination of the given domain’s body using phoenetic, greek, and cyrillic alphabets. For example of your domain contains the letter “a”, it will itertate through the word using each of the following characters in the letters place:
+* *Character Switcher* – This a unique tool works by calling a custom library called “Rotor.py” and uses it to generate every possible combination of the given domain’s body using phoenetic, greek, and cyrillic alphabets. For example of your domain contains the letter “a”, it will itertate through the word using each of the following characters in the letters place:
   * a, а, à, á, â, ã, ä, å, ā, ă, ą - While the first 2 characters look the same, they have different unicode values and therefore you could have 2 facebook.com domains with 2 different unicode characters that look like a, which to anyone would make the domain look legitimate. While the other characters are a lot more obvious, the program takes the liberty to check for them anyway. A practical example can be seen in the following screenshot:
   *![Char Switch](/installation/char_switch.png)
   * After each combination has been generated this tool iterates through each one and attempts to resolve it to an IP address, if it does a result is created for that domain.
   * The ultimate use case of this would be to identity domain spoofs which use domains similar to your domain or identical to the naked eye.
   * FYI this can be a slow plugin depending on the length and the amount of domains it attempts to resolve. 1 short domain such as google.com shouldn’t take too long – around 1-2 minutes.
 
-* Regular Extensions / Suffixes – This tool works by simply switching out the domain extension with other common extensions. Such as .com, .net, .gov. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain.
+* *Regular Extensions / Suffixes* – This tool works by simply switching out the domain extension with other common extensions. Such as .com, .net, .gov. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain.
 
-* Global Extensions / Suffixes – This tool works by simply switching out the domain extension with the extension of every country. Such as .com.au, .co.nz, etc. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain.
+* *Global Extensions / Suffixes* – This tool works by simply switching out the domain extension with the extension of every country. Such as .com.au, .co.nz, etc. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain.
 
-* All Extensions / Suffixes – This tool works by simply switching out the domain extension with the extension of every country for each regular extension. Such as .com.au, .net.au, .gov.au, etc. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain. FYI this is a slow plugin due to the amount of domains it attempts to resolve.
+* *All Extensions / Suffixes* – This tool works by simply switching out the domain extension with the extension of every country for each regular extension. Such as .com.au, .net.au, .gov.au, etc. After this the tool iterates through each generated domain and attempts to resolve it to an IP address, if it does a result is created for that domain. FYI this is a slow plugin due to the amount of domains it attempts to resolve.
 
 *Test query: google.com*
 
 
-**Ebay Search**
+**Ebay Search**  
 This task requires an API key, and works by performing an API search against the ebay.com website. Registration is free and easy. After obtaining the API key, please add it to the config.json file, under “ebay”:
 
 	"ebay": [
@@ -122,13 +122,13 @@ This task requires an API key, and works by performing an API search against the
 *API Link: https://developer.ebay.com/*
 
 
-**Google Play Store Search**
+**Google Play Store Search**  
 This task requires no API keys, and works by querying the play.google.com site.
 
 *Test query: whatsapp*
 
 
-**Google Search**
+**Google Search**  
 This task requires an API key, and works by performing an API search against the google.com website. Registration is free and easy. After obtaining the API key and Custom Search Engine (CSE) details, please add it to the config.json file, under “google”:
 
   	"google": [
@@ -145,7 +145,7 @@ This task requires an API key, and works by performing an API search against the
 *API Links: https://console.developers.google.com/apis/dashboard, https://developers.google.com/apis-explorer/#p/*
 
 
-**Have I Been Pwned Search**
+**Have I Been Pwned Search**  
 This task requires no API keys, and works by performing a search against the haveibeenpwned.com site. There are 4 kinds of search options represented by four options in the web application:
 * Email Search – Gets pastes affecting a given email address.
 * Breach Search – Use this to search for a public data breach.
@@ -156,7 +156,7 @@ This task requires no API keys, and works by performing a search against the hav
 *Test query: password*
 
 
-**Instagram Search**
+**Instagram Search**  
 This task requires no API keys, and works by performing a search against the instagram.com site. There are 4 kinds of search options represented by four options in the web application:
 * User Search – Use this to search for an instagram user.
 *Test query: [Your username]*
@@ -168,19 +168,19 @@ This task requires no API keys, and works by performing a search against the ins
 *Test query: BFRO_5WBQfc (This is just a random instagram promo video from a few years back)*
 
 
-**iTunes Store Search**
+**iTunes Store Search**  
 This task requires no API keys, and works by performing a search against the itunes.apple.com site.
 
 *Test query: jack johnson*
 
 
-**Phishtank Search**
+**Phishtank Search**  
 This task requires no API keys, and works by performing a search against the phishtank.com site for known phishing attacks against a company, this search has a predefined list and won’t search for just any domain. However, a lot of well-known companies are in the list whether you work for one or one is a client of your companies, this search may come in handy.
 
 *Test query: [Refer to the predefined list in the web app.]*
 
 
-**Reddit Search**
+**Reddit Search**  
 This task requires an API key, and works by performing an API search against the reddit.com website. Registration is free and easy. After obtaining the API key and other details, please add it to the config.json file, under “reddit”:
   
   	"reddit": [
@@ -199,13 +199,13 @@ This task requires an API key, and works by performing an API search against the
 *API Link: https://www.reddit.com/dev/api/*
 
 
-**RSS Feed Search**
+**RSS Feed Search**  
 This task requires no API keys, and works by performing a search against a pre-specified list of RSS feeds for a given query. To add or remove RSS feeds from this list you will need to edit the “RSS_Feeds.txt” file. The file by default contains 34 common, well-known RSS feeds.
 
 *Test query: [Refer to the predefined list in the web app.]*
 
 
-**Twitter Search**
+**Twitter Search**  
 This task requires an API key, and works by performing an API search against the twitter.com website. Registration is free and easy. After obtaining the API key and other details, please add it to the config.json file, under “twitter”:
 
 	"twitter": [
@@ -221,7 +221,7 @@ This task requires an API key, and works by performing an API search against the
 
 *API Link: https://developer.twitter.com/en/docs.html*
 
-**Vulners Search**
+**Vulners Search**  
 This task requires an API, and works by performing an API search against the vulners database for exploits and vulnerabilities that are similar to the provided query. fter obtaining the API key and other details, please add it to the config.json file, under “vulners”:
 
 	"vulners": [
@@ -234,13 +234,13 @@ This task requires an API, and works by performing an API search against the vul
 
 *API Link: https://vulners.com*
 
-**Windows Store Search**
+**Windows Store Search**  
 This task requires no API keys, and works by querying the microsoft.com site.
 
 *Test query: david*
 
 
-**YouTube Search**
+**YouTube Search**  
 This task requires an API key, and works by performing an API search against the youtube.com website. Registration is free and easy. After obtaining the API key and other details, please add it to the config.json file, under “youtube”:
 
 	"youtube": [
@@ -259,7 +259,7 @@ This task requires an API key, and works by performing an API search against the
 
 FYI: Please use google maps or similar to get your location in a format similar to the location above; furthermore, feel free to change location_radius, but please remember to use kilometres (km) after the integer.
 
-# Output Alert Options
+# Output Alert Options  
 By default, Scrummage stores all output data in 1 of 4 main output formats:
 * .html
 * .json
@@ -271,7 +271,7 @@ When Scrummage creates a result it creates refences to the result link, domain, 
 
 On top of this Scrummage provides an additional 5 ways of alerting the user when a result is created. Please note each alert you enable will create an alert for each result. For example if you have slack channel notifications and email enabled. An email will be sent alongside a Slack channel notification for every result found by a plugin.
 
-**Scumblr Database Output**
+**Scumblr Database Output**  
 The Scrummage team is well aware another open-source tool called Scumblr, developed by Netflix, performs some of the same functionality as Scrummage; furthermore, those who follow Scumblr know it currently is deprecated, and has been looking for a new developer for the last 6 months. The github repo can be found at https://github.com/Netflix-Skunkworks/Scumblr. Scrummage provides this functionality to current users of Scumblr by providing results to the Scumblr database so they dont have to view results in two different web applications, but can still benefit from both. To enable this, enter Scumblr’s backend postgresql database details to the config.json file, under “scumblr”:
 
 	"scumblr": [
@@ -284,7 +284,7 @@ The Scrummage team is well aware another open-source tool called Scumblr, develo
 		}
 	],
 
-**Request Tracker for Incident Response (RTIR) Ticket Alert**
+**Request Tracker for Incident Response (RTIR) Ticket Alert**  
 In the world of Incident Response, RTIR is a bit of a veteran program; therefore, functionality has been provided for RTIR. Currently, this method only supports Cookie-Based authentication, while there is a python library for RTIR, the library is old and doesn’t support python3. Rather than attempting to rewrite it, the Scrummage developers decided to go with cookie-based auth as it is very common, and used requests to handle it. To enable this mode, enter the RTIR details into the config.json file, under “RTIR”:
 
 	"rtir": [
@@ -300,7 +300,7 @@ In the world of Incident Response, RTIR is a bit of a veteran program; therefore
 
 Some teams that use RTIR use it’s SMTP functionality and for those teams, they could leverage the email output functionality below to achieve the same result.
 
-**Atlassian JIRA Ticket Alert**
+**Atlassian JIRA Ticket Alert**  
 While JIRA is typically used for software development projects, for tracking bugs and tasks, in the event a user wishes to use it for tracking incidents it has been provided . To enable this mode, enter the JIRA details into the config.json file, under “JIRA”:
 
 	"JIRA": [
@@ -313,7 +313,7 @@ While JIRA is typically used for software development projects, for tracking bug
 		}
 	],
 
-**Email Alerts**
+**Email Alerts**  
 Email alerts have been included, where the user specifies both the from address and the to address. The from address will also the user to specify the username and password of the from email address. To enable this, please enter the details in config.json under “email”:
 
 	"email": [
@@ -326,7 +326,7 @@ Email alerts have been included, where the user specifies both the from address 
 		}
 	],
 
-**Slack Channel Notifications**
+**Slack Channel Notifications**  
 Slack channel notifications work by having a message sent to a slack channel . To enable this mode, enter the Slack Channel details into the config.json file, under “slack”:
 
 	"slack": [
@@ -338,7 +338,7 @@ Slack channel notifications work by having a message sent to a slack channel . T
 
 # Setting up your first task
 
-**Limits**
+**Limits**  
 All tasks have a limit option available except for the following:
 * Certificate Transparency
 * Domain Fuzzer - All Extensions
@@ -353,13 +353,13 @@ All tasks have a limit option available except for the following:
 All tasks that have a limit have their default limit set to 10; therefore, if you don’t specify a limit it’ll be autoset to 10.
 
 
-**Frequency / Cron Jobs**
+**Frequency / Cron Jobs**  
 Frequency has been provided as an option when creating a task. The syntax for frequency is exactly the same as linux cron jobs and this is verified on input. When a frequency is added or updated, a cronjob will appear when you check crontab. Furthermore, it will be removed if the user updates the task to not use a frequency or deletes the task.
-Creating a task with a frequency:
+Creating a task with a frequency:  
 ![Char Switch](/installation/task_1.png)
 
-Verifying the task has been created:
+Verifying the task has been created:  
 ![Char Switch](/installation/task_2.png)
 
-Verifying the cronjob has been created:
+Verifying the cronjob has been created:  
 ![Char Switch](/installation/task_3.png)
