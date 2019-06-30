@@ -48,7 +48,7 @@
     ],
     "pinterest": [
     	{
-    		"oauth_token": ""
+            "oauth_token": ""
     	}
     ],
     "postgresql": [
