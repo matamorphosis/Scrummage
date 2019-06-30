@@ -1,9 +1,56 @@
 {
-	"general": [
-		{
-			"location": "au"
-		}
-	],
+    "craigslist": [
+        {
+            "city": "Sydney"
+        }
+    ],
+    "ebay": [
+        {
+            "access_key": ""
+        }
+    ],
+    "email": [
+        {
+            "smtp_server": "",
+            "smtp_port": 25,
+            "from_address": "",
+            "from_password": "",
+            "to_address": ""
+        }
+    ],
+    "facebook": [
+        {
+            "application_id": "",
+            "application_secret": ""
+        }
+    ],
+    "general": [
+        {
+            "location": "au"
+        }
+    ],
+    "google": [
+        {
+            "cx": "",
+            "application_name": "",
+            "application_version": "v1",
+            "developer_key": ""
+        }
+    ],
+    "JIRA": [
+        {
+            "project_key": "",
+            "address": "",
+            "username": "",
+            "password": "",
+            "ticket_type": ""
+        }
+    ],
+    "pinterest": [
+    	{
+    		"oauth_token": ""
+    	}
+    ],
     "postgresql": [
         {
             "host": "127.0.0.1",
@@ -13,7 +60,27 @@
             "password": "scrummage"
         }
     ],
-	"scumblr": [
+    "reddit": [
+        {
+            "client_id": "",
+            "client_secret": "",
+            "user_agent": "",
+            "username": "",
+            "password": "",
+            "subreddits": "all"
+        }
+    ],
+    "rtir": [
+        {
+            "service": "http",
+            "host": "",
+            "port": 80,
+            "user": "",
+            "password": "",
+            "authenticator": ""
+        }
+    ],
+    "scumblr": [
         {
             "host": "",
             "port": 5432,
@@ -22,110 +89,38 @@
             "password": ""
         }
     ],
-	"rtir": [
-		{
-			"service": "http",
-			"host": "",
-			"port": 80,
-			"user": "",
-			"password": "",
-			"authenticator": ""
-		}
+    "slack": [
+        {
+            "token": "",
+            "channel": ""
+        }
     ],
-	"JIRA": [
-		{
-			"project_key": "",
-			"address": "",
-			"username": "",
-			"password": "",
-			"ticket_type": ""
-		}
+    "sslmate": [
+        {
+            "api_key": "",
+            "search_subdomain": "true or false"
+        }
     ],
-	"slack": [
-		{
-			"token": "",
-			"channel": ""
-		}
+    "twitter": [
+        {
+            "CONSUMER_KEY": "",
+            "CONSUMER_SECRET": "",
+            "ACCESS_KEY": "",
+            "ACCESS_SECRET": ""
+        }
     ],
-	"email": [
-		{
-			"smtp_server": "",
-			"smtp_port": 25,
-			"from_address": "",
-			"from_password": "",
-			"to_address": ""
-		}
+    "vulners": [
+        {
+            "api_key": ""
+        }
     ],
-	"google": [
-		{
-			"cx": "",
-			"application_name": "",
-			"application_version": "v1",
-			"developer_key": ""
-		}
-	],
-	"youtube": [
-		{
-			"developer_key": "",
-			"application_name": "",
-			"application_version": "v3",
-			"location": "37.42307,-122.08427",
-			"location_radius": "5km"
-		}
-	],
-	"craigslist": [
-		{
-			"city": "Sydney"
-		}
-	],
-	"ebay": [
-		{
-			"access_key": ""
-		}
-	],
-	"facebook": [
-		{
-			"application_id": "",
-			"application_secret": ""
-		}
-	],
-	"twitter": [
-		{
-			"CONSUMER_KEY": "",
-			"CONSUMER_SECRET": "",
-			"ACCESS_KEY": "",
-			"ACCESS_SECRET": ""
-		}
-	],
-	"reddit": [
-		{
-			"client_id": "",
-			"client_secret": "",
-			"user_agent": "",
-			"username": "",
-			"password": "",
-			"subreddits": "all"
-		}
-	],
-	"brakeman": [
-		{
-			"storage_location": ""
-		}
-	],
-	"bandit": [
-		{
-			"storage_location": ""
-		}
-	],
-	"sslmate": [
-		{
-			"api_key": "",
-			"search_subdomain": "true or false"
-		}
-	],
-	"vulners": [
-		{
-			"api_key": ""
-		}
-	]
+    "youtube": [
+        {
+            "developer_key": "",
+            "application_name": "",
+            "application_version": "v3",
+            "location": "37.42307,-122.08427",
+            "location_radius": "5km"
+        }
+    ]
 }
