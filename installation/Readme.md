@@ -174,6 +174,25 @@ This task requires no API keys, and works by performing a search against the itu
 *Test query: jack johnson*
 
 
+**Pinterest Search**  
+This task requires an API key, and works by performing a search against the pinterest.com site. There are 2 kinds of search options available, represented by 2 options in the web application:
+* Pin Search - Searches for a pin based on a given pin id.
+*Test query: 509258670361306287*
+* Board Search - Searches for pins on a board based on a given board id.
+*Test query: 509258739053404977*
+
+After obtaining the API details and oauth token, please add the appropriate details to the config.json file, under "pinterest":
+  
+  	"pinterest": [
+		{
+		      "oauth_token": ""
+		}
+	],
+
+
+*API Link: https://developers.pinterest.com/docs/api/overview/?*
+
+
 **Phishtank Search**  
 This task requires no API keys, and works by performing a search against the phishtank.com site for known phishing attacks against a company, this search has a predefined list and won’t search for just any domain. However, a lot of well-known companies are in the list whether you work for one or one is a client of your companies, this search may come in handy.
 
@@ -222,7 +241,7 @@ This task requires an API key, and works by performing an API search against the
 *API Link: https://developer.twitter.com/en/docs.html*
 
 **Vulners Search**  
-This task requires an API, and works by performing an API search against the vulners database for exploits and vulnerabilities that are similar to the provided query. fter obtaining the API key and other details, please add it to the config.json file, under “vulners”:
+This task requires an API, and works by performing an API search against the vulners.com site, which uses the vulners database that contains exploits and vulnerabilities, to find such items that are similar to the provided query. fter obtaining the API key and other details, please add it to the config.json file, under “vulners”:
 
 	"vulners": [
 		{
