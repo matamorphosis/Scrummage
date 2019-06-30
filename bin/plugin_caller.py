@@ -93,6 +93,28 @@ def Call_Plugin(**kwargs):
         Thread_2 = threading.Thread(target=Stopper, args=[kwargs["Task_ID"]])
         Thread_2.start()
 
+    elif kwargs["Plugin_Name"] == "Pinterest Pin Search":
+        import plugins.Pinterest_Search as Pinterest_Search
+        Thread_0 = threading.Thread(target=Starter, args=[kwargs["Task_ID"]])
+        Thread_0.start()
+        Thread_0.join()
+        Thread_1 = threading.Thread(target=Pinterest_Search.Search, args=(kwargs["Query"], kwargs["Task_ID"], "pin"), kwargs={"Limit": kwargs["Limit"],})
+        Thread_1.start()
+        Thread_1.join()
+        Thread_2 = threading.Thread(target=Stopper, args=[kwargs["Task_ID"]])
+        Thread_2.start()
+
+    elif kwargs["Plugin_Name"] == "Pinterest Board Search":
+        import plugins.Pinterest_Search as Pinterest_Search
+        Thread_0 = threading.Thread(target=Starter, args=[kwargs["Task_ID"]])
+        Thread_0.start()
+        Thread_0.join()
+        Thread_1 = threading.Thread(target=Pinterest_Search.Search, args=(kwargs["Query"], kwargs["Task_ID"], "board"), kwargs={"Limit": kwargs["Limit"],})
+        Thread_1.start()
+        Thread_1.join()
+        Thread_2 = threading.Thread(target=Stopper, args=[kwargs["Task_ID"]])
+        Thread_2.start()
+
     elif kwargs["Plugin_Name"] == "iTunes Store Search":
         import plugins.ITunes_Store_Search as ITunes_Store_Search
         Thread_0 = threading.Thread(target=Starter, args=[kwargs["Task_ID"]])
