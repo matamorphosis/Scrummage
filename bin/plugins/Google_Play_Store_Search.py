@@ -2,7 +2,6 @@
 
 import play_scraper, requests, re, json, datetime, plugins.common.General as General
 
-File_Query = ""
 The_File_Extension = ".html"
 Plugin_Name = "Play-Store"
 Concat_Plugin_Name = "playstore"
@@ -11,8 +10,10 @@ def Search(Query_List, Task_ID, **kwargs):
     Data_to_Cache = []
     Cached_Data = []
 
-    if int(kwargs["Limit"]) > 0:
-        Limit = kwargs["Limit"]
+    if "Limit" in kwargs:
+
+        if int(kwargs["Limit"]) > 0:
+            Limit = kwargs["Limit"]
 
     else:
         Limit = 10
