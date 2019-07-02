@@ -3,8 +3,6 @@
 
 import requests, re, plugins.common.General as General
 
-Query = ""
-File_Query = ""
 Plugin_Name = "Windows-Store"
 Concat_Plugin_Name = "windowsstore"
 The_File_Extension = ".html"
