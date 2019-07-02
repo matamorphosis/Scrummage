@@ -4,7 +4,6 @@ import re, requests, plugins.common.General as General
 
 Plugin_Name = "PhishTank"
 The_File_Extension = ".html"
-Scrape_Regex_URL = re.compile("https?\:\/\/(www\.)?([-a-zA-Z0-9:%._\+#=]{2,256})(\.[a-z]{2,6}\b([-a-zA-Z0-9:%_\+.#?&//=]*))")
 
 def Search(Query_List, Task_ID, **kwargs):
     Data_to_Cache = []
