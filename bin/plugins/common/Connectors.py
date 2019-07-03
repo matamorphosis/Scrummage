@@ -256,7 +256,7 @@ def RTIR_Main(Ticket_Subject, Ticket_Text):
             print(str(datetime.datetime.now()) + " RTIR ticket created.")
 
         except Exception as e:
-            return e
+            print(str(datetime.datetime.now()) + e)
 
 def JIRA_Main(Ticket_Summary, Ticket_Description):
     JIRA_Details = Load_JIRA_Configuration()
@@ -270,7 +270,7 @@ def JIRA_Main(Ticket_Summary, Ticket_Description):
             print(str(datetime.datetime.now()) + " JIRA ticket created.")
 
         except Exception as e:
-            return e
+            print(str(datetime.datetime.now()) + e)
 
 def Slack_Main(Description):
     Slack_Details = Load_Slack_Configuration()
@@ -283,7 +283,7 @@ def Slack_Main(Description):
             print(str(datetime.datetime.now()) + " Slack Notification created.")
 
         except Exception as e:
-            return e
+            print(str(datetime.datetime.now()) + e)
 
 def Email_Main(Email_Subject, Email_Body):
     Email_Details = Load_Email_Configuration()
