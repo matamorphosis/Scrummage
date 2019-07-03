@@ -259,22 +259,22 @@ def Rotor_Combinations(Rotor_Word):
 
     elif (len(Rotor_Word) == 17):
         for a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q in list(itertools.product(*Rotor_Word)):
-            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p.q]
+            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q]
             Rotor_Word_Appender(Newer_List)
 
     elif (len(Rotor_Word) == 18):
         for a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r in list(itertools.product(*Rotor_Word)):
-            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p.q,r]
+            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r]
             Rotor_Word_Appender(Newer_List)
 
     elif (len(Rotor_Word) == 19):
-        for a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q.r.s in list(itertools.product(*Rotor_Word)):
-            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p.q,r,s]
+        for a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s in list(itertools.product(*Rotor_Word)):
+            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s]
             Rotor_Word_Appender(Newer_List)
 
     elif (len(Rotor_Word) == 20):
         for a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t in list(itertools.product(*Rotor_Word)):
-            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p.q,r,s,t]
+            Newer_List = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t]
             Rotor_Word_Appender(Newer_List)
 
     else:
