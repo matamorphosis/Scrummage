@@ -16,11 +16,12 @@ All feedback is welcome, as this is version 1 I'm sure there will be lots to imp
 * Have I Been Pwned Search
 * Many more... Refer to the installation Readme.md file for the full list.
 
-**What's on the Horizon for Scrummage**  
+**What's on the Horizon for Scrummage?**  
 * Support for more crypto-currencies for the blockchain plugin
 * Public record search plugins
 * Torrent Site Search plugins
-* Facebook and Pinterest plugins
+* More social media site plugins
+* Ongoing support for the web application
 
 ---
 
