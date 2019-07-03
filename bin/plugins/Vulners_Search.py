@@ -15,8 +15,8 @@ def Load_Configuration():
         with open(Configuration_File) as JSON_File:
             Configuration_Data = json.load(JSON_File)
 
-            for Exploit_DB_Details in Configuration_Data[Plugin_Name.lower()]:
-                return Exploit_DB_Details['api_key']
+            for Vulners_Details in Configuration_Data[Plugin_Name.lower()]:
+                return Vulners_Details['api_key']
 
     except:
         sys.exit(str(datetime.datetime.now()) + " Failed to load location details.")
@@ -25,14 +25,16 @@ def Search(Query_List, Task_ID, **kwargs):
     Data_to_Cache = []
     Cached_Data = []
 
-    if int(kwargs["Limit"]) > 0:
-        Limit = kwargs["Limit"]
+    if "Limit" in kwargs:
+
+        if int(kwargs["Limit"]) > 0:
+            Limit = kwargs["Limit"]
 
     else:
-        Limit = 25
+        Limit = 10
 
     Directory = General.Make_Directory(Plugin_Name.lower())
-    # General.Logging(Directory, Plugin_Name)
+    General.Logging(Directory, Plugin_Name)
     Cached_Data = General.Get_Cache(Directory, Plugin_Name)
 
     if not Cached_Data:
@@ -42,8 +44,6 @@ def Search(Query_List, Task_ID, **kwargs):
 
     for Query in Query_List:
         vulners_api = vulners.Vulners(api_key=Load_Configuration())
-        print(Limit)
-        print(Query)
         Search_Response = vulners_api.search(Query, limit=int(Limit))
         JSON_Response = json.dumps(Search_Response, indent=4, sort_keys=True)
         General.Main_File_Create(Directory, Plugin_Name, JSON_Response, Query, ".json")
@@ -53,10 +53,10 @@ def Search(Query_List, Task_ID, **kwargs):
             if Search_Result["bulletinFamily"] not in Unacceptable_Bulletins:
                 Result_Title = Search_Result["title"]
                 Result_URL = Search_Result["vhref"]
-                Search_Video_Response = requests.get(Result_URL).text
+                Search_Result_Response = requests.get(Result_URL).text
 
                 if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache:
-                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Search_Video_Response, Result_Title, The_File_Extension)
+                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Search_Result_Response, Result_Title, The_File_Extension)
 
                     if Output_file:
                         General.Connections(Output_file, Query, Plugin_Name, Result_URL, "vulners.com", "Exploit", Task_ID, Result_Title)
