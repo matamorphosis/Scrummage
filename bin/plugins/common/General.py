@@ -38,7 +38,7 @@ def Get_Cache(Directory, Plugin_Name):
                 return Cached_Data
 
             else:
-                print(str(datetime.datetime.now()) + "[i] No cache file found, caching will not be used for this session.")
+                print(str(datetime.datetime.now()) + " No cache file found, caching will not be used for this session.")
 
         except:
             print(str(datetime.datetime.now()) + " Failed to read file.")
@@ -317,30 +317,6 @@ def Get_Latest_URLs(Pull_URL, Scrape_Regex_URL, Is_Tor):
         print(str(datetime.datetime.now()) + " Failed to regex URLs.")
 
     return Scrape_URLs
-
-# def Query_Existing_Files(File_Query, Query_Output_File):
-#     # Function to query existing files for new clients.
-
-#     for Bad_Character in Bad_Characters:
-
-#         if Bad_Character in File_Query:
-#             sys.exit(str(datetime.datetime.now()) + " Bad Characters found in query. Please remove any conflicting special characters.")
-
-#     os.system(' grep -Hrn ' + File_Query + ' * > ' + Query_Output_File)
-
-#     try:
-#         Current_File = open(Query_File, "r")
-#         Query_Inputs = Current_File.read().splitlines()
-#         Current_File.close()
-
-#     except:
-#         sys.exit(str(datetime.datetime.now()) + " Failed to open file.")
-
-#     for Query_Input in Query_Inputs:
-#         Query_Input_Regex = re.search(r"(.*\.txt)\:(\d+)\:(.*)", Query_Input)
-
-#         if Query_Input_Regex:
-#             print(str(datetime.datetime.now()) + " The query " + File_Query + " was found on line: " + Query_Input_Regex.group(2) + " of file: " + Query_Input_Regex.group(1) + ".")
 
 def Get_Title(URL):
 
