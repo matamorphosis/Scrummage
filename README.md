@@ -3,8 +3,11 @@
 
 # Scrummage  
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
-**VERSION 2.6**
-- New Options for the Domain Fuzzer - Punycode plugin. Read more [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks).
+**VERSION 2.7**
+- New Plugins, refer to [WIKI](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
+- Improved web scraping for findings.
+- More efficient, centrally managed code.
+- Improved reporting for DOCX module.
 - Code enhancements / bug fixes.  
   
 Scrummage is an OSINT tool that centralises search functionality from powerful, yet simple OSINT sites. This project draws inspiration mainly from two other projects, including:  
