@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-
 import os, re, praw, json, logging, requests, plugins.common.General as General
 
 Plugin_Name = "Reddit"
 The_File_Extension = ".html"
-headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
+headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
+Domain = "reddit.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -61,7 +61,7 @@ def Search(Query_List, Task_ID, **kwargs):
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to get results. Are you connected to the internet?")
 
-            Output_Connections = General.Connections(Query, Plugin_Name, "reddit.com", "Forum", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Forum", Task_ID, Plugin_Name.lower())
 
             for Result in Results:
 
@@ -72,6 +72,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
                         if Reddit_Regex:
                             Reddit_Response = requests.get(Result, headers=headers).text
+                            Reddit_Response = General.Response_Filter(Reddit_Response, f"https://www.{Domain}")
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Reddit_Response, Reddit_Regex.group(3), The_File_Extension)
 
                             if Output_file:
@@ -84,11 +85,7 @@ def Search(Query_List, Task_ID, **kwargs):
                     except:
                         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create file.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

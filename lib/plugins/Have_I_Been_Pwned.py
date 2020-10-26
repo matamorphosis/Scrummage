@@ -1,11 +1,12 @@
+#!/usr/bin/env python3
 import pyhibp, json, os, logging, plugins.common.General as General
 from pyhibp import pwnedpasswords as pw
-
 # Version 2 of this plugin. Now requires an API key.
 
 Plugin_Name = "Have-I-Been-Pwned"
 Concat_Plugin_Name = "haveibeenpwned"
 The_File_Extension = ".json"
+Domain = "haveibeenpwned.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -55,101 +56,81 @@ def Search(Query_List, Task_ID, Type_of_Query, **kwargs):
             Local_Plugin_Name = Plugin_Name + "-" + Type_of_Query
             Cached_Data = General.Get_Cache(Directory, Local_Plugin_Name)
 
-            if not Cached_Data:
-
             for Query in Query_List:
                 Query_Response = pyhibp.get_pastes(email_address=Query)
                 logging.info(Query_Response)
 
                 if Query_Response:
-                    Domain = Query_Response[0]["Source"]
+                    Current_Domain = Query_Response[0]["Source"]
                     ID = Query_Response[0]["Id"]
-                    Link = "https://www." + Domain + ".com/" + ID
+                    Link = f"https://www.{Current_Domain}.com/{ID}"
                     JSON_Query_Response = json.dumps(Query_Response, indent=4, sort_keys=True)
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, JSON_Query_Response, "email", The_File_Extension)
 
                         if Output_file:
-                            Output_Connections = General.Connections(Query, Local_Plugin_Name, "haveibeenpwned.com", "Account", Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Domain, "Account", Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output([Output_file], Link, General.Get_Title(Link), Concat_Plugin_Name)
                             Data_to_Cache.append(Link)
 
                         else:
                             logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-            if Cached_Data:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "a")
-
-            else:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "w")
+            General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
         elif Type_of_Query == "breach":
             Local_Plugin_Name = Plugin_Name + "-" + Type_of_Query
             Cached_Data = General.Get_Cache(Directory, Local_Plugin_Name)
 
-            if not Cached_Data:
-
             for Query in Query_List:
                 Query_Response = pyhibp.get_single_breach(breach_name=Query)
 
                 if Query_Response:
-                    Domain = Query_Response["Domain"]
-                    Link = "https://www." + Domain + ".com/"
+                    Current_Domain = Query_Response["Domain"]
+                    Link = f"https://www.{Current_Domain}.com/"
                     JSON_Query_Response = json.dumps(Query_Response, indent=4, sort_keys=True)
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, JSON_Query_Response, "breach", The_File_Extension)
 
                         if Output_file:
-                            Output_Connections = General.Connections(Query, Local_Plugin_Name, "haveibeenpwned.com", "Credentials", Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Domain, "Credentials", Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output([Output_file], Link, General.Get_Title(Link), Concat_Plugin_Name)
                             Data_to_Cache.append(Link)
 
                         else:
                             logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-            if Cached_Data:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "a")
-
-            else:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "w")
+            General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
         elif Type_of_Query == "password":
             Local_Plugin_Name = Plugin_Name + "-" + Type_of_Query
             Cached_Data = General.Get_Cache(Directory, Local_Plugin_Name)
-
-            if not Cached_Data:
 
             for Query in Query_List:
                 Query_Response = pw.is_password_breached(password=Query)
                 logging.info(Query_Response)
 
                 if Query_Response:
-                    Link = "https://haveibeenpwned.com/Passwords?" + Query
+                    Link = f"https://{Domain}/Passwords?{Query}"
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Query_Response), "password", ".txt")
 
                         if Output_file:
-                            Output_Connections = General.Connections(Query, Local_Plugin_Name, "haveibeenpwned.com", "Credentials", Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Domain, "Credentials", Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output([Output_file], Link, General.Get_Title(Link), Concat_Plugin_Name)
                             Data_to_Cache.append(Link)
 
                         else:
                             logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-            if Cached_Data:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "a")
-
-            else:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "w")
+            General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
         elif Type_of_Query == "account":
             Local_Plugin_Name = Plugin_Name + "-" + Type_of_Query
             Cached_Data = General.Get_Cache(Directory, Local_Plugin_Name)
-
-            if not Cached_Data:
 
             for Query in Query_List:
                 Query_Response = pyhibp.get_account_breaches(account=Query, truncate_response=True)
@@ -175,11 +156,7 @@ def Search(Query_List, Task_ID, Type_of_Query, **kwargs):
 
                             Current_Step += 1
 
-            if Cached_Data:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "a")
-
-            else:
-                General.Write_Cache(Directory, Data_to_Cache, Local_Plugin_Name, "w")
+            General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
         else:
             logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Invalid type provided.")

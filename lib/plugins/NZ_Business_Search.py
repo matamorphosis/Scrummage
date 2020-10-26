@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 import os, re, logging, requests, urllib.parse, plugins.common.General as General
 
 Plugin_Name = "NZ-Business"
 Concat_Plugin_Name = "nzbusiness"
 The_File_Extension = ".html"
+Domain = "app.companiesoffice.govt.nz"
+headers = General.URL_Headers(User_Agent=True)
 
 def Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -27,8 +28,9 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             try:
 
                 if Type == "NZBN":
-                    Main_URL = f'https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/search?q={Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit=1&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                    Response = requests.get(Main_URL).text
+                    Main_URL = f'https://{Domain}/companies/app/ui/pages/companies/search?q={Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit=1&sf=&sd=&advancedPanel=true&mode=advanced#results'
+                    Response = requests.get(Main_URL, headers=headers).text
+                    Response = General.Response_Filter(Response, f"https://{Domain}")
 
                     try:
 
@@ -39,7 +41,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, f"new-zealand-business-number-{Query.lower()}", The_File_Extension)
 
                                 if Output_file:
-                                    Output_Connections = General.Connections(Query, Plugin_Name, "app.companiesoffice.govt.nz", "Company Details", Task_ID, Plugin_Name)
+                                    Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
                                     Output_Connections.Output([Output_file], Main_URL, f"New Zealand Business Number {Query}", Concat_Plugin_Name)
                                     Data_to_Cache.append(Main_URL)
 
@@ -53,8 +55,10 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                     try:
                         Limit = General.Get_Limit(kwargs)
-                        Main_URL = 'https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/search?q=' + urllib.parse.quote(Query) + '&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit=' + str(Limit) + '&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                        Response = requests.get(Main_URL).text
+                        URL_Query = urllib.parse.quote(Query)
+                        Main_URL = f'https://{Domain}/companies/app/ui/pages/companies/search?q={URL_Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit={str(Limit)}&sf=&sd=&advancedPanel=true&mode=advanced#results'
+                        Response = requests.get(Main_URL, headers=headers).text
+                        Response = General.Response_Filter(Response, f"https://{Domain}")
                         NZCN_Regex = re.search(r".*[a-zA-Z].*", Query)
 
                         if NZCN_Regex:
@@ -62,13 +66,13 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                             NZBNs_Regex = re.findall(r"\<span\sclass\=\"entityName\"\>([\w\d\s\-\_\&\|\!\@\#\$\%\^\*\(\)\.\,]+)\<\/span\>\s<span\sclass\=\"entityInfo\"\>\((\d+)\)\s\(NZBN\:\s(\d+)\)", Response)
 
                             if NZBNs_Regex:
-                                Output_Connections = General.Connections(Query, Plugin_Name, "app.companiesoffice.govt.nz", "Company Details", Task_ID, Plugin_Name)
+                                Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
 
                                 for NZCN, NZ_ID, NZBN_URL in NZBNs_Regex:
-                                    Full_NZBN_URL = f'https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/{NZ_ID}?backurl=H4sIAAAAAAAAAEXLuwrCQBCF4bfZNtHESIpBbLQwhWBeYNgddSF7cWai5O2NGLH7zwenyHgjKWwKGaOfSwjZ3ncPaOt1W9bbsmqaamMoqtepnzIJ7Ltu2RdFHeXIacxf9tEmzgdOAZbuExh0jknk%2F17gRNMrsQMjiqxQmsEHr7Aycp3NfY5PjJbcGSMNoDySCckR%2FPwNLgXMiL4AAAA%3D'
+                                    Full_NZBN_URL = f'https://{Domain}/companies/app/ui/pages/companies/{NZ_ID}?backurl=H4sIAAAAAAAAAEXLuwrCQBCF4bfZNtHESIpBbLQwhWBeYNgddSF7cWai5O2NGLH7zwenyHgjKWwKGaOfSwjZ3ncPaOt1W9bbsmqaamMoqtepnzIJ7Ltu2RdFHeXIacxf9tEmzgdOAZbuExh0jknk%2F17gRNMrsQMjiqxQmsEHr7Aycp3NfY5PjJbcGSMNoDySCckR%2FPwNLgXMiL4AAAA%3D'
 
                                     if Full_NZBN_URL not in Cached_Data and Full_NZBN_URL not in Data_to_Cache:
-                                        Current_Response = requests.get(Full_NZBN_URL).text
+                                        Current_Response = requests.get(Full_NZBN_URL, headers=headers).text
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), NZCN.replace(' ', '-'), The_File_Extension)
 
                                         if Output_file:
@@ -93,11 +97,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make request.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

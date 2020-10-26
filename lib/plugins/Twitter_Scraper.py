@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 import json, os, requests, logging, tweepy, plugins.common.General as General
 
 Plugin_Name = "Twitter"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "twitter.com"
+headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -58,7 +58,7 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
                 })
 
         JSON_Output = json.dumps(JSON_Response, indent=4, sort_keys=True)
-        Output_Connections = General.Connections(Handle, Plugin_Name, "twitter.com", "Social Media - Media", Task_ID, Plugin_Name.lower())
+        Output_Connections = General.Connections(Handle, Plugin_Name, Domain, "Social Media - Media", Task_ID, Plugin_Name.lower())
         Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output, Handle, The_File_Extensions["Main"])
 
         for JSON_Item in JSON_Response:
@@ -68,7 +68,8 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
 
                 if Link not in Cached_Data and Link not in Data_to_Cache:
                     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - {Link}")
-                    Item_Response = requests.get(Link).text
+                    Item_Response = requests.get(Link, headers=headers).text
+                    Item_Response = General.Response_Filter(Item_Response, f"https://{Domain}")
                     Output_file = General.Create_Query_Results_Output_File(Directory, Handle, Plugin_Name, Item_Response, str(JSON_Item['id']), The_File_Extensions["Query"])
 
                     if Output_file:
@@ -81,11 +82,7 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Insufficient parameters provided.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

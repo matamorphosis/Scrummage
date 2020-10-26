@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 import requests, os, logging, plugins.common.General as General, json, feedparser
 
 Plugin_Name = "Craigslist"
@@ -54,13 +52,14 @@ def Search(Query_List, Task_ID, **kwargs):
                 Item_URL = Item["link"]
 
                 if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                    Craigslist_Response = requests.get(Item_URL).text
+                    Craigslist_Response = requests.get(Item_URL, headers=General.URL_Headers(User_Agent=True)).text
                     Local_URL = f"https://{Craigslist_Location.lower()}.craigslist.org/"
-                    Local_Domain = f"{Craigslist_Location.lower()}.craigslist.org/"
+                    Local_Domain = f"{Craigslist_Location.lower()}.craigslist.org"
                     Filename = Item_URL.replace(Local_URL, "")
                     Filename = Filename.replace(".html/", "")
                     Filename = Filename.replace(".html", "")
                     Filename = Filename.replace("/", "-")
+                    Craigslist_Response = General.Response_Filter(Craigslist_Response, f"https://{Craigslist_Location.lower()}.craigslist.org")
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Craigslist_Response, Filename, The_File_Extension)
 
                     if Output_file:
@@ -73,11 +72,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
                     Current_Step += 1
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

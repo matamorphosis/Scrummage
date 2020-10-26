@@ -67,11 +67,7 @@ def Search(Query_List, Task_ID, **kwargs):
                     else:
                         logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Query not found.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

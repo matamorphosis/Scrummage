@@ -62,9 +62,9 @@
                     <button id="bottom_unblock_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to unblock the selected users: ' + getSelectValues() + '?') && sendRequest('Unblock');" disabled="true">Unblock User</button>
                     <button id="bottom_demote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to demote the selected users: ' + getSelectValues() + '?') && sendRequest('Demote');" disabled="true">Demote User</button>
                     <button id="bottom_promote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to promote the selected users: ' + getSelectValues() + '?') && sendRequest('Promote');" disabled="true">Promote User</button>
-                    <button id="copy" onclick="copyTextFunc()" class="button">Copy API Key</button>
+                    <button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
                     <form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey', accountid=current_user_id) }}" method=post autocomplete="off">
-                        <input class="button" name="getapikey" type=submit value="Refresh API Key">
+                        <input class="button" name="getapikey" type=submit value="Reload Key">
                     </form>
                     <script type="text/javascript">
                     function copyTextFunc() {
@@ -123,7 +123,6 @@
                             var current_button = "#" + button[0];
                             document.querySelector(current_button).innerText = button[1] + ' Users'
                         });
-                        document.getElementById("accbuttons").style.width = "897px";
                     }
                 } else{
                     if($('#select:checked').length === 1) {
@@ -131,7 +130,6 @@
                             var current_button = "#" + button[0];
                             document.querySelector(current_button).innerText = button[1] + ' User'
                         });
-                        document.getElementById("accbuttons").style.width = "864px";
                     }
                     if($('#select:checked').length === 0) {
                         buttons.forEach(button => {
@@ -315,9 +313,9 @@
                         <tr>
                             <td class="apitab" id="admin-apitab">Your API Key</td>
                             <td class="apitab" style="display: inline-flex;">
-                                <button id="copy" onclick="copyTextFunc()" class="button">Copy API Key</button>
+                                <button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
                                 <form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey', accountid=current_user_id) }}" method=post autocomplete="off">
-                                    <input class="button" name="getapikey" type=submit value="Refresh API Key">
+                                    <input class="button" name="getapikey" type=submit value="Reload Key">
                                 </form>
                                 <script type="text/javascript">
                                 function copyTextFunc() {

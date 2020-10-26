@@ -4,6 +4,8 @@ import requests, logging, json, re, os, urllib.parse, plugins.common.General as 
 Plugin_Name = "iTunes-App-Store"
 Concat_Plugin_Name = "itunesappstore"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "itunes.apple.com"
+headers = General.URL_Headers(User_Agent=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -27,7 +29,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
             try:
                 Request_Query = urllib.parse.quote(Query)
-                Response = requests.get(f"http://itunes.apple.com/search?term={Request_Query}&country={Location}&entity=software&limit={str(Limit)}").text
+                Response = requests.get(f"http://{Domain}/search?term={Request_Query}&country={Location}&entity=software&limit={str(Limit)}", headers=headers).text
 
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make request, are you connected to the internet?")
@@ -38,13 +40,14 @@ def Search(Query_List, Task_ID, **kwargs):
             if 'resultCount' in JSON_Response:
 
                 if JSON_Response['resultCount'] > 0:
-                    Output_Connections = General.Connections(Query, Plugin_Name, "instagram.com", "Application", Task_ID, Concat_Plugin_Name)
+                    Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Application", Task_ID, Concat_Plugin_Name)
 
                     for JSON_Object in JSON_Response['results']:
-                        JSON_Object_Response = requests.get(JSON_Object['artistViewUrl']).text
+                        JSON_Object_Response = requests.get(JSON_Object['artistViewUrl'], headers=headers).text
+                        JSON_Object_Response = General.Response_Filter(JSON_Object_Response, f"https://{Domain}")
 
                         if JSON_Object['artistViewUrl'] not in Cached_Data and JSON_Object['artistViewUrl'] not in Data_to_Cache:
-                            iTunes_Regex = re.search(r"https\:\/\/apps\.apple\.com\/" + Location + "\/developer\/[\w\d\-]+\/(id[\d]{9,10})\?.+", JSON_Object['artistViewUrl'])
+                            iTunes_Regex = re.search(r"https\:\/\/apps\.apple\.com\/" + rf"{Location}" + r"\/developer\/[\w\d\-]+\/(id[\d]{9,10})\?.+", JSON_Object['artistViewUrl'])
 
                             if iTunes_Regex:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, JSON_Object_Response, iTunes_Regex.group(1), The_File_Extensions["Query"])
@@ -62,11 +65,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Invalid value.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

@@ -4,6 +4,8 @@ from googleapiclient import discovery
 
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "YouTube"
+Domain = "youtube.com"
+headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -58,11 +60,12 @@ def Search(Query_List, Task_ID, **kwargs):
                 Search_Response = YouTube_Handler.search().list(q=Query, type='video', part='id,snippet', maxResults=Limit,).execute()
             
             Main_File = General.Main_File_Create(Directory, Plugin_Name, json.dumps(Search_Response.get('items', []), indent=4, sort_keys=True), Query, The_File_Extensions["Main"])
-            Output_Connections = General.Connections(Query, Plugin_Name, "youtube.com", "Social Media - Media", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Social Media - Media", Task_ID, Plugin_Name.lower())
 
             for Search_Result in Search_Response.get('items', []):
-                Full_Video_URL = "https://www.youtube.com/watch?v=" + Search_Result['id']['videoId']
-                Search_Video_Response = requests.get(Full_Video_URL).text
+                Full_Video_URL = f"https://www.{Domain}/watch?v=" + Search_Result['id']['videoId']
+                Search_Video_Response = requests.get(Full_Video_URL, headers=headers).text
+                Search_Video_Response = General.Response_Filter(Search_Video_Response, f"https://www.{Domain}")
                 Title = "YouTube | " + Search_Result['snippet']['title']
 
                 if Full_Video_URL not in Cached_Data and Full_Video_URL not in Data_to_Cache:
@@ -75,11 +78,7 @@ def Search(Query_List, Task_ID, **kwargs):
                     else:
                         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

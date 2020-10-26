@@ -6,6 +6,23 @@ from bs4 import BeautifulSoup
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
 Configuration_File = os.path.join('plugins/common/config', 'config.json')
 
+def URL_Headers(User_Agent=False, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False):
+    URL_User_Agent_Headers = {}
+
+    if User_Agent:
+        URL_User_Agent_Headers['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+
+    if Application_JSON_CT:
+        URL_User_Agent_Headers['Content-Type'] = 'application/json'
+
+    if Accept_XML:
+        URL_User_Agent_Headers['Accept'] = 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+
+    if Accept_Language_EN_US:
+        URL_User_Agent_Headers['Accept-Language'] = 'en-US,en;q=0.5'
+
+    return URL_User_Agent_Headers
+
 def Date():
     return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
@@ -68,24 +85,31 @@ def Get_Cache(Directory, Plugin_Name):
     else:
         logging.warning(f"{Date()} General Library - Failed to regex directory. Cache not read.")
 
-def Write_Cache(Directory, Data_to_Cache, Plugin_Name, Open_File_Type):
-    Main_File = f"{Plugin_Name}-cache.txt"
-    General_Directory_Search = re.search(r"(.*)\/\d{4}\/\d{2}\/\d{2}", Directory)
+def Write_Cache(Directory, Current_Cached_Data, Data_to_Cache, Plugin_Name):
 
-    if General_Directory_Search:
-        Complete_File = os.path.join(General_Directory_Search.group(1), Main_File)
+    if Data_to_Cache:
+        Open_File_Type = "w"
 
-        try:
-            File_Output = open(Complete_File, Open_File_Type)
-            Current_Output_Data = "\n".join(Data_to_Cache) + "\n"
-            File_Output.write(Current_Output_Data)
-            File_Output.close()
+        if Current_Cached_Data:
+            Open_File_Type = "a"
 
-        except:
-            logging.warning(f"{Date()} General Library - Failed to create file.")
+        Main_File = f"{Plugin_Name}-cache.txt"
+        General_Directory_Search = re.search(r"(.*)\/\d{4}\/\d{2}\/\d{2}", Directory)
 
-    else:
-        logging.warning(f"{Date()} General Library - Failed to regex directory. Cache not written.")
+        if General_Directory_Search:
+            Complete_File = os.path.join(General_Directory_Search.group(1), Main_File)
+
+            try:
+                File_Output = open(Complete_File, Open_File_Type)
+                Current_Output_Data = "\n".join(Data_to_Cache) + "\n"
+                File_Output.write(Current_Output_Data)
+                File_Output.close()
+
+            except:
+                logging.warning(f"{Date()} General Library - Failed to create file.")
+
+        else:
+            logging.warning(f"{Date()} General Library - Failed to regex directory. Cache not written.")
 
 def Convert_to_List(String):
 
@@ -326,6 +350,24 @@ def Load_Location_Configuration():
     except:
         logging.warning(f"{Date()} General Library - Failed to load location details.")
 
+def Load_Web_Scrape_Risk_Configuration():
+    
+    try:
+
+        with open(Configuration_File) as JSON_File:  
+            Configuration_Data = json.load(JSON_File)
+            Web_Scrape_Details = Configuration_Data['web-scraping']
+            Risk_Level = int(Web_Scrape_Details['risk-level'])
+
+            if Risk_Level > 3 or Risk_Level < 0:
+                logging.warning(f"{Date()} General Library - An invalid number has been specified, please provide a valid risk level in the config.json file, with a value from 1 to 3.")
+
+            else:
+                return Risk_Level
+
+    except:
+        logging.warning(f"{Date()} General Library - Failed to load location details.")
+
 def Make_Directory(Plugin_Name):
     Today = datetime.datetime.now()
     Year = str(Today.year)
@@ -375,16 +417,104 @@ def Get_Latest_URLs(Pull_URL, Scrape_Regex_URL):
 
     return Scrape_URLs
 
+def Get_Title_Requests_Module(URL):
+
+    try:
+
+        if URL.startswith('http://') or URL.startswith('https://'):
+
+            if 'file:/' not in URL:
+                Soup = BeautifulSoup(requests.get(URL).text, features="lxml")
+                return Soup.title.text
+
+            else:
+                logging.warning(f"{Date()} General Library - This function does not work on files.")
+
+        else:
+            logging.warning(f"{Date()} General Library - Invalid URL provided.")
+
+    except:
+        logging.warning(f"{Date()} General Library - Failed to get title.")
+
 def Get_Title(URL):
 
     try:
 
-        if 'file:/' not in URL:
-            Soup = BeautifulSoup(urllib.request.urlopen(URL), features="lxml")
-            return Soup.title.text
+        if URL.startswith('http://') or URL.startswith('https://'):
+
+            if 'file:/' not in URL:
+                Soup = BeautifulSoup(urllib.request.urlopen(URL), features="lxml")
+                return Soup.title.text
+
+            else:
+                logging.warning(f"{Date()} General Library - This function does not work on files.")
 
         else:
-            logging.warning(f"{Date()} General Library - This function does not work on files.")
+            logging.warning(f"{Date()} General Library - Invalid URL provided.")
 
     except:
         logging.warning(f"{Date()} General Library - Failed to get title.")
+
+def Response_Filter(Response, Host, Risky_Plugin=False):
+    Risk_Level = Load_Web_Scrape_Risk_Configuration()
+
+    if (Risk_Level == 3) or (Risk_Level == 2 and not Risky_Plugin):
+        Attributes = ["src", "href"]
+        Quotes = ["\"", "\'"]
+        Replace_Items = ["/", "./"]
+        Replace_Strings = ["js", "assets", "polyfills", "main", "styles", "css", "jquery", "img", "images", "atom", "?", "static", "logo"]
+
+        for Attribute in Attributes:
+
+            for Quote in Quotes:
+                Response = Response.replace(f"{Attribute} = {Quote}", f"{Attribute}={Quote}")
+
+                if "https://" in Host:
+                    Response = Response.replace(f"{Attribute}={Quote}//", f"{Attribute}={Quote}https://")
+
+                else:
+                    Response = Response.replace(f"{Attribute}={Quote}//", f"{Attribute}={Quote}http://")
+
+                for Replace_Item in Replace_Items:
+                    Response = Response.replace(f"{Attribute}={Quote}{Replace_Item}", f"{Attribute}={Quote}{Host}/")
+
+                for Replace_String in Replace_Strings:
+                    Response = Response.replace(f"{Attribute}={Quote}{Replace_String}", f"{Attribute}={Quote}{Host}/{Replace_String}")
+
+                Response = Response.replace(f"{Attribute}={Quote}{Host}//", f"{Attribute}={Quote}{Host}/")
+        
+    return Response
+
+def Is_JSON(JSON_String):
+
+    try:
+        json_object = json.loads(JSON_String)
+
+    except ValueError as e:
+        return False
+
+    return json_object
+
+
+def Regex_Checker(Query, Type):
+
+    if Type == "Email":
+        Regex = re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", Query)
+
+    elif Type == "Domain":
+        Regex = re.search(r"[-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3}(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+
+    elif Type == "IP":
+        Regex = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", Query)
+
+    elif Type == "URL":
+        Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+
+    else:
+        return None
+
+    if Regex:
+        return Regex
+
+    else:
+        return None

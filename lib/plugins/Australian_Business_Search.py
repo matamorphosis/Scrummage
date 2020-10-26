@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 import os, re, logging, requests, plugins.common.General as General
 
 Plugin_Name = "Australian-Business"
 Concat_Plugin_Name = "australianbusiness"
 The_File_Extensions = {"Main": ".html", "Query": ".html"}
+Domain = "abr.business.gov.au"
+headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -27,19 +28,20 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             try:
 
                 if Type == "ABN":
-                    Main_URL = 'https://abr.business.gov.au/ABN/View?id=' + Query
-                    Response = requests.get(Main_URL).text
+                    Main_URL = f'https://{Domain}/ABN/View?id=' + Query
+                    Response = requests.get(Main_URL, headers=headers).text
 
                     try:
 
                         if 'Error searching ABN Lookup' not in Response:
                             Query = str(int(Query))
+                            Response = General.Response_Filter(Response, f"https://www.{Domain}")
 
                             if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, General.Get_Title(Main_URL), The_File_Extensions["Query"])
 
                                 if Output_file:
-                                    Output_Connections = General.Connections(Query, Plugin_Name, "abr.business.gov.au", "Company Details", Task_ID, Plugin_Name)
+                                    Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
                                     Output_Connections.Output([Output_file], Main_URL, General.Get_Title(Main_URL).strip(" | ABN Lookup"), Concat_Plugin_Name)
                                     Data_to_Cache.append(Main_URL)
 
@@ -53,29 +55,30 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Invalid query provided for ABN Search.")
 
                 elif Type == "ACN":
-                    Main_URL = 'https://abr.business.gov.au/Search/Run'
+                    Main_URL = f'https://{Domain}/Search/Run'
                     Data = {'SearchParameters.SearchText': Query, 'SearchParameters.AllNames': 'true', 'ctl00%24ContentPagePlaceholder%24SearchBox%24MainSearchButton': 'Search'}
-                    Response = requests.post(Main_URL, data=Data).text
+                    Response = requests.post(Main_URL, headers=headers, data=Data).text
+                    Filtered_Response = General.Response_Filter(Response, f"https://www.{Domain}")
                     Limit = General.Get_Limit(kwargs)
 
                     try:
                         ACN_Regex = re.search(r".*[a-zA-Z].*", Query)
 
                         if ACN_Regex:
-                            Main_File = General.Main_File_Create(Directory, Plugin_Name, Response, Query, The_File_Extensions["Main"])
+                            Main_File = General.Main_File_Create(Directory, Plugin_Name, Filtered_Response, Query, The_File_Extensions["Main"])
                             Current_Step = 0
                             ABNs_Regex = re.findall(r"\<input\sid\=\"Results\_NameItems\_\d+\_\_Compressed\"\sname\=\"Results\.NameItems\[\d+\]\.Compressed\"\stype\=\"hidden\"\svalue\=\"(\d{11})\,\d{2}\s\d{3}\s\d{3}\s\d{3}\,0000000001\,Active\,active\,([\d\w\s\&\-\_\.]+)\,Current\,", Response)
 
                             if ABNs_Regex:
-                                Output_Connections = General.Connections(Query, Plugin_Name, "abr.business.gov.au", "Company Details", Task_ID, Plugin_Name)
+                                Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
 
                                 for ABN_URL, ACN in ABNs_Regex:
-                                    Full_ABN_URL = 'https://abr.business.gov.au/ABN/View?abn=' + ABN_URL
+                                    Full_ABN_URL = f'https://{Domain}/ABN/View?abn={ABN_URL}'
 
                                     if Full_ABN_URL not in Cached_Data and Full_ABN_URL not in Data_to_Cache and Current_Step < int(Limit):
                                         ACN = ACN.rstrip()
-                                        Current_Response = requests.get(Full_ABN_URL).text
-                                        print(Full_ABN_URL)
+                                        Current_Response = requests.get(Full_ABN_URL, headers=headers).text
+                                        Current_Response = General.Response_Filter(Current_Response, f"https://www.{Domain}")
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), ACN.replace(' ', '-'), The_File_Extensions["Query"])
 
                                         if Output_file:
@@ -102,11 +105,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make request.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

@@ -4,7 +4,6 @@ import plugins.common.General as General, plugins.common.checkdmarc as checkdmar
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "DNS-Recon"
 Concat_Plugin_Name = "dnsrecon"
-headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0"}
 
 def Search(Query_List, Task_ID):
 
@@ -34,7 +33,8 @@ def Search(Query_List, Task_ID):
                     Title = "DNS Information for " + DNS_Item['base_domain']
 
                     if Link not in Data_to_Cache and Link not in Cached_Data:
-                        Response = requests.get(Link, headers=headers).text
+                        Response = requests.get(Link, headers=General.URL_Headers(User_Agent=True)).text
+                        Response = General.Response_Filter(Response, f"https://www.{Query}")
                         Main_File = General.Main_File_Create(Directory, Plugin_Name, Output_Dict, Query, The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, Title, The_File_Extensions["Query"])
 
@@ -53,7 +53,8 @@ def Search(Query_List, Task_ID):
                 Title = "DNS Information for " + Query
 
                 if Link not in Data_to_Cache and Link not in Cached_Data:
-                    Response = requests.get(Link, headers=headers).text
+                    Response = requests.get(Link, headers=General.URL_Headers(User_Agent=True)).text
+                    Response = General.Response_Filter(Response, f"https://www.{Query}")
                     Main_File = General.Main_File_Create(Directory, Plugin_Name, Output_Dict, Query, The_File_Extensions["Main"])
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, Title, The_File_Extensions["Query"])
 
@@ -68,11 +69,7 @@ def Search(Query_List, Task_ID):
         except:
             logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Error retrieving DNS details.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

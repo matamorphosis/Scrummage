@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 import requests, logging, os, re, plugins.common.General as General
 
 Plugin_Name = "Windows-Store"
 Concat_Plugin_Name = "windowsstore"
 The_File_Extension = ".html"
+Domain = "microsoft.com"
+headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -26,20 +26,19 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            Main_URL = f"https://www.microsoft.com/en-{Location}/search?q={Query}"
-            headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
+            Main_URL = f"https://www.{Domain}/en-{Location}/search?q={Query}"
             Win_Store_Response = requests.get(Main_URL, headers=headers).text
             Main_File = General.Main_File_Create(Directory, Plugin_Name, Win_Store_Response, Query, The_File_Extension)
             Win_Store_Regex = re.findall(r"\/en\-au\/p\/([\w\-]+)\/([\w\d]+)", Win_Store_Response)
-            Output_Connections = General.Connections(Query, Plugin_Name, "microsoft.com", "Application", Task_ID, Concat_Plugin_Name)
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Application", Task_ID, Concat_Plugin_Name)
 
             if Win_Store_Regex:
                 Current_Step = 0
 
                 for Regex_Group_1, Regex_Group_2 in Win_Store_Regex:
                     Item_URL = f"https://www.microsoft.com/en-au/p/{Regex_Group_1}/{Regex_Group_2}"
-                    headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
                     Win_Store_Response = requests.get(Item_URL, headers=headers).text
+                    Win_Store_Response = General.Response_Filter(Win_Store_Response, f"https://www.{Domain}")
                     Title = "Windows Store | " + General.Get_Title(Item_URL)
 
                     if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
@@ -57,11 +56,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

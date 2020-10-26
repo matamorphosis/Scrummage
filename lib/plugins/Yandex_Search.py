@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import requests, re, logging, os, xmltodict, json, plugins.common.General as General
+import requests, logging, os, xmltodict, json, plugins.common.General as General
 
 Plugin_Name = "Yandex"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "yandex.com"
+headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -62,11 +64,11 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            Yandex_Response = requests.get(f"https://yandex.com/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(Limit)}.docs-in-group% 3D1").text
+            Yandex_Response = requests.get(f"https://{Domain}/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(Limit)}.docs-in-group% 3D1").text
             JSON_Response = xmltodict.parse(Yandex_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
-            Output_Connections = General.Connections(Query, Plugin_Name, "yandex.ru", "Search Result", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Search Result", Task_ID, Plugin_Name.lower())
             New_JSON_Response = Recursive_Dict_Check(["yandexsearch", "response", "results", "grouping", "group"], JSON_Response)
 
             if New_JSON_Response:
@@ -88,8 +90,8 @@ def Search(Query_List, Task_ID, **kwargs):
                                 Title = f"Yandex | {Title}"
 
                             if Yandex_URL not in Cached_Data and Yandex_URL not in Data_to_Cache:
-                                headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
                                 Yandex_Item_Response = requests.get(Yandex_URL, headers=headers).text
+                                Yandex_Item_Response = General.Response_Filter(Yandex_Item_Response, f"https://{Domain}")
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Yandex_Item_Response, Yandex_URL, The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -105,11 +107,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - No results found.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

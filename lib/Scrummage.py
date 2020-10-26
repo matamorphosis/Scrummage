@@ -17,16 +17,72 @@ if __name__ == '__main__':
         from crontab import CronTab
         from logging.handlers import RotatingFileHandler
         from ratelimiter import RateLimiter
-        import os, re, plugin_caller, getpass, time, sys, threading, html, secrets, jwt, logging, plugins.common.Connectors as Connectors, plugins.common.General as General
+        import os, re, plugin_caller, getpass, time, sys, threading, html, secrets, jwt, matplotlib, logging, plugins.common.Connectors as Connectors, plugins.common.General as General
 
-        Valid_Plugins = ["Ahmia Darkweb Search", "Blockchain Bitcoin Address Search", "Blockchain Bitcoin Cash Address Search", "Blockchain Ethereum Address Search", "Blockchain Bitcoin Transaction Search", "Blockchain Bitcoin Cash Transaction Search", "Blockchain Ethereum Transaction Search", "Blockchain Monero Transaction Search", "BSB Search", "Business Search - American Central Index Key", "Business Search - American Company Name", "Business Search - Australian Business Number", "Business Search - Australian Company Name", "Business Search - Canadian Business Number", "Business Search - Canadian Company Name", "Business Search - New Zealand Business Number", "Business Search - New Zealand Company Name", "Business Search - United Kingdom Business Number", "Business Search - United Kingdom Company Name", "Certificate Transparency", "Craigslist Search", "Default Password Search", "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions",
-                         "Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Latin Condensed)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes", "DuckDuckGo Search", "Ebay Search", "Flickr Search", "Google Search", "Have I Been Pwned - Password Search",
-                         "Have I Been Pwned - Email Search", "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search", "Instagram Location Search", "Instagram Media Search", "Instagram Tag Search", "Instagram User Search", "iTunes Store Search", "Library Genesis Search", "Naver Search", "Phishstats Search", "Google Play Store Search", "Pinterest Board Search", "Pinterest Pin Search", "Reddit Search", "RSS Feed Search", "Torrent Search", "Twitter Scraper", "Username Search", "Vehicle Registration Search", "Vkontakte User Search", "Vkontakte Group Search", "Vulners Search", "Windows Store Search", "Yandex Search", "YouTube Search"]
-        Plugins_without_Limit = ["BSB Search", "Blockchain Monero Transaction Search", "Business Search - American Central Index Key", "Business Search - Australian Business Number", "Business Search - Canadian Business Number", "Business Search - New Zealand Business Number", "Business Search - United Kingdom Business Number", "Certificate Transparency", "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions", "Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Latin Condensed)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search", "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search", "Instagram Media Search", "Pinterest Pin Search", "Vehicle Registration Search"]
-        API_Plugins = ["Business Search - United Kingdom Business Number", "Business Search - United Kingdom Company Name", "Certificate Transparency", "Craigslist Search", "Ebay Search", "Flickr Search", "Google Search", "Naver Search", "Pinterest Board Search", "Pinterest Pin Search", "Reddit Search", "Twitter Scraper", "Vulners Search", "Yandex Search", "YouTube Search"]
+        Valid_Plugins = ["Ahmia Darkweb Search", "Blockchain - Bitcoin Address Search",
+                         "Blockchain - Bitcoin Cash Address Search", "Blockchain - Ethereum Address Search",
+                         "Blockchain - Bitcoin Transaction Search", "Blockchain - Bitcoin Cash Transaction Search",
+                         "Blockchain - Ethereum Transaction Search", "Blockchain - Monero Transaction Search",
+                         "Builtwith Search", "BSB Search", "Business Search - American Central Index Key",
+                         "Business Search - American Company Name", "Business Search - Australian Business Number",
+                         "Business Search - Australian Company Name", "Business Search - Canadian Business Number",
+                         "Business Search - Canadian Company Name", "Business Search - New Zealand Business Number",
+                         "Business Search - New Zealand Company Name",
+                         "Business Search - United Kingdom Business Number",
+                         "Business Search - United Kingdom Company Name", "Certificate Transparency - SSLMate",
+                         "Certificate Transparency - CRT.sh", "Craigslist Search", "Default Password Search",
+                         "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions",
+                         "Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Latin Condensed)",
+                         "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Middle Eastern)",
+                         "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)",
+                         "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes",
+                         "DuckDuckGo Search", "Ebay Search", "Flickr Search", "Google Search",
+                         "Have I Been Pwned - Password Search", "Have I Been Pwned - Email Search",
+                         "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search",
+                         "Hunter Search - Domain", "Hunter Search - Email", "IP Stack Search",
+                         "Instagram - Location Search", "Instagram - Media Search", "Instagram - Tag Search",
+                         "Instagram - User Search", "iTunes Store Search", "Library Genesis Search", "Naver Search",
+                         "Phishstats Search", "Google Play Store Search", "Pinterest - Board Search",
+                         "Pinterest - Pin Search", "Reddit Search", "RSS Feed Search", "Shodan Search - Domain",
+                         "Shodan Search - Query", "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
+                         "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
+                         "Threat Crowd - Virus Report Search", "Torrent Search", "Twitter Scraper", "Username Search",
+                         "Vehicle Registration Search", "Vkontakte - User Search", "Vkontakte - Group Search",
+                         "Vulners Search", "Windows Store Search", "Yandex Search", "YouTube Search"]
+        Plugins_without_Limit = ["BSB Search", "Blockchain - Monero Transaction Search",
+                                 "Business Search - American Central Index Key",
+                                 "Business Search - Australian Business Number",
+                                 "Business Search - Canadian Business Number",
+                                 "Business Search - New Zealand Business Number",
+                                 "Business Search - United Kingdom Business Number", "Builtwith Search",
+                                 "Certificate Transparency - SSLMate", "Certificate Transparency - CRT.sh",
+                                 "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions",
+                                 "Domain Fuzzer - Punycode (Latin Comprehensive)",
+                                 "Domain Fuzzer - Punycode (Latin Condensed)", "Domain Fuzzer - Punycode (Asian)",
+                                 "Domain Fuzzer - Punycode (Middle Eastern)",
+                                 "Domain Fuzzer - Punycode (Native American)",
+                                 "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes",
+                                 "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search",
+                                 "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search",
+                                 "IP Stack Search", "Instagram - Media Search", "Pinterest - Pin Search", "Shodan Search - Domain",
+                                 "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
+                                 "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
+                                 "Threat Crowd - Virus Report Search", "Vehicle Registration Search"]
+        API_Plugins = ["Business Search - United Kingdom Business Number",
+                       "Business Search - United Kingdom Company Name", "Certificate Transparency - SSLMate",
+                       "Craigslist Search", "Ebay Search", "Flickr Search",
+                       "Google Search", "Hunter Search - Domain", "Hunter Search - Email", "Naver Search",
+                       "Pinterest - Board Search", "Pinterest - Pin Search",
+                       "Reddit Search", "Shodan Search - Domain", "Shodan Search - Query",
+                       "Twitter Scraper", "Vulners Search", "Yandex Search", "YouTube Search", "IP Stack Search"]
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
-        Finding_Types = ["Darkweb Link", "Company Details", "Blockchain Address", "Blockchain Transaction", "BSB Details", "Certificate", "Search Result", "Credentials", "Domain Information", "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group", "Social Media - Place", "Application", "Account", "Publication", "Phishing", "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Exploit", "Economic Details"]
-        Version = "2.6"
+        Finding_Types = ["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
+                         "BSB Details", "Certificate", "Search Result", "Credentials", "Domain Information",
+                         "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group",
+                         "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing",
+                         "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Exploit",
+                         "Economic Details", "Virus", "Virus Report", "Web Application Architecture", "IP Address Information"]
+        Version = "2.7"
 
         try:
             File_Path = os.path.dirname(os.path.realpath('__file__'))
@@ -293,21 +349,29 @@ if __name__ == '__main__':
                         import plugins.Reddit_Search as Reddit_Search
                         Result = Reddit_Search.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[11]:
+                    elif Plugin_Name == API_Plugins[11] or Plugin_Name == API_Plugins[12]:
+                        import plugins.Shodan_Search as Shodan_Search
+                        Result = Shodan_Search.Load_Configuration()
+
+                    elif Plugin_Name == API_Plugins[13]:
                         import plugins.Twitter_Scraper as Twitter_Scraper
                         Result = Twitter_Scraper.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[12]:
+                    elif Plugin_Name == API_Plugins[14]:
                         import plugins.Vulners_Search as Vulners_Search
                         Result = Vulners_Search.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[13]:
+                    elif Plugin_Name == API_Plugins[15]:
                         import plugins.Yandex_Search as Yandex_Search
                         Result = Yandex_Search.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[14]:
+                    elif Plugin_Name == API_Plugins[16]:
                         import plugins.YouTube_Search as YouTube_Search
                         Result = YouTube_Search.Load_Configuration()
+
+                    elif Plugin_Name == API_Plugins[17]:
+                        import plugins.IPStack_Search as IPStack_Search
+                        Result = IPStack_Search.Load_Configuration()
 
                     if Result:
                         return "Passed"
@@ -574,7 +638,13 @@ if __name__ == '__main__':
         def protected(filename):
 
             try:
-                return send_from_directory(os.path.join(app.instance_path, ''), filename)
+                Risk_Level = General.Load_Web_Scrape_Risk_Configuration()
+
+                if filename.endswith('.html') and Risk_Level == 0:
+                    return render_template('restricted.html', username=session.get('user'))
+
+                else:
+                    return send_from_directory(os.path.join(app.instance_path, ''), filename)
 
             except Exception as e:
                 app.logger.error(e)
@@ -824,7 +894,11 @@ if __name__ == '__main__':
 
                 if session.get('user'):
                     labels = Finding_Types
-                    colors = ["#FFFFFF", "#FFFFF9", "#FFFFDC", "#FFFABF", "#FFDBA4", "#FFBD89", "#FF9E6E", "#FF8054", "#FF603B", "#FF3E20", "#FF0000", "#EE0000", "#DD0000", "#CC0000", "#BB0000", "#9A0000", "#790001", "#5A0004", "#3A0002", "#120000", "#170027", "#301934", "#32174d", "#431c53", "#191f45"]
+                    # colors = ['#ff0000', '#ffa07a', '#f08080', '#fa8072', '#e9967a', '#ff6347', '#cd5c5c', '#ff4500', '#dc143c', '#b22222', '#8b0000', '#800000', '#ff9999', '#f08080', '#fa8072', '#ff6961', '#fe6f5e', '#e4717a', '#fd5e53', '#e66771', '#ff6e4a', '#ff5349', '#ff6347', '#ff4040', '#e97451', '#ff5a36', '#cc6666', '#ff355e', '#eb4c42', '#cd5c5c', '#da614e', '#ea3c53', '#ef3038', '#cc4e5c', '#e34234', '#ed2939', '#d73b3e', '#d9603b', '#e03c31', '#be4f62', '#bf4f51', '#cb4154', '#fe2712', '#e32636', '#ed1c24', '#fd0e35', '#da2c43', '#e62020', '#ff033e', '#cc3333', '#e51a4c', '#ff0028', '#ff0038', '#ff003f', '#ff004f', '#ff2400', '#ff2800', '#ff3800', '#ff4500', '#ff0800', '#a45a52', '#ab4b52', '#ce2029', '#dc143c', '#f2003c', '#af4035', '#c23b22', '#e2062c', '#e30022', '#e60026', '#e8000d', '#c41e3a', '#cf1020', '#d9004c', '#b22222', '#d40000', '#a52a2a', '#c80815', '#d3003f', '#ae2029', '#b31b1b', '#cc0000', '#893f45', '#9d2933', '#a32638', '#a9203e', '#ba160c', '#c40233', '#c90016', '#7c4848', '#9c2542', '#be0032', '#9b111e', '#a81c07', '#ae0c00', '#af002a', '#a40000', '#841b2d', '#801818', '#990000', '#7f1734', '#92000a', '#960018', '#701c1c', '#7b1113', '#8b0000', '#860111', '#7c0a02', '#7c1c05', '#800000', '#800020', '#65000b', '#4e1609', '#560319']
+                    colors_blue = ['#00162b', '#001f3f', '#002952', '#003366', '#003d7a', '#00478d', '#0050a1', '#005ab4', '#0064c8', '#006edc', '#0078ef', '#0481ff', '#188bff', '#2b95ff', '#3f9fff', '#52a9ff', '#66b3ff', '#7abcff', '#8dc6ff', '#a1d0ff', '#b4daff', '#c8e4ff', '#dcedff', '#eff7ff']
+                    colors_red = ['#2b0000', '#3f0000', '#520000', '#660000', '#7a0000', '#8d0000', '#a10000', '#b40000', '#c80000', '#dc0000', '#ef0000', '#ff0404', '#ff1818', '#ff2b2b', '#ff3f3f', '#ff5252', '#ff6666', '#ff7a7a', '#ff8d8d', '#ffa1a1']
+                    colors = colors_blue + colors_red
+                    colors = colors[:len(labels)]
                     Mixed_Options = ['Inspecting', 'Reviewing']
                     PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
                     PSQL_Select_Query_2 = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'

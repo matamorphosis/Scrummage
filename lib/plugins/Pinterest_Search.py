@@ -3,6 +3,8 @@ import plugins.common.General as General, json, logging, os, requests
 
 Plugin_Name = "Pinterest"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "pinterest.com"
+headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -45,10 +47,9 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
             if Type == "pin":
                 Local_Plugin_Name = Plugin_Name + "-" + Type
-                Request_URL = "https://api.pinterest.com/v1/pins/" + Query + "/?access_token=" + Load_Configuration() + "&fields=id%2Clink%2Cnote%2Curl%2Ccreated_at%2Cmedia%2Coriginal_link%2Cmetadata%2Ccounts%2Ccolor%2Cboard%2Cattribution"
+                Request_URL = f"https://api.{Domain}/v1/pins/{Query}/?access_token=" + Load_Configuration() + "&fields=id%2Clink%2Cnote%2Curl%2Ccreated_at%2Cmedia%2Coriginal_link%2Cmetadata%2Ccounts%2Ccolor%2Cboard%2Cattribution"
                 Search_Response = requests.get(Request_URL).text
                 Search_Response = json.loads(Search_Response)
-                print(Search_Response)
 
                 if Search_Response.get('message') != "You have exceeded your rate limit. Try again later.":
                     JSON_Response = json.dumps(Search_Response, indent=4, sort_keys=True)
@@ -61,7 +62,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Search_Result_Response, Result_Title, The_File_Extensions["Query"])
 
                         if Output_file:
-                            Output_Connections = General.Connections(Query, Local_Plugin_Name, "pinterest.com", "Social Media - Media", Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Domain, "Social Media - Media", Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output([Main_File, Output_file], Result_URL, Result_Title, Plugin_Name.lower())
                             Data_to_Cache.append(Result_URL)
 
@@ -74,7 +75,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             elif Type == "board":
                 Local_Plugin_Name = Plugin_Name + "-" + Type
                 Request_URL = "https://api.pinterest.com/v1/boards/" + Query + "/pins/?access_token=" + Load_Configuration() + "&fields=id%2Clink%2Cnote%2Curl%2Coriginal_link%2Cmetadata%2Cmedia%2Cimage%2Ccreator%2Ccreated_at%2Ccounts%2Ccolor%2Cboard%2Cattribution&limit=" + str(Limit) + ""
-                Search_Response = requests.get(Request_URL).text
+                Search_Response = requests.get(Request_URL, headers=headers).text
                 Search_Response = json.loads(Search_Response)
 
                 if Search_Response.get('message') != "You have exceeded your rate limit. Try again later.":
@@ -86,7 +87,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     for Response in Search_Response["data"]:
                         Result_Title = "Pinterest | " + Response["note"]
                         Result_URL = Response["url"]
-                        Search_Result_Response = requests.get(Result_URL).text
+                        Search_Result_Response = requests.get(Result_URL, headers=headers).text
 
                         if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache and Current_Step < int(Limit):
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Search_Result_Response, Result_Title, The_File_Extensions["Query"])
@@ -102,11 +103,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                 else:
                     logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import re, os, logging, socket, requests, plugins.common.Rotor as Rotor, plugins.common.General as General, multiprocessing, multiprocessing.pool as mpool
+import os, logging, socket, requests, plugins.common.Rotor as Rotor, plugins.common.General as General, multiprocessing, multiprocessing.pool as mpool
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0"}
+headers = General.URL_Headers(User_Agent=True)
 
 class Fuzzer:
 
@@ -95,7 +95,7 @@ class Fuzzer:
             self.Query_List = General.Convert_to_List(self.Query_List)
 
             for Query in self.Query_List:
-                URL_Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+                URL_Regex = General.Regex_Checker(Query, "URL")
 
                 if URL_Regex:
                     self.URL_Prefix = URL_Regex.group(1)
@@ -198,6 +198,7 @@ class Fuzzer:
 
                         try:
                             Current_Response = requests.get(Host[0], headers=headers, verify=False).text
+                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -241,7 +242,7 @@ class Fuzzer:
             self.Query_List = General.Convert_to_List(self.Query_List)
 
             for Query in self.Query_List:
-                URL_Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+                URL_Regex = General.Regex_Checker(Query, "URL")
 
                 if URL_Regex:
                     self.URL_Prefix = URL_Regex.group(1)
@@ -279,6 +280,7 @@ class Fuzzer:
 
                         try:
                             Current_Response = requests.get(Host[0], headers=headers, verify=False).text
+                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -322,7 +324,7 @@ class Fuzzer:
             self.Query_List = General.Convert_to_List(self.Query_List)
 
             for Query in self.Query_List:
-                URL_Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+                URL_Regex = General.Regex_Checker(Query, "URL")
 
                 if URL_Regex:
                     self.URL_Prefix = URL_Regex.group(1)
@@ -360,6 +362,7 @@ class Fuzzer:
 
                         try:
                             Current_Response = requests.get(Host[0], headers=headers, verify=False).text
+                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -405,7 +408,7 @@ class Fuzzer:
             self.Query_List = General.Convert_to_List(self.Query_List)
 
             for Query in self.Query_List:
-                URL_Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+                URL_Regex = General.Regex_Checker(Query, "URL")
 
                 if URL_Regex:
                     self.URL_Prefix = URL_Regex.group(1)
@@ -447,6 +450,7 @@ class Fuzzer:
 
                         try:
                             Current_Response = requests.get(Host[0], headers=headers, verify=False).text
+                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:

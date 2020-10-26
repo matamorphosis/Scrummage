@@ -3,6 +3,8 @@ import plugins.common.General as General, requests, re, os, logging
 
 The_File_Extension = ".html"
 Plugin_Name = "BSB"
+Domain = "bsbnumbers.com"
+headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID):
 
@@ -21,10 +23,11 @@ def Search(Query_List, Task_ID):
         Query_List = General.Convert_to_List(Query_List)
 
         for Query in Query_List:
-            BSB_Search_URL = f"https://www.bsbnumbers.com/{Query}.html"
-            Response = requests.get(BSB_Search_URL).text
+            BSB_Search_URL = f"https://www.{Domain}/{Query}.html"
+            Response = requests.get(BSB_Search_URL, headers=headers).text
+            Response = General.Response_Filter(Response, f"https://www.{Domain}")
             Error_Regex = re.search(r"Correct\sthe\sfollowing\serrors", Response)
-            Output_Connections = General.Connections(Query, Plugin_Name, "bsbnumbers.com", "BSB Details", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "BSB Details", Task_ID, Plugin_Name.lower())
 
             if not Error_Regex:
 
@@ -41,11 +44,7 @@ def Search(Query_List, Task_ID):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Query returned error, probably does not exist.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

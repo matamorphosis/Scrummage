@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 import os, json, logging, requests, base64, plugins.common.General as General
 
 Plugin_Name = "UK-Business"
 Concat_Plugin_Name = "ukbusiness"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "companieshouse.gov.uk"
+headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -54,9 +55,9 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                     if Authorization_Key:
                         Authorization_Key = "Basic " + Authorization_Key.decode('ascii')
-                        headers = {"Authorization": Authorization_Key}
-                        Main_URL = 'https://api.companieshouse.gov.uk/company/' + Query
-                        Response = requests.get(Main_URL, headers=headers).text
+                        headers_auth = {"Authorization": Authorization_Key}
+                        Main_URL = f'https://api.{Domain}/company/{Query}'
+                        Response = requests.get(Main_URL, headers=headers_auth).text
                         JSON_Response = json.loads(Response)
                         Indented_JSON_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
 
@@ -66,14 +67,16 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                             if Response and '{"errors":[{"error":"company-profile-not-found","type":"ch:service"}]}' not in Response:
 
                                 if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
-                                    Result_URL = 'https://beta.companieshouse.gov.uk/company/' + str(JSON_Response["company_number"])
-                                    Result_Response = requests.get(Result_URL).text
+                                    Current_Company_Number = str(JSON_Response["company_number"])
+                                    Result_URL = f'https://beta.{Domain}/company/{Current_Company_Number}'
+                                    Result_Response = requests.get(Result_URL, headers=headers).text
+                                    Result_Response = General.Response_Filter(Result_Response, f"https://beta.{Domain}")
                                     UKCN = str(JSON_Response["company_name"])
                                     Main_Output_File = General.Main_File_Create(Directory, Plugin_Name, Indented_JSON_Response, Query, The_File_Extensions["Main"])
-                                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Result_Response, str(JSON_Response["company_name"]), The_File_Extensions["Query"])
+                                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Result_Response, UKCN, The_File_Extensions["Query"])
 
                                     if Output_file:
-                                        Output_Connections = General.Connections(Query, Plugin_Name, "companieshouse.gov.uk", "Company Details", Task_ID, Plugin_Name)
+                                        Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
                                         Output_Connections.Output([Main_Output_File, Output_file], Result_URL, f"UK Business Number {Query}", Concat_Plugin_Name)
                                         Data_to_Cache.append(Main_URL)
 
@@ -94,8 +97,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                         Limit = General.Get_Limit(kwargs)
 
                         try:
-                            Main_URL = f'https://api.companieshouse.gov.uk/search/companies?q={Query}&items_per_page={Limit}'
-                            headers = {"Authorization": "Basic SGI5M0V4STRkMDZ2d0NHSzBZTkI5QUxnQ3N3UDNhNEFNMDRHeWtVdzo="}
+                            Main_URL = f'https://api.{Domain}/search/companies?q={Query}&items_per_page={Limit}'
+                            headers = {"Authorization": Authorization_Key}
                             Response = requests.get(Main_URL, headers=headers).text
                             JSON_Response = json.loads(Response)
                             Indented_JSON_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
@@ -103,21 +106,22 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                             try:
 
                                 if JSON_Response['total_results'] > 0:
-                                    General.Main_File_Create(Directory, Plugin_Name, Indented_JSON_Response, Query, The_File_Extensions["Main"])
-                                    Output_Connections = General.Connections(Query, Plugin_Name, "companieshouse.gov.uk", "Company Details", Task_ID, Plugin_Name)
+                                    Main_Output_File = General.Main_File_Create(Directory, Plugin_Name, Indented_JSON_Response, Query, The_File_Extensions["Main"])
+                                    Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Company Details", Task_ID, Plugin_Name)
 
                                     for Item in JSON_Response['items']:
                                         UKBN_URL = Item['links']['self']
-                                        Full_UKBN_URL = 'https://beta.companieshouse.gov.uk' + str(UKBN_URL)
+                                        Full_UKBN_URL = f'https://beta.{Domain}{str(UKBN_URL)}'
                                         UKBN = UKBN_URL.strip("/company/")
 
                                         if Full_UKBN_URL not in Cached_Data and Full_UKBN_URL not in Data_to_Cache:
                                             UKCN = Item['title']
                                             Current_Response = requests.get(Full_UKBN_URL).text
+                                            Current_Response = General.Response_Filter(Current_Response, f"https://beta.{Domain}")
                                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), UKCN, The_File_Extensions["Query"])
 
                                             if Output_file:
-                                                Output_Connections.Output([Output_file], Full_UKBN_URL, f"UK Business Number {UKBN} for Query {Query}", Concat_Plugin_Name)
+                                                Output_Connections.Output([Main_Output_File, Output_file], Full_UKBN_URL, f"UK Business Number {UKBN} for Query {Query}", Concat_Plugin_Name)
                                                 Data_to_Cache.append(Full_UKBN_URL)
 
                                             else:
@@ -138,11 +142,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make request.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

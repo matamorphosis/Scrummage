@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import requests, logging, os, re, plugins.common.General as General, json, flickr_api
-headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
+headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 Plugin_Name = "Flickr"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "flickr.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -30,7 +31,7 @@ def Convert_to_JSON(Data):
     Flickr_Regex = re.search(r"\[(.+)\]", Data)
 
     if Flickr_Regex:
-        New_Data = Flickr_Regex.group(1).replace("id=b", "'id': ").replace("title=b", "'title': ").replace("(", "{").replace(")", "}")
+        New_Data = Flickr_Regex.group(1).replace("...", "").replace("id=b", "'id': ").replace("title=b", "'title': ").replace("(", "{").replace(")", "}").replace("\'}", "}").replace("}", "\'}")
         New_Data = New_Data.replace("Photo", "")
         New_Data = f"[{New_Data}]"
         New_Data = eval(New_Data)
@@ -72,11 +73,11 @@ def Search(Query_List, Task_ID, **kwargs):
 
                     if Photos:
                         Main_File = General.Main_File_Create(Directory, Plugin_Name, Convert_to_JSON(Photos), Query, The_File_Extensions["Main"])
-                        Output_Connections = General.Connections(Query, Plugin_Name, "flickr.com", "Social Media - Media", Task_ID, Plugin_Name.lower())
+                        Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Social Media - Media", Task_ID, Plugin_Name.lower())
                         Current_Step = 0
 
                         for Photo in Photos:
-                            Photo_URL = f"https://www.flickr.com/photos/{Query}/{Photo['id']}"
+                            Photo_URL = f"https://www.{Domain}/photos/{Query}/{Photo['id']}"
 
                             if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(Limit):
                                 Photo_Response = requests.get(Photo_URL, headers=headers).text
@@ -105,11 +106,11 @@ def Search(Query_List, Task_ID, **kwargs):
 
                     if Photos:
                         Main_File = General.Main_File_Create(Directory, Plugin_Name, Convert_to_JSON(Photos), Query, The_File_Extensions["Main"])
-                        Output_Connections = General.Connections(Query, Plugin_Name, "flickr.com", "Data Leakage", Task_ID, Plugin_Name.lower())
+                        Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Data Leakage", Task_ID, Plugin_Name.lower())
                         Current_Step = 0
 
                         for Photo in Photos:
-                            Photo_URL = f"https://www.flickr.com/photos/{Query}/{Photo['id']}"
+                            Photo_URL = f"https://www.{Domain}/photos/{Query}/{Photo['id']}"
 
                             if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(Limit):
                                 Photo_Response = requests.get(Photo_URL, headers=headers).text
@@ -130,11 +131,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 except:
                     logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make API call.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

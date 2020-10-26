@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import requests, re, logging, os, json, math, plugins.common.General as General
+import requests, re, logging, os, json, plugins.common.General as General
 from googleapiclient.discovery import build
 
 Plugin_Name = "Google"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "google.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -79,7 +80,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 CSE_JSON_Response = json.loads(CSE_JSON_Output_Response)
                 Output_Name = f"{Query}-{str(Current_Start)}"
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, CSE_JSON_Output_Response, Output_Name, The_File_Extensions["Main"])
-                Output_Connections = General.Connections(Query, Plugin_Name, "google.com", "Search Result", Task_ID, Plugin_Name.lower())
+                Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Search Result", Task_ID, Plugin_Name.lower())
 
                 if 'items' in CSE_JSON_Response:
 
@@ -95,8 +96,8 @@ def Search(Query_List, Task_ID, **kwargs):
                                     Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\.]+\.\w{2,3}(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
 
                                     if Path_Regex:
-                                        headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
-                                        Google_Item_Response = requests.get(Google_Item_URL, headers=headers).text
+                                        Google_Item_Response = requests.get(Google_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
+                                        Google_Item_Response = General.Response_Filter(Google_Item_Response, f"https://www.{Domain}")
                                         Output_Path = Path_Regex.group(4).replace("/", "-")
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Output_Name, Plugin_Name, Google_Item_Response, Output_Path, The_File_Extensions["Query"])
 
@@ -121,11 +122,7 @@ def Search(Query_List, Task_ID, **kwargs):
                     logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - No results found.")
                     break
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

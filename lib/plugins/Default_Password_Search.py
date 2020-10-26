@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 import requests, logging, os, json, re, plugins.common.General as General
 
 Plugin_Name = "Default-Password"
 Concat_Plugin_Name = "defaultpassword"
 The_File_Extension = ".html"
+Domain = "default-password.info"
+headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -25,16 +25,16 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            URL_Body = 'https://default-password.info'
+            URL_Body = f'https://{Domain}'
             Main_URL = URL_Body + '/' + Query.lower().replace(' ', '-')
-            headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
             Response = requests.get(Main_URL, headers=headers).text
-            Main_File = General.Main_File_Create(Directory, Plugin_Name, Response, Query, The_File_Extension)
+            Filtered_Response = General.Response_Filter(Response, f"https://www.{Domain}")
+            Main_File = General.Main_File_Create(Directory, Plugin_Name, Filtered_Response, Query, The_File_Extension)
             Regex = re.findall(r'\<tr\>\s+\<td\sclass\=\"name\"\>\s+\<a\shref\=\"([\/\d\w\-\+\?\.]+)\"\>([\/\d\w\-\+\?\.\(\)\s\,\;\:\~\`\!\@\#\$\%\^\&\*\[\]\{\}]+)\<\/a\>\s+\<\/td\>', Response)
 
             if Regex:
                 Current_Step = 0
-                Output_Connections = General.Connections(Query, Plugin_Name, "default-password.info", "Credentials", Task_ID, Concat_Plugin_Name)
+                Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Credentials", Task_ID, Concat_Plugin_Name)
 
                 for URL, Title in Regex:
                     Item_URL = URL_Body + URL
@@ -46,9 +46,17 @@ def Search(Query_List, Task_ID, **kwargs):
                         try:
                             Detailed_Item_URL = URL_Body + Current_Item_Regex.group(1)
                             Detailed_Response = requests.get(Detailed_Item_URL, headers=headers).text
+                            JSON_Response = General.Is_JSON(Detailed_Response)
+
+                            if JSON_Response:
+                                Output_Response = "<head><title>" + JSON_Response["title"] + "</title></head>\n"
+                                Output_Response = Output_Response + JSON_Response["data"]
+
+                            else:
+                                Output_Response = General.Response_Filter(Detailed_Response, f"https://www.{Domain}")
 
                             if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Detailed_Response, Title, The_File_Extension)
+                                Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Response, Title, The_File_Extension)
 
                                 if Output_file:
                                     Output_Connections.Output([Main_File, Output_file], Item_URL, General.Get_Title(Item_URL), Concat_Plugin_Name)
@@ -66,13 +74,9 @@ def Search(Query_List, Task_ID, **kwargs):
                         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression for current result.")
 
             else:
-                logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression for Query.")
+                logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression for provided query.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

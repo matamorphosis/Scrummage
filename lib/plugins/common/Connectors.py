@@ -135,7 +135,6 @@ def Load_Elasticsearch_Configuration():
         logging.warning(f"{Date()} Connectors Library - {str(e)}.")
 
 def Load_Main_Database():
-    logging.info(f"{Date()} Connectors Library - Loading Scrummage's Main Database configuration data.")
 
     try:
         with open(Configuration_File) as JSON_File:
@@ -296,7 +295,15 @@ def DOCX_Output(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task
                 document = Document(Complete_File)
 
             else:
+                from docx.shared import Inches
+                from docx.enum.text import WD_ALIGN_PARAGRAPH
                 document = Document()
+                h1 = document.add_heading(f'Scrummage Finding Report for {Plugin_Name} Plugin', 0)
+                h1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                image = document.add_picture(f"{File_Dir}/static/images/search.png", width=Inches(2.00))
+                last_paragraph = document.paragraphs[-1]
+                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                document.add_page_break()
 
             Document_Data = (
                 ('Plugin', Plugin_Name),
@@ -353,6 +360,7 @@ def Defect_Dojo_Output(Title, Description):
 
 def Main_Database_Insert(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task_ID):
     Connection = Load_Main_Database()
+    logging.info(f"{Date()} Connectors Library - Loading Scrummage's Main Database configuration data.")
 
     if Connection:
 

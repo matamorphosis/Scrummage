@@ -21,4 +21,6 @@ tweepy
 ratelimiter
 pyleri
 publicsuffix2
-bs4
+shodan
+builtwith
+pyhunter

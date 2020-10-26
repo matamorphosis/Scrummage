@@ -13,7 +13,7 @@
       {% block content %}
       {% if loggedout %}
       <main>
-         <p id="logintitle" class="loginscreentitle">Logged out. Log in to continue.</p>
+         <p id="logintitle" class="loginscreentitle">Successfully logged out. Please log in to continue</p>
          <div style="text-align: center;">
             <div class="login_div" style="padding: 0px 20px 0px 20px;">
                <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
@@ -34,7 +34,7 @@
       </main>
       {% else %}
       <main>
-         <p id="logintitle" class="loginscreentitle">Welcome to Scrummage! Please log in to continue.</p>
+         <p id="logintitle" class="loginscreentitle">Welcome to Scrummage! Please log in to continue</p>
          <div style="text-align: center;">
             <div class="login_div" style="padding: 0px 20px 0px 20px;">
                <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">

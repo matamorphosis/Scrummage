@@ -4,6 +4,8 @@ import plugins.common.General as General, vulners, json, os, requests, logging
 Unacceptable_Bulletins = ["advertisement", "kitsploit"]
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "Vulners"
+Domain = "vulners.com"
+headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -47,14 +49,15 @@ def Search(Query_List, Task_ID, **kwargs):
             Search_Response = vulners_api.search(Query, limit=int(Limit))
             JSON_Response = json.dumps(Search_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Response, Query, The_File_Extensions["Main"])
-            Output_Connections = General.Connections(Query, Plugin_Name, "vulners.com", "Exploit", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Exploit", Task_ID, Plugin_Name.lower())
 
             for Search_Result in Search_Response:
 
                 if Search_Result["bulletinFamily"] not in Unacceptable_Bulletins:
                     Result_Title = Search_Result["title"]
                     Result_URL = Search_Result["vhref"]
-                    Search_Result_Response = requests.get(Result_URL).text
+                    Search_Result_Response = requests.get(Result_URL, headers=headers).text
+                    Search_Result_Response = General.Response_Filter(Search_Result_Response, f"https://{Domain}")
 
                     if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Search_Result_Response, Result_Title, The_File_Extensions["Query"])
@@ -69,11 +72,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 else:
                     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Skipping as bulletin type is not supported.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

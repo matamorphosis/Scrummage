@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import requests, re, os, json, logging, plugins.common.General as General
+#!/usr/bin/env python3
+import requests, os, json, logging, plugins.common.General as General
 
 Plugin_Name = "Doing-Business"
 Concat_Plugin_Name = "doingbusiness"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "doingbusiness.org"
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -24,7 +23,8 @@ def Search(Query_List, Task_ID, **kwargs):
         Query_List = General.Convert_to_List(Query_List)
 
         for Query in Query_List:
-            headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0", "Accept": "application/json", "Referer": f"https://www.doingbusiness.org/en/data/exploreeconomies/{Query}"}
+            headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True)
+            headers["Referer"] = f"https://www.doingbusiness.org/en/data/exploreeconomies/{Query}"
             Main_URL = f"https://wbgindicatorsqa.azure-api.net/DoingBusiness/api/GetEconomyByURL/{Query}"
             Doing_Business_Response = requests.get(Main_URL, headers=headers).text
             JSON_Response = json.loads(Doing_Business_Response)
@@ -32,16 +32,17 @@ def Search(Query_List, Task_ID, **kwargs):
 
             if 'message' not in JSON_Response:
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
-                headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0"}
-                Item_URL = f"https://www.doingbusiness.org/en/data/exploreeconomies/{Query}"
+                headers = General.URL_Headers(User_Agent=True)
+                Item_URL = f"https://www.{Domain}/en/data/exploreeconomies/{Query}"
                 Title = f"Doing Business | {Query}"
                 Current_Doing_Business_Response = requests.get(Item_URL, headers=headers).text
+                Current_Doing_Business_Response = General.Response_Filter(Current_Doing_Business_Response, f"https://www.{Domain}")
 
                 if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache:
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Current_Doing_Business_Response, Query, The_File_Extensions["Query"])
 
                     if Output_file:
-                        Output_Connections = General.Connections(Query, Plugin_Name, "doingbusiness.org", "Economic Details", Task_ID, Concat_Plugin_Name)
+                        Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Economic Details", Task_ID, Concat_Plugin_Name)
                         Output_Connections.Output([Main_File, Output_file], Item_URL, Title, Concat_Plugin_Name)
                         Data_to_Cache.append(Item_URL)
 
@@ -51,11 +52,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

@@ -4,6 +4,7 @@ from ebaysdk.finding import Connection
 
 Plugin_Name = "Ebay"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "ebay.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -54,7 +55,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
 
                 if JSON_Response["ack"] == "Success":
-                    Output_Connections = General.Connections(Query, Plugin_Name, "ebay.com", "Search Result", Task_ID, Plugin_Name.lower())
+                    Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Search Result", Task_ID, Plugin_Name.lower())
                     Current_Step = 0
 
                     for JSON_Line in JSON_Response['searchResult']['item']:
@@ -63,8 +64,8 @@ def Search(Query_List, Task_ID, **kwargs):
 
                         if Ebay_Item_URL not in Cached_Data and Ebay_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                             Ebay_Item_Regex = re.search(r"https\:\/\/www\.ebay\.com\/itm\/([\w\d\-]+)\-\/\d+", Ebay_Item_URL)
-                            headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
-                            Ebay_Item_Response = requests.get(Ebay_Item_URL, headers=headers).text
+                            Ebay_Item_Response = requests.get(Ebay_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
+                            Ebay_Item_Response = General.Response_Filter(Ebay_Item_Response, f"https://www.{Domain}")
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Ebay_Item_Response, Ebay_Item_Regex.group(1).rstrip("-"), The_File_Extensions["Query"])
 
                             if Output_file:
@@ -82,11 +83,7 @@ def Search(Query_List, Task_ID, **kwargs):
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make API call.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

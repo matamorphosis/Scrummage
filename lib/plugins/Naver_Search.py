@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import requests, re, logging, os, json, urllib.parse, plugins.common.General as General
+import requests, logging, os, json, urllib.parse, plugins.common.General as General
 
 Plugin_Name = "Naver"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
+Domain = "naver.com"
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -50,13 +51,13 @@ def Search(Query_List, Task_ID, **kwargs):
 
         for Query in Query_List:
             URL_Query = urllib.parse.quote(Query)
-            URL = f"https://openapi.naver.com/v1/search/webkr.json?query={URL_Query}&display={str(Limit)}&sort=sim"
+            URL = f"https://openapi.{Domain}/v1/search/webkr.json?query={URL_Query}&display={str(Limit)}&sort=sim"
             Headers = {"X-Naver-Client-Id": Naver_Details[0], "X-Naver-Client-Secret": Naver_Details[1]}
             Naver_Response = requests.get(URL, headers=Headers).text
             JSON_Response = json.loads(Naver_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
-            Output_Connections = General.Connections(Query, Plugin_Name, "naver.com", "Search Result", Task_ID, Plugin_Name.lower())
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Search Result", Task_ID, Plugin_Name.lower())
 
             if JSON_Response.get('items'):
 
@@ -70,8 +71,8 @@ def Search(Query_List, Task_ID, **kwargs):
                             Title = f"Naver | {Title}"
 
                             if Naver_URL not in Cached_Data and Naver_URL not in Data_to_Cache:
-                                headers = {'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0', 'Accept': 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
-                                Naver_Item_Response = requests.get(Naver_URL, headers=headers).text
+                                Naver_Item_Response = requests.get(Naver_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
+                                Naver_Item_Response = General.Response_Filter(Naver_Item_Response, f"https://www.{Domain}")
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Naver_Item_Response, Naver_URL, The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -87,11 +88,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - No results found.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

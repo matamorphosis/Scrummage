@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 import requests, logging, os, re, plugins.common.General as General
 
 Plugin_Name = "Username-Search"
 Concat_Plugin_Name = "usernamesearch"
 The_File_Extension = ".html"
+Domain = "usersearch.org"
+General.URL_Headers(User_Agent=True, Application_JSON_CT=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -25,20 +25,21 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            Main_URL = "https://usersearch.org/results_normal.php"
-            headers = {'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'}
+            Main_URL = f"https://{Domain}/results_normal.php"
             body = {"ran": "", "username": Query}
             Response = requests.post(Main_URL, headers=headers, data=body).text
-            Main_File = General.Main_File_Create(Directory, Plugin_Name, Response, Query, The_File_Extension)
+            Filtered_Response = General.Response_Filter(Response, f"https://{Domain}")
+            Main_File = General.Main_File_Create(Directory, Plugin_Name, Filtered_Response, Query, The_File_Extension)
             Link_Regex = re.findall(r"\<a\sclass\=\"pretty-button results-button\"\shref\=\"(https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+~#=\.\/\?]+)\"\starget\=\"\_blank\"\>View Profile\<\/a\>", Response)
-            Output_Connections = General.Connections(Query, Plugin_Name, "https://usersearch.org/", "Account", Task_ID, Concat_Plugin_Name)
+            Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Account", Task_ID, Concat_Plugin_Name)
 
             if Link_Regex:
                 Current_Step = 0
 
                 for Item_URL, WWW in Link_Regex:
-                    headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'}
+                    headers = General.URL_User_Agent_Headers
                     Response = requests.get(Item_URL, headers=headers).text
+                    Response = General.Response_Filter(Response, f"https://{Domain}")
 
                     if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, Item_URL, The_File_Extension)
@@ -56,11 +57,7 @@ def Search(Query_List, Task_ID, **kwargs):
             else:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to match regular expression.")
 
-        if Cached_Data:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "a")
-
-        else:
-            General.Write_Cache(Directory, Data_to_Cache, Plugin_Name, "w")
+        General.Write_Cache(Directory, Cached_Data, Data_to_Cache, Plugin_Name)
 
     except Exception as e:
         logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - {str(e)}")

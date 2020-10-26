@@ -45,11 +45,11 @@ class Plugin_Caller:
                 import plugins.Vulners_Search as Vulners_Search
                 Thread_1 = threading.Thread(target=Vulners_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Vkontakte User Search":
+            elif self.plugin_name == "Vkontakte - User Search":
                 import plugins.Vkontakte_Search as Vkontakte_Search
                 Thread_1 = threading.Thread(target=Vkontakte_Search.Search, args=(self.query, self.task_id, "User",), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Vkontakte Group Search":
+            elif self.plugin_name == "Vkontakte - Group Search":
                 import plugins.Vkontakte_Search as Vkontakte_Search
                 Thread_1 = threading.Thread(target=Vkontakte_Search.Search, args=(self.query, self.task_id, "Group",), kwargs={"Limit": self.limit, })
 
@@ -69,6 +69,34 @@ class Plugin_Caller:
                 import plugins.Torrent_Search as Torrent_Search
                 Thread_1 = threading.Thread(target=Torrent_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
+            elif self.plugin_name == "Threat Crowd - Virus Report Search":
+                import plugins.Threat_Crowd_Search as Threat_Crowd_Search
+                Thread_1 = threading.Thread(target=Threat_Crowd_Search.Search, args=(self.query, self.task_id, "Virus Report",))
+
+            elif self.plugin_name == "Threat Crowd - IP Address Search":
+                import plugins.Threat_Crowd_Search as Threat_Crowd_Search
+                Thread_1 = threading.Thread(target=Threat_Crowd_Search.Search, args=(self.query, self.task_id, "IP Address",))
+
+            elif self.plugin_name == "Threat Crowd - Email Search":
+                import plugins.Threat_Crowd_Search as Threat_Crowd_Search
+                Thread_1 = threading.Thread(target=Threat_Crowd_Search.Search, args=(self.query, self.task_id, "Email",))
+
+            elif self.plugin_name == "Threat Crowd - Domain Search":
+                import plugins.Threat_Crowd_Search as Threat_Crowd_Search
+                Thread_1 = threading.Thread(target=Threat_Crowd_Search.Search, args=(self.query, self.task_id, "Domain",))
+
+            elif self.plugin_name == "Threat Crowd - Antivirus Search":
+                import plugins.Threat_Crowd_Search as Threat_Crowd_Search
+                Thread_1 = threading.Thread(target=Threat_Crowd_Search.Search, args=(self.query, self.task_id, "AV",))
+
+            elif self.plugin_name == "Shodan Search - Query":
+                import plugins.Shodan_Search as Shodan_Search
+                Thread_1 = threading.Thread(target=Shodan_Search.Search, args=(self.query, self.task_id, "Search",), kwargs={"Limit": self.limit, })
+
+            elif self.plugin_name == "Shodan Search - Host":
+                import plugins.Shodan_Search as Shodan_Search
+                Thread_1 = threading.Thread(target=Shodan_Search.Search, args=(self.query, self.task_id, "Host",))
+
             elif self.plugin_name == "RSS Feed Search":
                 import plugins.RSS_Feed_Search as RSS_Feed_Search
                 Thread_1 = threading.Thread(target=RSS_Feed_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
@@ -77,15 +105,15 @@ class Plugin_Caller:
                 import plugins.Reddit_Search as Reddit_Search
                 Thread_1 = threading.Thread(target=Reddit_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Phishstats Search":
+            elif self.plugin_name == "Phishstats - Search":
                 import plugins.Phishstats_Search as Phishstats_Search
                 Thread_1 = threading.Thread(target=Phishstats_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Pinterest Pin Search":
+            elif self.plugin_name == "Pinterest - Pin Search":
                 import plugins.Pinterest_Search as Pinterest_Search
                 Thread_1 = threading.Thread(target=Pinterest_Search.Search, args=(self.query, self.task_id, "pin"), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Pinterest Board Search":
+            elif self.plugin_name == "Pinterest - Board Search":
                 import plugins.Pinterest_Search as Pinterest_Search
                 Thread_1 = threading.Thread(target=Pinterest_Search.Search, args=(self.query, self.task_id, "board"), kwargs={"Limit": self.limit, })
 
@@ -97,25 +125,37 @@ class Plugin_Caller:
                 import plugins.Library_Genesis_Search as Library_Genesis_Search
                 Thread_1 = threading.Thread(target=Library_Genesis_Search.Search, args=(self.query, self.task_id), kwargs={"Limit": self.limit, })
 
+            elif self.plugin_name == "IP Stack Search":
+                import plugins.IPStack_Search as IPStack_Search
+                Thread_1 = threading.Thread(target=IPStack_Search.Search, args=(self.query, self.task_id,))
+
             elif self.plugin_name == "iTunes Store Search":
                 import plugins.ITunes_Store_Search as ITunes_Store_Search
                 Thread_1 = threading.Thread(target=ITunes_Store_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Instagram User Search":
+            elif self.plugin_name == "Instagram - User Search":
                 import plugins.Instagram_Search as Instagram_Search
-                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "User"))
+                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "User"), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Instagram Tag Search":
+            elif self.plugin_name == "Instagram - Tag Search":
                 import plugins.Instagram_Search as Instagram_Search
-                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Tag"))
+                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Tag"), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Instagram Media Search":
+            elif self.plugin_name == "Instagram - Media Search":
                 import plugins.Instagram_Search as Instagram_Search
                 Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Media"))
 
-            elif self.plugin_name == "Instagram Location Search":
+            elif self.plugin_name == "Instagram - Location Search":
                 import plugins.Instagram_Search as Instagram_Search
-                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Location"))
+                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Location"), kwargs={"Limit": self.limit, })
+
+            elif self.plugin_name == "Hunter Search - Email":
+                import plugins.Hunter_Search as Hunter_Search
+                Thread_1 = threading.Thread(target=Hunter_Search.Search, args=(self.query, self.task_id, "Email"), kwargs={"Limit": self.limit, })
+
+            elif self.plugin_name == "Hunter Search - Domain":
+                import plugins.Hunter_Search as Hunter_Search
+                Thread_1 = threading.Thread(target=Hunter_Search.Search, args=(self.query, self.task_id, "Domain"), kwargs={"Limit": self.limit, })
 
             elif self.plugin_name == "Have I Been Pwned - Password Search":
                 import plugins.Have_I_Been_Pwned as Have_I_Been_Pwned
@@ -214,9 +254,17 @@ class Plugin_Caller:
                 import plugins.Craigslist_Search as Craigslist_Search
                 Thread_1 = threading.Thread(target=Craigslist_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Certificate Transparency":
+            elif self.plugin_name == "Certificate Transparency - SSLMate":
                 import plugins.Certificate_Transparency as Certificate_Transparency
                 Thread_1 = threading.Thread(target=Certificate_Transparency.Search, args=(self.query, self.task_id,))
+
+            elif self.plugin_name == "Certificate Transparency - CRT.sh":
+                import plugins.Certificate_Transparency_CRT as Certificate_Transparency
+                Thread_1 = threading.Thread(target=Certificate_Transparency.Search, args=(self.query, self.task_id,))
+
+            elif self.plugin_name == "Builtwith Search":
+                import plugins.BuiltWith_Search as BuiltWith_Search
+                Thread_1 = threading.Thread(target=BuiltWith_Search.Search, args=(self.query, self.task_id,))
 
             elif self.plugin_name == "Business Search - United Kingdom Business Number":
                 import plugins.UK_Business_Search as UK_Business_Search
@@ -262,31 +310,31 @@ class Plugin_Caller:
                 import plugins.BSB_Search as BSB_Search
                 Thread_1 = threading.Thread(target=BSB_Search.Search, args=(self.query, self.task_id))
 
-            elif self.plugin_name == "Blockchain Monero Transaction Search":
+            elif self.plugin_name == "Blockchain - Monero Transaction Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Transaction_Search, args=(self.query, self.task_id, "monero",))
 
-            elif self.plugin_name == "Blockchain Ethereum Transaction Search":
+            elif self.plugin_name == "Blockchain - Ethereum Transaction Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Transaction_Search, args=(self.query, self.task_id, "eth",))
 
-            elif self.plugin_name == "Blockchain Bitcoin Cash Transaction Search":
+            elif self.plugin_name == "Blockchain - Bitcoin Cash Transaction Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Transaction_Search, args=(self.query, self.task_id, "bch",))
 
-            elif self.plugin_name == "Blockchain Bitcoin Transaction Search":
+            elif self.plugin_name == "Blockchain - Bitcoin Transaction Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Transaction_Search, args=(self.query, self.task_id, "btc",))
 
-            elif self.plugin_name == "Blockchain Ethereum Address Search":
+            elif self.plugin_name == "Blockchain - Ethereum Address Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Address_Search, args=(self.query, self.task_id, "eth",))
 
-            elif self.plugin_name == "Blockchain Bitcoin Cash Address Search":
+            elif self.plugin_name == "Blockchain - Bitcoin Cash Address Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Address_Search, args=(self.query, self.task_id, "bch",))
 
-            elif self.plugin_name == "Blockchain Bitcoin Address Search":
+            elif self.plugin_name == "Blockchain - Bitcoin Address Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Address_Search, args=(self.query, self.task_id, "btc",))
 
@@ -301,10 +349,11 @@ class Plugin_Caller:
             Thread_1.join()
 
         except Exception as e:
-            logging.warning(f"{General.Date()} - Plugin Caller Error - {e}")
+            print(f"{General.Date()} - Plugin Caller Error - {e}")
             
         Thread_2 = threading.Thread(target=Stopper, args=[self.task_id])
         Thread_2.start()
+        Thread_2.join()
         
 if __name__ == "__main__":
     import argparse, sys
