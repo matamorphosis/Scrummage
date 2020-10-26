@@ -4,8 +4,8 @@
 # Scrummage  
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 **VERSION 2.7**
-- New Plugins, refer to [WIKI](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
-- Improved web scraping for findings.
+- New Plugins, refer to the Wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
+- Improved web scraping for findings, refer to the new Wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Web-Scraping)
 - More efficient, centrally managed code.
 - Improved reporting for DOCX module.
 - Code enhancements / bug fixes.  
