@@ -4,8 +4,8 @@
 # Scrummage  
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 **VERSION 2.7**
-- New Plugins, refer to the Wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
-- Improved web scraping for findings, refer to the new Wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Web-Scraping)
+- New Plugins, refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
+- Improved web scraping for findings, refer to the new wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Web-Scraping)
 - More efficient, centrally managed code.
 - Improved reporting for DOCX module.
 - Code enhancements / bug fixes.  
@@ -14,7 +14,7 @@ Scrummage is an OSINT tool that centralises search functionality from powerful, 
 - The https://github.com/Netflix-Skunkworks/Scumblr project, which while is now deprecated, inspired this concept.
 - The OSINT framework, a high-level overview of a range of sites that can be used to search for a variety of things, which can be found at https://osintframework.com/ or https://github.com/lockfale/OSINT-Framework.
 
-While at first glance the web application may not look that original when compared to Scumblr, the plugins this tool uses is mainly what makes this project unique, where the provided Python/Flask web application is just a simple, lightweight, and scalable way of providing users with the ability to manage large pools of results. The other main benefit this projects brags is a simpler, up-to-date installation process. 
+While at first glance the web application may not look all that different when compared to Scumblr, the copious amounts of plugins this tool comes with is mainly what makes this project unique, where the provided Python/Flask web application is just a simple, lightweight, and scalable way of providing users with the ability to manage large pools of results. The other main benefit this projects brags is a much simpler installation process, which is kept up to date, compared to Scumblr which is now deprecated. 
 
 Any feedback is welcome.
 
@@ -22,14 +22,21 @@ Any feedback is welcome.
 
 # An Overview of the Web Application
 
-**Some of the Available Plugins**  
+**Some of the Many Available Scrummage Plugins**  
 * Blockchain Search
 * Domain Fuzzer
 * Twitter Scraper
 * Instagram Search
 * Have I Been Pwned Search
 * Ahmia Darkweb Search
-* Many more... Refer to the "Long List of Tasks" Wiki file for the full list.
+* IP Stack Search
+* Threat Crowd Search
+* Yandex and Naver Search
+* Vkontakte Search
+* Vulners Search
+* Built With Search
+* YouTube Search
+* Many more... Refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks) for the full list.
 
 ---
 
