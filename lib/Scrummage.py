@@ -637,7 +637,7 @@ if __name__ == '__main__':
                 except Exception as e:
 
                     if "session not created" in str(e):
-                        app.logger.warning(f"\033[0;31mReplace the Chrome Web Driver, located at {Chrome_Config[1]}, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. Screenshot functionality has been disabled in the meantime.\033[0m\n")
+                        app.logger.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually. The Chrome driver is located at {Chrome_Config[1]}, with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
                         Permit_Screenshots = False
 
             else:
