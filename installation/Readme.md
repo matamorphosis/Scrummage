@@ -59,13 +59,14 @@ user@linux:/<PATH-TO-SCRUMMAGE>/lib/plugins/common/config$ [vim/emacs/nano/gedit
     "api-period-in-seconds": 60
 },
 ```
-8. Next, ensure the path of both Google Chrome and Chromedriver are valid, without these installed, and listed in the config.json file, screenshot functionality won't work. Please also ensure the version of your Chromedriver is in line with your current version of Google Chrome. Requesting a screenshot will tell you if they aren't compatible.
+8. Next, ensure the path of both Google Chrome and Chromedriver are valid, without these installed and listed in the config.json file, screenshot functionality won't work. Please also ensure the version of your Chromedriver is in line with your current version of Google Chrome.
 ```
 "google-chrome": {
     "application-path": "/usr/bin/google-chrome",
     "chromedriver-path": "/usr/bin/chromedriver"
 },
 ```
+If you are facing ongoing issues with the screenshot functionality, please refer to the "Screenshot Troubleshooting" wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Screenshot-Troubleshooting) for troubleshooting steps, including a new automated troubleshooting tool.
 
 9. Lastly, navigate to the parent directory and then to the bin directory and start the server. You should be able to access it on https://[HOST]:[PORT], [HOST] and [PORT] should match the JSON attributes above.
 ```console
