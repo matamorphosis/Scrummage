@@ -508,7 +508,7 @@ def Regex_Checker(Query, Type):
         Regex = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", Query)
 
     elif Type == "URL":
-        Regex = re.search(r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+        Regex = re.search(r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
 
     else:
         return None

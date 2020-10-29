@@ -93,7 +93,7 @@ def Search(Query_List, Task_ID, **kwargs):
                                 Title = "Google | " + Google_Item_Line['title']
 
                                 if Google_Item_URL not in Cached_Data and Google_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                    Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\.]+(\.\w{2,3})(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
+                                    Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\-@:%_\+~#=]+(\.\w+)(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
 
                                     if Path_Regex:
                                         Google_Item_Response = requests.get(Google_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
