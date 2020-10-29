@@ -385,12 +385,12 @@ def Make_Directory(Plugin_Name):
 
     try:
         os.makedirs(Directory)
-        logging.info(f"{Date()} General Library - Using directory: {Directory}.")
-        return Directory
+        logging.info(f"{Date()} General Library - Using new directory: {Directory}.")
 
     except:
-        logging.warning(f"{Date()} General Library - Using directory: {Directory}.")
-        return Directory
+        logging.info(f"{Date()} General Library - Using existing directory: {Directory}.")
+    
+    return Directory
 
 def Get_Latest_URLs(Pull_URL, Scrape_Regex_URL):
     Scrape_URLs = []
@@ -508,7 +508,7 @@ def Regex_Checker(Query, Type):
         Regex = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", Query)
 
     elif Type == "URL":
-        Regex = re.search(r"(https?:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+        Regex = re.search(r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
 
     else:
         return None

@@ -1425,7 +1425,6 @@ if __name__ == '__main__':
                                 return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins)
 
                             elif tasktype == "edit":
-                                print(session.get('task_id'))
                                 Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (session.get('task_id'),))
                                 result = Cursor.fetchone()
                                 return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins, results=result)
@@ -2814,7 +2813,6 @@ if __name__ == '__main__':
                     Output_Files = Result_Table_Results[10].split(", ")
                     Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (Result_Table_Results[1],))
                     Task_Table_Results = Cursor.fetchone()
-                    print(Permit_Screenshots)
                     return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), details=True, is_admin=session.get('is_admin'), results=Result_Table_Results, task_results=Task_Table_Results, Output_Files=Output_Files, Screenshot_Permitted=Permit_Screenshots)
 
                 else:

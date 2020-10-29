@@ -93,12 +93,24 @@ def Search(Query_List, Task_ID, **kwargs):
                                 Title = "Google | " + Google_Item_Line['title']
 
                                 if Google_Item_URL not in Cached_Data and Google_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                    Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\.]+\.\w{2,3}(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
+                                    Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\.]+(\.\w{2,3})(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
 
                                     if Path_Regex:
                                         Google_Item_Response = requests.get(Google_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
                                         Google_Item_Response = General.Response_Filter(Google_Item_Response, f"https://www.{Domain}")
-                                        Output_Path = Path_Regex.group(4).replace("/", "-")
+
+                                        if Path_Regex.group(5):
+                                            Output_Path = str(Path_Regex.group(5).replace("/", "-"))
+
+                                        elif Path_Regex.group(4):
+                                            Output_Path = str(Path_Regex.group(4).replace("/", "-"))
+
+                                        elif Path_Regex.group(3):
+                                            Output_Path = str(Path_Regex.group(3).replace("/", "-"))
+
+                                        else:
+                                            Output_Path = str(Path_Regex.group(2).replace("/", "-"))
+
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Output_Name, Plugin_Name, Google_Item_Response, Output_Path, The_File_Extensions["Query"])
 
                                         if Output_file:
