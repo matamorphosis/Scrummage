@@ -9,7 +9,7 @@
         {% endif %}
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
-        <script type="text/javascript" src='static/js/Chart.min.js'></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/chart.js') }}"></script>
         <title>Scrummage Dashboard</title>
     </head>
     <body>
@@ -44,23 +44,40 @@
                     <div class="dashboard_small_outer_div_left">
                     {% endif %}
                         <div class="dashboard_small_div"><p class="dashboard_p">Overview of Open Findings</p><canvas id="chart1"></canvas>
-                        <script>
-                          var pieData1 = [
-                            {% for item, label, colors in open_set %}
-                              {
-                                value: {{item}},
-                                label: "{{label}}",
-                                color : "{{colors}}"
-                              },
-                            {% endfor %}
-                          ];
-                          // get bar chart canvas
-                          var mychart1 = document.getElementById("chart1").getContext("2d");
-                          steps = 10
-                          max = {{ max }}
-                          // draw pie chart
-                          new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData1);
-                        </script></div>
+                            <script>
+                                var data = {{open_set[0] | safe}};
+                                var labels = {{open_set[1] | safe}};
+                                var colors = {{open_set[2] | safe}};
+                                var dataset = {
+                                    "labels": labels,
+                                    "datasets":[
+                                        {
+                                            "label":"Open Results",
+                                            "data": data,
+                                            "backgroundColor": colors
+                                        }
+                                    ]
+                                };
+
+                                var chart1 = new Chart(document.getElementById("chart1"), {
+                                    type: 'doughnut',
+                                    data: dataset,
+                                    options: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        layout: {
+                                            padding: {
+                                                left: 1,
+                                                right: 1,
+                                                top: 1,
+                                                bottom: 1
+                                            }
+                                        }
+                                    }
+                                });
+                            </script>
+                        </div>
                     </div>
                     {% endif %}
                     {% if Use_Closed %}
@@ -71,23 +88,39 @@
                     {% else %}
                     <div class="dashboard_small_outer_div">
                     {% endif %}
-                        <div class="dashboard_small_div"><p class="dashboard_p">Overview of Closed Findings</p><canvas id="chart2"></canvas>
+                    <div class="dashboard_small_div"><p class="dashboard_p">Overview of Closed Findings</p><canvas id="chart2"></canvas>
                         <script>
-                          var pieData2 = [
-                            {% for item, label, colors in closed_set %}
-                              {
-                                value: {{item}},
-                                label: "{{label}}",
-                                color : "{{colors}}"
-                              },
-                            {% endfor %}
-                          ];
-                          // get bar chart canvas
-                          var mychart2 = document.getElementById("chart2").getContext("2d");
-                          steps = 10
-                          max = {{ max }}
-                          // draw pie chart
-                          new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2);
+                            var data = {{closed_set[0] | safe}};
+                            var labels = {{closed_set[1] | safe}};
+                            var colors = {{closed_set[2] | safe}};
+                            var dataset = {
+                                "labels": labels,
+                                "datasets":[
+                                    {
+                                        "label":"Closed Results",
+                                        "data": data,
+                                        "backgroundColor": colors
+                                    }
+                                ]
+                            };
+
+                            var chart2 = new Chart(document.getElementById("chart2"), {
+                                type: 'doughnut',
+                                data: dataset,
+                                options: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    layout: {
+                                        padding: {
+                                            left: 1,
+                                            right: 1,
+                                            top: 1,
+                                            bottom: 1
+                                        }
+                                    }
+                                }
+                            });
                         </script></div>
                     </div>
                     {% endif %}
@@ -97,66 +130,93 @@
                     {% else %}
                     <div class="dashboard_small_outer_div_right">
                     {% endif %}
-                        <div class="dashboard_small_div"><p class="dashboard_p">Overview of Findings Under Inspection or Review</p><canvas id="chart3"></canvas>
+                    <div class="dashboard_small_div"><p class="dashboard_p">Overview of Findings Under Inspection or Review</p><canvas id="chart3"></canvas>
                         <script>
-                          var pieData3 = [
-                            {% for item, label, colors in mixed_set %}
-                              {
-                                value: {{item}},
-                                label: "{{label}}",
-                                color : "{{colors}}"
-                              },
-                            {% endfor %}
-                          ];
-                          // get bar chart canvas
-                          var mychart3 = document.getElementById("chart3").getContext("2d");
-                          steps = 10
-                          max = {{ max }}
-                          // draw pie chart
-                          new Chart(document.getElementById("chart3").getContext("2d")).Pie(pieData3);
+                            var data = {{mixed_set[0] | safe}};
+                            var labels = {{mixed_set[1] | safe}};
+                            var colors = {{mixed_set[2] | safe}};
+                            var dataset = {
+                                "labels": labels,
+                                "datasets":[
+                                    {
+                                        "label":"Mixed Results",
+                                        "data": data,
+                                        "backgroundColor": colors
+                                    }
+                                ]
+                            };
+
+                            var chart3 = new Chart(document.getElementById("chart3"), {
+                                type: 'doughnut',
+                                data: dataset,
+                                options: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    layout: {
+                                        padding: {
+                                            left: 1,
+                                            right: 1,
+                                            top: 1,
+                                            bottom: 1
+                                        }
+                                    }
+                                }
+                            });
                         </script></div>
                     </div>
                     {% endif %}
                 </div>
             </div>
             </section>
-            {% if bar_labels and bar_max and bar_values %}
+            {% if bar_set %}
             <section>
             <div class="dashboard_large_outer_bottom_div">
                 <div class="dashboard_large_bottom_div"><p class="dashboard_p">Most Common Task Types</p><canvas id="chart4" style="width: 80%; height: 450px"></canvas>
                 <script>
-                var barData = {
-                    labels : [
-                        {% for item in bar_labels %}
-                        "{{ item }}",
-                        {% endfor %}
-                    ],
-                    datasets : [{
-                        fillColor: "rgba(255,255,255,0.75)",
-                        strokeColor: "rgba(220, 20, 60, 1)",
-                        pointColor: "rgba(220, 20, 60, 1)",
-                        data : [
-                        {% for item in bar_values %}
-                            "{{ item }}",
-                        {% endfor %}
-                        ]
-                    }]
-                }
-                // get bar chart canvas
-                var mychart4 = document.getElementById("chart4").getContext("2d");
-                steps = 5
-                bar_max = {{bar_max}}
-                // draw bar chart
-                new Chart(mychart4).Bar(barData, {
-                    scaleOverride: true,
-                    scaleSteps: steps,
-                    scaleStepWidth: Math.ceil(bar_max / steps),
-                    scaleStartValue: 0,
-                    scaleShowVerticalLines: true,
-                    scaleShowGridLines : true,
-                    barShowStroke : true,
-                    scaleShowLabels: true
-                });
+                    new Chart(document.getElementById("chart4"),{
+                        "type":"bar",
+                        "data": {
+                            "labels": {{bar_set[0] | safe}},
+                            "datasets": [
+                                {
+                                    "data": {{bar_set[1] | safe}},
+                                    "fill": false,
+                                    "backgroundColor": {{bar_set[2] | safe}},
+                                    "borderColor": {{bar_set[2] | safe}},
+                                    "borderWidth": 0
+                                }
+                            ]
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks": {
+                                            "display": false //this will remove only the label
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
                 </script></div>
             </div>
             </section>

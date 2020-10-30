@@ -1598,21 +1598,21 @@ body code.styled {
 }
 
 #chart1 {
-    width: 425px;
-    height: 300px;
-    padding: 25px 0px 20px 0px;
+    width: 460px;
+    height: 230px;
+    padding: 25px 0px 25px 0px;
 }
 
 #chart2 {
-    width: 425px;
-    height: 300px;
-    padding: 25px 0px 20px 0px;
+    width: 460px;
+    height: 230px;
+    padding: 25px 0px 25px 0px;
 }
 
 #chart3 {
-    width: 425px;
-    height: 300px;
-    padding: 25px 0px 20px 0px;
+    width: 460px;
+    height: 230px;
+    padding: 25px 0px 25px 0px;
 }
 
 #chart4 {
@@ -1626,15 +1626,15 @@ body code.styled {
 @media only screen and (max-width: 500px) {
     #chart1 {
       width: 350px;
-      height: 250px;
+      height: 175px;
     }
     #chart2 {
       width: 350px;
-      height: 250px;
+      height: 175px;
     }
     #chart3 {
       width: 350px;
-      height: 250px;
+      height: 175px;
     }
 }
 
