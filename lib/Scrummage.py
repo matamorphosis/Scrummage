@@ -932,11 +932,10 @@ if __name__ == '__main__':
 
                 if session.get('user'):
                     labels = Finding_Types
-                    # colors = ['#ff0000', '#ffa07a', '#f08080', '#fa8072', '#e9967a', '#ff6347', '#cd5c5c', '#ff4500', '#dc143c', '#b22222', '#8b0000', '#800000', '#ff9999', '#f08080', '#fa8072', '#ff6961', '#fe6f5e', '#e4717a', '#fd5e53', '#e66771', '#ff6e4a', '#ff5349', '#ff6347', '#ff4040', '#e97451', '#ff5a36', '#cc6666', '#ff355e', '#eb4c42', '#cd5c5c', '#da614e', '#ea3c53', '#ef3038', '#cc4e5c', '#e34234', '#ed2939', '#d73b3e', '#d9603b', '#e03c31', '#be4f62', '#bf4f51', '#cb4154', '#fe2712', '#e32636', '#ed1c24', '#fd0e35', '#da2c43', '#e62020', '#ff033e', '#cc3333', '#e51a4c', '#ff0028', '#ff0038', '#ff003f', '#ff004f', '#ff2400', '#ff2800', '#ff3800', '#ff4500', '#ff0800', '#a45a52', '#ab4b52', '#ce2029', '#dc143c', '#f2003c', '#af4035', '#c23b22', '#e2062c', '#e30022', '#e60026', '#e8000d', '#c41e3a', '#cf1020', '#d9004c', '#b22222', '#d40000', '#a52a2a', '#c80815', '#d3003f', '#ae2029', '#b31b1b', '#cc0000', '#893f45', '#9d2933', '#a32638', '#a9203e', '#ba160c', '#c40233', '#c90016', '#7c4848', '#9c2542', '#be0032', '#9b111e', '#a81c07', '#ae0c00', '#af002a', '#a40000', '#841b2d', '#801818', '#990000', '#7f1734', '#92000a', '#960018', '#701c1c', '#7b1113', '#8b0000', '#860111', '#7c0a02', '#7c1c05', '#800000', '#800020', '#65000b', '#4e1609', '#560319']
-                    colors_blue = ['#00162b', '#001f3f', '#002952', '#003366', '#003d7a', '#00478d', '#0050a1', '#005ab4', '#0064c8', '#006edc', '#0078ef', '#0481ff', '#188bff', '#2b95ff', '#3f9fff', '#52a9ff', '#66b3ff', '#7abcff', '#8dc6ff', '#a1d0ff', '#b4daff', '#c8e4ff', '#dcedff', '#eff7ff']
-                    colors_red = ['#2b0000', '#3f0000', '#520000', '#660000', '#7a0000', '#8d0000', '#a10000', '#b40000', '#c80000', '#dc0000', '#ef0000', '#ff0404', '#ff1818', '#ff2b2b', '#ff3f3f', '#ff5252', '#ff6666', '#ff7a7a', '#ff8d8d', '#ffa1a1']
-                    colors = colors_blue + colors_red
-                    colors = colors[:len(labels)]
+                    colors_blue = ["#00162b", "#001f3f", "#002952", "#003366", "#003d7a", "#00478d", "#0050a1", "#005ab4", "#0064c8", "#006edc", "#0078ef", "#0481ff", "#188bff", "#2b95ff", "#3f9fff", "#52a9ff", "#66b3ff", "#7abcff", "#8dc6ff", "#a1d0ff", "#b4daff", "#c8e4ff", "#dcedff", "#eff7ff"]
+                    colors_red = ["#2b0000", "#3f0000", "#520000", "#660000", "#7a0000", "#8d0000", "#a10000", "#b40000", "#c80000", "#dc0000", "#ef0000", "#ff0404", "#ff1818", "#ff2b2b", "#ff3f3f", "#ff5252", "#ff6666", "#ff7a7a", "#ff8d8d", "#ffa1a1"]
+                    colors_original = colors_blue + colors_red
+                    colors = colors_original[:len(labels)]
                     Mixed_Options = ['Inspecting', 'Reviewing']
                     PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
                     PSQL_Select_Query_2 = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
@@ -977,10 +976,10 @@ if __name__ == '__main__':
                         Use_Mixed = False
 
                     if most_common_tasks:
-                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=zip(open_values, labels, colors), closed_set=zip(closed_values, labels, colors), mixed_set=zip(mixed_values, labels, colors), bar_labels=most_common_tasks_labels, bar_max=most_common_tasks_values[0], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, bar_values=most_common_tasks_values, refreshrate=session.get('dashboard-refresh'), version=Version)
+                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
 
                     else:
-                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=zip(open_values, labels, colors), closed_set=zip(closed_values, labels, colors), mixed_set=zip(mixed_values, labels, colors), refreshrate=session.get('dashboard-refresh'), version=Version, Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed)
+                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], refreshrate=session.get('dashboard-refresh'), version=Version, Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed)
 
                 else:
                     session["next_page"] = "dashboard"
