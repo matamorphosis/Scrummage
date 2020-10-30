@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-import requests, logging, os, xmltodict, json, plugins.common.General as General
+import logging, os, xmltodict, json, plugins.common.General as General
 
 Plugin_Name = "Yandex"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "yandex.com"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -64,7 +63,7 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            Yandex_Response = requests.get(f"https://{Domain}/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(Limit)}.docs-in-group% 3D1").text
+            Yandex_Response = General.Request_Handler(f"https://{Domain}/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(Limit)}.docs-in-group% 3D1")
             JSON_Response = xmltodict.parse(Yandex_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
@@ -90,8 +89,8 @@ def Search(Query_List, Task_ID, **kwargs):
                                 Title = f"Yandex | {Title}"
 
                             if Yandex_URL not in Cached_Data and Yandex_URL not in Data_to_Cache:
-                                Yandex_Item_Response = requests.get(Yandex_URL, headers=headers).text
-                                Yandex_Item_Response = General.Response_Filter(Yandex_Item_Response, f"https://{Domain}")
+                                Yandex_Item_Responses = General.Request_Handler(Yandex_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://{Domain}")
+                                Yandex_Item_Response = Yandex_Item_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Yandex_Item_Response, Yandex_URL, The_File_Extensions["Query"])
 
                                 if Output_file:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, json, os, requests, logging
+import plugins.common.General as General, json, os, logging
 
 The_File_Extension = ".json"
 Plugin_Name = "IPStack"
@@ -43,12 +43,10 @@ def Search(Query_List, Task_ID):
         Query_List = General.Convert_to_List(Query_List)
 
         for Query in Query_List:
-            print(Query)
 
             if General.Regex_Checker(Query, "IP"):
-                print(True)
                 API_Key = Load_Configuration()
-                Search_Response = requests.get(f"http://api.{Domain}/{Query}?access_key={API_Key}", headers=headers).text
+                Search_Response = General.Request_Handler(f"http://api.{Domain}/{Query}?access_key={API_Key}")
                 JSON_Response = json.loads(Search_Response)
                 JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
                 Output_Connections = General.Connections(Query, Plugin_Name, Domain, "IP Address Information", Task_ID, Plugin_Name.lower())

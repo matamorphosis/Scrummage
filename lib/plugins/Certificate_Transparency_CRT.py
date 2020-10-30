@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, os, logging, requests, re, plugins.common.General as General
+import os, logging, plugins.common.General as General
 
 Plugin_Name = "CRT"
 The_File_Extension = ".html"
@@ -22,12 +22,12 @@ def Search(Query_List, Task_ID):
         Query_List = General.Convert_to_List(Query_List)
 
         for Query in Query_List:
-            SSLMate_Regex = re.search("([\w\d]+)\.[\w]{2,3}(\.[\w]{2,3})?(\.[\w]{2,3})?", Query)
 
-            if SSLMate_Regex:
+            if General.Regex_Checker(Query, "Domain"):
                 Request = f"https://{Domain}/?q={Query}"
-                Response = requests.get(Request, headers=General.URL_Headers(User_Agent=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                Filtered_Response = General.Response_Filter(Response, f"https://{Domain}")
+                Responses = General.Request_Handler(Request, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://{Domain}")
+                Response = Responses["Regular"]
+                Filtered_Response = Responses["Filtered"]
 
                 if "<TD class=\"outer\"><I>None found</I></TD>" not in Response:
 

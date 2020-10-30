@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os, re, logging, requests, urllib.parse, plugins.common.General as General
+import os, re, logging, urllib.parse, plugins.common.General as General
 
 Plugin_Name = "NZ-Business"
 Concat_Plugin_Name = "nzbusiness"
 The_File_Extension = ".html"
 Domain = "app.companiesoffice.govt.nz"
-headers = General.URL_Headers(User_Agent=True)
 
 def Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -29,8 +28,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                 if Type == "NZBN":
                     Main_URL = f'https://{Domain}/companies/app/ui/pages/companies/search?q={Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit=1&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                    Response = requests.get(Main_URL, headers=headers).text
-                    Response = General.Response_Filter(Response, f"https://{Domain}")
+                    Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://{Domain}")
+                    Response = Responses["Filtered"]
 
                     try:
 
@@ -57,8 +56,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                         Limit = General.Get_Limit(kwargs)
                         URL_Query = urllib.parse.quote(Query)
                         Main_URL = f'https://{Domain}/companies/app/ui/pages/companies/search?q={URL_Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit={str(Limit)}&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                        Response = requests.get(Main_URL, headers=headers).text
-                        Response = General.Response_Filter(Response, f"https://{Domain}")
+                        Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://{Domain}")
+                        Response = Responses["Filtered"]
                         NZCN_Regex = re.search(r".*[a-zA-Z].*", Query)
 
                         if NZCN_Regex:
@@ -72,7 +71,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                     Full_NZBN_URL = f'https://{Domain}/companies/app/ui/pages/companies/{NZ_ID}?backurl=H4sIAAAAAAAAAEXLuwrCQBCF4bfZNtHESIpBbLQwhWBeYNgddSF7cWai5O2NGLH7zwenyHgjKWwKGaOfSwjZ3ncPaOt1W9bbsmqaamMoqtepnzIJ7Ltu2RdFHeXIacxf9tEmzgdOAZbuExh0jknk%2F17gRNMrsQMjiqxQmsEHr7Aycp3NfY5PjJbcGSMNoDySCckR%2FPwNLgXMiL4AAAA%3D'
 
                                     if Full_NZBN_URL not in Cached_Data and Full_NZBN_URL not in Data_to_Cache:
-                                        Current_Response = requests.get(Full_NZBN_URL, headers=headers).text
+                                        Current_Response = General.Request_Handler(Full_NZBN_URL)
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), NZCN.replace(' ', '-'), The_File_Extension)
 
                                         if Output_file:

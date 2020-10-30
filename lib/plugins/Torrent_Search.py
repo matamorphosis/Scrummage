@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Version 1 of Plugin - Outdated - Replacement underway.
-import plugins.common.General as General, requests, json, os, logging
+import plugins.common.General as General, json, os, logging
 
 The_File_Extension = ".json"
 Plugin_Name = "Torrent"
@@ -24,8 +24,7 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
-            headers = General.URL_Headers(User_Agent=True)
-            Response = requests.get('https://tpbc.herokuapp.com/search/' + Query.replace(" ", "+") + '/?sort=seeds_desc', headers=headers).text
+            Response = General.Request_Handler('https://tpbc.herokuapp.com/search/' + Query.replace(" ", "+") + '/?sort=seeds_desc')
             Response = json.loads(Response)
             JSON_Response = json.dumps(Response, indent=4, sort_keys=True)
             Output_file = General.Main_File_Create(Directory, Plugin_Name, JSON_Response, Query, The_File_Extension)

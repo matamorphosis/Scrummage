@@ -2,7 +2,6 @@
 import json, requests, os, logging, instagram_explore, plugins.common.General as General
 from collections import namedtuple
 
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 Plugin_Name = "Instagram"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 InstagramExploreResponse = namedtuple('InstagramExploreResponse', 'data cursor')
@@ -62,8 +61,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     Title = "IG | " + General.Get_Title(URL)
 
                     if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
-                        Response = requests.get(URL, headers=headers).text
-                        Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                        Responses = General.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                        Response = Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Response, Shortcode, The_File_Extensions["Query"])
 
                         if Output_file:
@@ -90,8 +89,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     Title = "IG | " + General.Get_Title(URL)
 
                     if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
-                        Response = requests.get(URL, headers=headers).text
-                        Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                        Responses = General.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                        Response = Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Response, Shortcode, The_File_Extensions["Query"])
 
                         if Output_file:
@@ -118,8 +117,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     Title = "IG | " + General.Get_Title(URL)
 
                     if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(Limit):
-                        Response = requests.get(URL, headers=headers).text
-                        Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                        Responses = General.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                        Response = Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Response, Shortcode, The_File_Extensions["Query"])
 
                         if Output_file:
@@ -142,8 +141,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     Title = "IG | " + General.Get_Title(URL)
 
                     if URL not in Cached_Data and URL not in Data_to_Cache:
-                        Response = requests.get(URL, headers=headers).text
-                        Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                        Responses = General.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                        Response = Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Response, Shortcode, The_File_Extensions["Query"])
 
                         if Output_file:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, os, logging, plugins.common.General as General, json, feedparser
+import os, logging, plugins.common.General as General, json, feedparser
 
 Plugin_Name = "Craigslist"
 The_File_Extension = ".html"
@@ -52,14 +52,14 @@ def Search(Query_List, Task_ID, **kwargs):
                 Item_URL = Item["link"]
 
                 if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                    Craigslist_Response = requests.get(Item_URL, headers=General.URL_Headers(User_Agent=True)).text
+                    Craigslist_Responses = General.Request_Handler(Item_URL, Filter=True, Host=f"https://{Craigslist_Location.lower()}.craigslist.org")
+                    Craigslist_Response = Craigslist_Responses["Filtered"]
                     Local_URL = f"https://{Craigslist_Location.lower()}.craigslist.org/"
                     Local_Domain = f"{Craigslist_Location.lower()}.craigslist.org"
                     Filename = Item_URL.replace(Local_URL, "")
                     Filename = Filename.replace(".html/", "")
                     Filename = Filename.replace(".html", "")
                     Filename = Filename.replace("/", "-")
-                    Craigslist_Response = General.Response_Filter(Craigslist_Response, f"https://{Craigslist_Location.lower()}.craigslist.org")
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Craigslist_Response, Filename, The_File_Extension)
 
                     if Output_file:

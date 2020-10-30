@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import requests, os, json, logging, plugins.common.General as General
+import os, json, logging, plugins.common.General as General
 
 Plugin_Name = "Doing-Business"
 Concat_Plugin_Name = "doingbusiness"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "doingbusiness.org"
 
-def Search(Query_List, Task_ID, **kwargs):
+def Search(Query_List, Task_ID):
 
     try:
         Data_to_Cache = []
@@ -23,20 +23,18 @@ def Search(Query_List, Task_ID, **kwargs):
         Query_List = General.Convert_to_List(Query_List)
 
         for Query in Query_List:
-            headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True)
-            headers["Referer"] = f"https://www.doingbusiness.org/en/data/exploreeconomies/{Query}"
+            Headers_Custom = {"Referer": f"https://www.doingbusiness.org/en/data/exploreeconomies/{Query}"}
             Main_URL = f"https://wbgindicatorsqa.azure-api.net/DoingBusiness/api/GetEconomyByURL/{Query}"
-            Doing_Business_Response = requests.get(Main_URL, headers=headers).text
+            Doing_Business_Response = General.Request_Handler(Main_URL, Optional_Headers=Headers_Custom)
             JSON_Response = json.loads(Doing_Business_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
 
             if 'message' not in JSON_Response:
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
-                headers = General.URL_Headers(User_Agent=True)
                 Item_URL = f"https://www.{Domain}/en/data/exploreeconomies/{Query}"
                 Title = f"Doing Business | {Query}"
-                Current_Doing_Business_Response = requests.get(Item_URL, headers=headers).text
-                Current_Doing_Business_Response = General.Response_Filter(Current_Doing_Business_Response, f"https://www.{Domain}")
+                Current_Doing_Business_Responses = General.Request_Handler(Item_URL, Filter=True, Host=f"https://www.{Domain}")
+                Current_Doing_Business_Response = Current_Doing_Business_Responses["Filtered"]
 
                 if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache:
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Current_Doing_Business_Response, Query, The_File_Extensions["Query"])

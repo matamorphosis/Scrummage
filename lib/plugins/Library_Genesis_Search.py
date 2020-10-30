@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import requests, re, os, logging, plugins.common.General as General
+import re, os, logging, plugins.common.General as General
 
 Plugin_Name = "Library-Genesis"
 Concat_Plugin_Name = "libgen"
 The_File_Extension = ".html"
 Domain = "gen.lib.rus.ec"
-headers = General.URL_Headers(User_Agent=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -27,7 +26,7 @@ def Search(Query_List, Task_ID, **kwargs):
         for Query in Query_List:
             # Query can be Title or ISBN
             Main_URL = f"http://{Domain}/search.php?req={Query}&lg_topic=libgen&open=0&view=simple&res=100&phrase=1&column=def"
-            Lib_Gen_Response = requests.get(Main_URL, headers=headers).text
+            Lib_Gen_Response = General.Request_Handler(Main_URL)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, Lib_Gen_Response, Query, The_File_Extension)
             Lib_Gen_Regex = re.findall("book\/index\.php\?md5=[A-Fa-f0-9]{32}", Lib_Gen_Response)
 
@@ -37,8 +36,8 @@ def Search(Query_List, Task_ID, **kwargs):
                 for Regex in Lib_Gen_Regex:
                     Item_URL = f"http://{Domain}/{Regex}"
                     Title = General.Get_Title(Item_URL).replace("Genesis:", "Genesis |")
-                    Lib_Item_Response = requests.get(Item_URL, headers=headers).text
-                    Lib_Item_Response = General.Response_Filter(Lib_Item_Response, f"http://{Domain}")
+                    Lib_Item_Responses = General.Request_Handler(Item_URL, Filter=True, Host=f"http://{Domain}")
+                    Lib_Item_Response = Lib_Item_Responses["Filtered"]
 
                     if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Lib_Item_Response, Regex, The_File_Extension)

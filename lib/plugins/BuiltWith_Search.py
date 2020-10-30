@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, requests, os, logging, json
+import plugins.common.General as General, os, logging, json
 from builtwith import builtwith
 
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "BuiltWith"
 Domain = "builtwith.com"
-headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID):
 
@@ -46,8 +45,8 @@ def Search(Query_List, Task_ID):
                     Title = f"Built With | {Query_Domain}"
                     Main_File = General.Main_File_Create(Directory, Plugin_Name, BW_JSON_Output, Query_Domain, The_File_Extensions["Main"])
                     BW_Search_URL = f"https://{Domain}/{Query_Domain}"
-                    Response = requests.get(BW_Search_URL, headers=headers).text
-                    Response = General.Response_Filter(Response, f"https://{Domain}")
+                    Responses = General.Request_Handler(BW_Search_URL, Filter=True, Host=f"https://{Domain}")
+                    Response = Responses["Filtered"]
                     Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Web Application Architecture", Task_ID, Plugin_Name.lower())
 
                     if BW_Search_URL not in Cached_Data and BW_Search_URL not in Data_to_Cache:

@@ -25,7 +25,7 @@ def Search(Query_List, Task_ID, **kwargs):
         for Query in Query_List:
             URL_Query = urllib.parse.quote(Query)
             URL = f"https://api.duckduckgo.com/?q={URL_Query}&format=json"
-            DDG_Response = requests.get(URL).text
+            DDG_Response = General.Request_Handler(URL)
             JSON_Response = json.loads(DDG_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
@@ -44,8 +44,8 @@ def Search(Query_List, Task_ID, **kwargs):
                             Title = f"DuckDuckGo | {Title}"
 
                             if DDG_URL not in Cached_Data and DDG_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                DDG_Item_Response = requests.get(DDG_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                                DDG_Item_Response = General.Response_Filter(DDG_Item_Response, f"https://www.{Domain}")
+                                DDG_Item_Responses = General.Request_Handler(DDG_URL, Filter=True, Host=f"https://www.{Domain}")
+                                DDG_Item_Response = DDG_Item_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, DDG_Item_Response, DDG_URL, The_File_Extensions["Query"])
 
                                 if Output_file:

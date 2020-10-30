@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os, json, logging, requests, base64, plugins.common.General as General
+import os, json, logging, base64, plugins.common.General as General
 
 Plugin_Name = "UK-Business"
 Concat_Plugin_Name = "ukbusiness"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "companieshouse.gov.uk"
-headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -57,7 +56,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                         Authorization_Key = "Basic " + Authorization_Key.decode('ascii')
                         headers_auth = {"Authorization": Authorization_Key}
                         Main_URL = f'https://api.{Domain}/company/{Query}'
-                        Response = requests.get(Main_URL, headers=headers_auth).text
+                        Response = General.Request_Handler(Main_URL, Optional_Headers=headers_auth)
                         JSON_Response = json.loads(Response)
                         Indented_JSON_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
 
@@ -69,8 +68,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                 if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                                     Current_Company_Number = str(JSON_Response["company_number"])
                                     Result_URL = f'https://beta.{Domain}/company/{Current_Company_Number}'
-                                    Result_Response = requests.get(Result_URL, headers=headers).text
-                                    Result_Response = General.Response_Filter(Result_Response, f"https://beta.{Domain}")
+                                    Result_Responses = General.Request_Handler(Result_URL, Filter=True, Host=f"https://beta.{Domain}")
+                                    Result_Response = Result_Responses["Filtered"]
                                     UKCN = str(JSON_Response["company_name"])
                                     Main_Output_File = General.Main_File_Create(Directory, Plugin_Name, Indented_JSON_Response, Query, The_File_Extensions["Main"])
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Result_Response, UKCN, The_File_Extensions["Query"])
@@ -98,8 +97,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                         try:
                             Main_URL = f'https://api.{Domain}/search/companies?q={Query}&items_per_page={Limit}'
-                            headers = {"Authorization": Authorization_Key}
-                            Response = requests.get(Main_URL, headers=headers).text
+                            headers_auth = {"Authorization": Authorization_Key}
+                            Response = General.Request_Handler(Main_URL, Optional_Headers=headers_auth)
                             JSON_Response = json.loads(Response)
                             Indented_JSON_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
 
@@ -116,8 +115,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                                         if Full_UKBN_URL not in Cached_Data and Full_UKBN_URL not in Data_to_Cache:
                                             UKCN = Item['title']
-                                            Current_Response = requests.get(Full_UKBN_URL).text
-                                            Current_Response = General.Response_Filter(Current_Response, f"https://beta.{Domain}")
+                                            Current_Responses = General.Request_Handler(Full_UKBN_URL, Filter=True, Host=f"https://beta.{Domain}")
+                                            Current_Response = Current_Responses["Filtered"]
                                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), UKCN, The_File_Extensions["Query"])
 
                                             if Output_file:

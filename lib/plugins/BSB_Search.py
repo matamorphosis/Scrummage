@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, requests, re, os, logging
+import plugins.common.General as General, re, os, logging
 
 The_File_Extension = ".html"
 Plugin_Name = "BSB"
 Domain = "bsbnumbers.com"
-headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID):
 
@@ -24,8 +23,8 @@ def Search(Query_List, Task_ID):
 
         for Query in Query_List:
             BSB_Search_URL = f"https://www.{Domain}/{Query}.html"
-            Response = requests.get(BSB_Search_URL, headers=headers).text
-            Response = General.Response_Filter(Response, f"https://www.{Domain}")
+            Responses = General.Request_Handler(BSB_Search_URL, Filter=True, Host=f"https://www.{Domain}")
+            Response = Responses["Filtered"]
             Error_Regex = re.search(r"Correct\sthe\sfollowing\serrors", Response)
             Output_Connections = General.Connections(Query, Plugin_Name, Domain, "BSB Details", Task_ID, Plugin_Name.lower())
 

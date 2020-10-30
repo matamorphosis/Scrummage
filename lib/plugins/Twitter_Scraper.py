@@ -1,10 +1,9 @@
 #!/usr/bin/python3
-import json, os, requests, logging, tweepy, plugins.common.General as General
+import json, os, logging, tweepy, plugins.common.General as General
 
 Plugin_Name = "Twitter"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "twitter.com"
-headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -68,8 +67,9 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
 
                 if Link not in Cached_Data and Link not in Data_to_Cache:
                     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - {Link}")
-                    Item_Response = requests.get(Link, headers=headers).text
-                    Item_Response = General.Response_Filter(Item_Response, f"https://{Domain}")
+                    Item_Responses = General.Request_Handler(Link, Filter=True, Host=f"https://{Domain}")
+                    Item_Response = Item_Responses["Filtered"]
+
                     Output_file = General.Create_Query_Results_Output_File(Directory, Handle, Plugin_Name, Item_Response, str(JSON_Item['id']), The_File_Extensions["Query"])
 
                     if Output_file:

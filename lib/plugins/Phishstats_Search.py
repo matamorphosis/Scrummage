@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import logging, os, json, requests, re, plugins.common.General as General
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import logging, os, json, re, plugins.common.General as General
 
 Plugin_Name = "Phishstats"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
@@ -28,7 +26,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
             try:
                 Pull_URL = f"https://{Domain}:2096/api/phishing?_where=(url,like,~{Query}~)&_sort=-id&_size={Limit}"
-                Results = json.loads(requests.get(Pull_URL).text)
+                Results = json.loads(General.Request_Handler(Pull_URL))
                 Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Phishing", Task_ID, Plugin_Name.lower())
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, json.dumps(Results, indent=4, sort_keys=True), Query, The_File_Extensions["Main"])
 
@@ -40,8 +38,8 @@ def Search(Query_List, Task_ID, **kwargs):
                     Current_Title = Result["title"]
 
                     try:
-                        Current_Result = requests.get(Current_Link, headers=General.URL_Headers(User_Agent=True), verify=False).text
-                        Current_Result_Filtered = General.Response_Filter(Current_Result, Current_Link, Risky_Plugin=True)
+                        Current_Result = General.Request_Handler(Current_Link, Filter=True, Risky_Plugin=True, Host=Current_Link)
+                        Current_Result_Filtered = Current_Result["Filtered"]
                         Response_Regex = re.search(r"\<title\>([^\<\>]+)\<\/title\>", Current_Result)
                         Output_file_Query = Query.replace(" ", "-")
 

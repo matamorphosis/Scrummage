@@ -64,8 +64,8 @@ def Search(Query_List, Task_ID, **kwargs):
 
                         if Ebay_Item_URL not in Cached_Data and Ebay_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
                             Ebay_Item_Regex = re.search(r"https\:\/\/www\.ebay\.com\/itm\/([\w\d\-]+)\-\/\d+", Ebay_Item_URL)
-                            Ebay_Item_Response = requests.get(Ebay_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                            Ebay_Item_Response = General.Response_Filter(Ebay_Item_Response, f"https://www.{Domain}")
+                            Ebay_Item_Responses = General.Request_Handler(Ebay_Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                            Ebay_Item_Response = Ebay_Item_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Ebay_Item_Response, Ebay_Item_Regex.group(1).rstrip("-"), The_File_Extensions["Query"])
 
                             if Output_file:

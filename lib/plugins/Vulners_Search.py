@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, vulners, json, os, requests, logging
+import plugins.common.General as General, vulners, json, os, logging
 
 Unacceptable_Bulletins = ["advertisement", "kitsploit"]
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "Vulners"
 Domain = "vulners.com"
-headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -56,8 +55,8 @@ def Search(Query_List, Task_ID, **kwargs):
                 if Search_Result["bulletinFamily"] not in Unacceptable_Bulletins:
                     Result_Title = Search_Result["title"]
                     Result_URL = Search_Result["vhref"]
-                    Search_Result_Response = requests.get(Result_URL, headers=headers).text
-                    Search_Result_Response = General.Response_Filter(Search_Result_Response, f"https://{Domain}")
+                    Search_Result_Responses = General.Request_Handler(Result_URL, Filter=True, Host=f"https://{Domain}")
+                    Search_Result_Response = Search_Result_Responses["Filtered"]
 
                     if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Search_Result_Response, Result_Title, The_File_Extensions["Query"])

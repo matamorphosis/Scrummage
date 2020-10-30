@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, logging, os, json, urllib.parse, plugins.common.General as General
+import logging, os, json, urllib.parse, plugins.common.General as General
 
 Plugin_Name = "Naver"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
@@ -53,7 +53,7 @@ def Search(Query_List, Task_ID, **kwargs):
             URL_Query = urllib.parse.quote(Query)
             URL = f"https://openapi.{Domain}/v1/search/webkr.json?query={URL_Query}&display={str(Limit)}&sort=sim"
             Headers = {"X-Naver-Client-Id": Naver_Details[0], "X-Naver-Client-Secret": Naver_Details[1]}
-            Naver_Response = requests.get(URL, headers=Headers).text
+            Naver_Response = General.Request_Handler(URL, Optional_Headers=Headers)
             JSON_Response = json.loads(Naver_Response)
             JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
@@ -71,8 +71,8 @@ def Search(Query_List, Task_ID, **kwargs):
                             Title = f"Naver | {Title}"
 
                             if Naver_URL not in Cached_Data and Naver_URL not in Data_to_Cache:
-                                Naver_Item_Response = requests.get(Naver_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                                Naver_Item_Response = General.Response_Filter(Naver_Item_Response, f"https://www.{Domain}")
+                                Naver_Item_Responses = General.Request_Handler(Naver_URL, Filter=True, Host=f"https://www.{Domain}")
+                                Naver_Item_Response = Naver_Item_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Naver_Item_Response, Naver_URL, The_File_Extensions["Query"])
 
                                 if Output_file:

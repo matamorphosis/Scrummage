@@ -80,7 +80,7 @@ def Search(Query_List, Task_ID, **kwargs):
                             Photo_URL = f"https://www.{Domain}/photos/{Query}/{Photo['id']}"
 
                             if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                Photo_Response = requests.get(Photo_URL, headers=headers).text
+                                Photo_Response = General.Request_Handler(Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Photo_Response, Photo, The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -113,7 +113,7 @@ def Search(Query_List, Task_ID, **kwargs):
                             Photo_URL = f"https://www.{Domain}/photos/{Query}/{Photo['id']}"
 
                             if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                Photo_Response = requests.get(Photo_URL, headers=headers).text
+                                Photo_Response = General.Request_Handler(Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Photo_Response, str(Photo['id']), The_File_Extensions["Query"])
 
                                 if Output_file:

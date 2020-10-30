@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import requests, logging, os, json, plugins.common.General as General
+import logging, os, json, plugins.common.General as General
 from pyhunter import PyHunter
 
 Plugin_Name = "Hunter"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "hunter.io"
-headers = General.URL_Headers(User_Agent=False)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -65,8 +64,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                             for Hunter_Item in API_Response["emails"]:
                                 Current_Email_Address = Hunter_Item["value"]
                                 Current_Hunter_Item_Host = f"https://{Domain}/verify/{Current_Email_Address}"
-                                Current_Hunter_Item_Response = requests.get(Current_Hunter_Item_Host, headers=headers).text
-                                Filtered_Response = General.Response_Filter(Current_Hunter_Item_Response, f"https://{Domain}")
+                                Current_Hunter_Item_Responses = General.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"https://{Domain}")
+                                Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
                                 Title = "Hunter | " + Current_Email_Address
 
                                 if Current_Email_Address not in Cached_Data and Current_Email_Address not in Data_to_Cache and Current_Step < int(Limit):
@@ -96,16 +95,17 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                             for Hunter_Item in API_Response["sources"]:
                                 Current_Hunter_Item_Host = Hunter_Item["uri"]
                                 Current_Hunter_Item_Domain = Hunter_Item["domain"]
-                                Current_Hunter_Item_Response = requests.get(Current_Hunter_Item_Host, headers=headers).text
 
                                 if 'http://' in Current_Hunter_Item_Host:
-                                    Filtered_Response = General.Response_Filter(Current_Hunter_Item_Response, f"http://{Current_Hunter_Item_Domain}")
+                                    Current_Hunter_Item_Responses = General.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"http://{Current_Hunter_Item_Domain}")
+                                    Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
 
                                 elif 'https://' in Current_Hunter_Item_Host:
-                                    Filtered_Response = General.Response_Filter(Current_Hunter_Item_Response, f"https://{Current_Hunter_Item_Domain}")
+                                    Current_Hunter_Item_Responses = General.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"https://{Current_Hunter_Item_Domain}")
+                                    Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
 
                                 else:
-                                    Filtered_Response = Current_Hunter_Item_Response
+                                    Filtered_Response = General.Request_Handler(Current_Hunter_Item_Host)
 
                                 Title = "Hunter | " + Current_Hunter_Item_Host
 

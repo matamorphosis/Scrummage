@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, re, logging, os, json, plugins.common.General as General
+import re, logging, os, json, plugins.common.General as General
 from googleapiclient.discovery import build
 
 Plugin_Name = "Google"
@@ -96,8 +96,7 @@ def Search(Query_List, Task_ID, **kwargs):
                                     Path_Regex = re.search(r"https?\:\/\/(www\.)?[\w\d\-@:%_\+~#=]+(\.\w+)(\.\w{2,3})?(\.\w{2,3})?\/([\w\d\-\_\/]+)?", Google_Item_URL)
 
                                     if Path_Regex:
-                                        Google_Item_Response = requests.get(Google_Item_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                                        Google_Item_Response = General.Response_Filter(Google_Item_Response, f"https://www.{Domain}")
+                                        Google_Item_Response = General.Request_Handler(Google_Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
                                         if Path_Regex.group(5):
                                             Output_Path = str(Path_Regex.group(5).replace("/", "-"))

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import os, re, praw, json, logging, requests, plugins.common.General as General
+import os, re, praw, json, logging, plugins.common.General as General
 
 Plugin_Name = "Reddit"
 The_File_Extension = ".html"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 Domain = "reddit.com"
 
 def Load_Configuration():
@@ -71,8 +70,8 @@ def Search(Query_List, Task_ID, **kwargs):
                         Reddit_Regex = re.search("https\:\/\/www\.reddit\.com\/r\/(\w+)\/comments\/(\w+)\/([\w\d]+)\/", Result[0])
 
                         if Reddit_Regex:
-                            Reddit_Response = requests.get(Result, headers=headers).text
-                            Reddit_Response = General.Response_Filter(Reddit_Response, f"https://www.{Domain}")
+                            Reddit_Responses = General.Request_Handler(Result, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                            Reddit_Response = Reddit_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Reddit_Response, Reddit_Regex.group(3), The_File_Extension)
 
                             if Output_file:

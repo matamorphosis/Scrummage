@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os, re, logging, requests, plugins.common.General as General
+import os, re, logging, plugins.common.General as General
 
 Plugin_Name = "Australian-Business"
 Concat_Plugin_Name = "australianbusiness"
 The_File_Extensions = {"Main": ".html", "Query": ".html"}
 Domain = "abr.business.gov.au"
-headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -29,13 +28,14 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                 if Type == "ABN":
                     Main_URL = f'https://{Domain}/ABN/View?id=' + Query
-                    Response = requests.get(Main_URL, headers=headers).text
+                    Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{Domain}")
+                    Response = Responses["Regular"]
 
                     try:
 
                         if 'Error searching ABN Lookup' not in Response:
                             Query = str(int(Query))
-                            Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                            Response = Responses["Filtered"]
 
                             if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, General.Get_Title(Main_URL), The_File_Extensions["Query"])
@@ -57,8 +57,9 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                 elif Type == "ACN":
                     Main_URL = f'https://{Domain}/Search/Run'
                     Data = {'SearchParameters.SearchText': Query, 'SearchParameters.AllNames': 'true', 'ctl00%24ContentPagePlaceholder%24SearchBox%24MainSearchButton': 'Search'}
-                    Response = requests.post(Main_URL, headers=headers, data=Data).text
-                    Filtered_Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                    Responses = General.Request_Handler(Main_URL, Method="POST", Filter=True, Host=f"https://www.{Domain}", Data=Data)
+                    Response = Responses["Regular"]
+                    Filtered_Response = Responses["Filtered"]
                     Limit = General.Get_Limit(kwargs)
 
                     try:
@@ -77,8 +78,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                                     if Full_ABN_URL not in Cached_Data and Full_ABN_URL not in Data_to_Cache and Current_Step < int(Limit):
                                         ACN = ACN.rstrip()
-                                        Current_Response = requests.get(Full_ABN_URL, headers=headers).text
-                                        Current_Response = General.Response_Filter(Current_Response, f"https://www.{Domain}")
+                                        Current_Responses = General.Request_Handler(Full_ABN_URL, Filter=True, Host=f"https://www.{Domain}")
+                                        Current_Response = Current_Responses["Filtered"]
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), ACN.replace(' ', '-'), The_File_Extensions["Query"])
 
                                         if Output_file:

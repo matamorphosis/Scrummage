@@ -5,7 +5,6 @@ Plugin_Name = "iTunes-App-Store"
 Concat_Plugin_Name = "itunesappstore"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "itunes.apple.com"
-headers = General.URL_Headers(User_Agent=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -43,8 +42,8 @@ def Search(Query_List, Task_ID, **kwargs):
                     Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Application", Task_ID, Concat_Plugin_Name)
 
                     for JSON_Object in JSON_Response['results']:
-                        JSON_Object_Response = requests.get(JSON_Object['artistViewUrl'], headers=headers).text
-                        JSON_Object_Response = General.Response_Filter(JSON_Object_Response, f"https://{Domain}")
+                        JSON_Object_Responses = General.Request_Handler(JSON_Object['artistViewUrl'], Filter=True, Host=f"https://{Domain}")
+                        JSON_Object_Response = JSON_Object_Responses["Filtered"]
 
                         if JSON_Object['artistViewUrl'] not in Cached_Data and JSON_Object['artistViewUrl'] not in Data_to_Cache:
                             iTunes_Regex = re.search(r"https\:\/\/apps\.apple\.com\/" + rf"{Location}" + r"\/developer\/[\w\d\-]+\/(id[\d]{9,10})\?.+", JSON_Object['artistViewUrl'])

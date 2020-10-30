@@ -2,26 +2,87 @@
 # -*- coding: utf-8 -*-
 import datetime, os, logging, re, requests, urllib, json, plugins.common.Connectors as Connectors
 from bs4 import BeautifulSoup
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
 Configuration_File = os.path.join('plugins/common/config', 'config.json')
 
-def URL_Headers(User_Agent=False, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False):
-    URL_User_Agent_Headers = {}
+def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Host="", Data={}, **kwargs):
+    try:
+        Headers = {}
 
-    if User_Agent:
-        URL_User_Agent_Headers['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+        if type(Data) == dict:
 
-    if Application_JSON_CT:
-        URL_User_Agent_Headers['Content-Type'] = 'application/json'
+            if User_Agent:
+                Headers['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
-    if Accept_XML:
-        URL_User_Agent_Headers['Accept'] = 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            if Application_JSON_CT:
+                Headers['Content-Type'] = 'application/json'
 
-    if Accept_Language_EN_US:
-        URL_User_Agent_Headers['Accept-Language'] = 'en-US,en;q=0.5'
+            if Accept_XML:
+                Headers['Accept'] = 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 
-    return URL_User_Agent_Headers
+            if Accept_Language_EN_US:
+                Headers['Accept-Language'] = 'en-US,en;q=0.5'
+
+            if kwargs.get("Optional_Headers") and type(kwargs.get("Optional_Headers")) == dict:
+
+                for Header_Key, Header_Value in kwargs["Optional_Headers"].items():
+                    Headers[Header_Key] = Header_Value
+            
+            if Method == "GET":
+
+                if Data:
+                    Response = requests.get(URL, headers=Headers, data=Data, verify=False).text
+
+                else:
+                    Response = requests.get(URL, headers=Headers, verify=False).text
+
+            elif Method == "POST":
+
+                if Data:
+                    Response = requests.post(URL, headers=Headers, data=Data, verify=False).text
+
+                else:
+                    Response = requests.post(URL, headers=Headers, verify=False).text
+
+            else:
+                logging.warning(f"{Date()} General Library - The supplied method is not supported.")
+                return None
+
+            if kwargs.get("Scrape_Regex_URL"):
+                Scrape_Regex_URL = kwargs["Scrape_Regex_URL"]
+                Scrape_URLs = []
+                Content_String = str(Response)
+
+                try:
+                    Scrape_URLs_Raw = re.findall(Scrape_Regex_URL, Content_String)
+
+                    for Temp_URL_Extensions in Scrape_URLs_Raw:
+
+                        if not Temp_URL_Extensions in Scrape_URLs:
+                            Scrape_URLs.append(Temp_URL_Extensions)
+
+                except:
+                    logging.warning(f"{Date()} General Library - Failed to regex URLs.")
+
+                return Scrape_URLs
+
+            else:
+
+                if Filter and str(Host) != "":
+                    Filtered_Response = Response_Filter(Response, str(Host), Risky_Plugin=Risky_Plugin)
+                    return {"Regular": Response, "Filtered": Filtered_Response}
+
+                else:
+                    return Response
+
+        else:
+            logging.warning(f"{Date()} General Library - The data field needs to be in a dictionary format.")
+
+    except Exception as e:
+        logging.warning(f"{Date()} General Library - {str(e)}.")
 
 def Date():
     return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -251,13 +312,16 @@ def Data_Type_Discovery(Data_to_Search):
 
     try:
         Dump_Types = []
-        Hash_Types = [["MD5","([a-fA-F0-9]{32})\W"],["SHA1","([a-fA-F0-9]{40})\W"],["SHA256","([a-fA-F0-9]{64})\W"]]
+        Hash_Types = ["MD5", "SHA1", "SHA256"]
+        Hash_Type_Dict = {}
 
-        for Hash_Type in Hash_Types: # Hash_Type identification
-            Hash_Regex = re.search(Hash_Type[1], Data_to_Search)
+        for Hash_Type in Hash_Types:
+            Hash_Type_Dict[Hash_Type] = Regex_Checker(Data_to_Search, Hash_Type)
 
-            if Hash_Regex:
-                Hash_Type_Line = f"{Hash_Type[0]} hash"
+        for Hash_Key, Hash_Value in Hash_Type_Dict.items(): # Hash_Type identification
+
+            if Hash_Value:
+                Hash_Type_Line = f"{Hash_Key} hash"
 
                 if not Hash_Type_Line in Dump_Types:
                     Dump_Types.append(Hash_Type_Line)
@@ -265,23 +329,19 @@ def Data_Type_Discovery(Data_to_Search):
             else:
                 pass
 
-        Credential_Regex = re.search(r"[\w\d\.\-\_]+\@[\w\.]+\:.*", Data_to_Search)
-
-        if Credential_Regex: # Credentials identification
+        if Regex_Checker(Data_to_Search, "Credentials"): # Credentials identification
 
             if not "Credentials" in Dump_Types:
                 Dump_Types.append("Credentials")
 
         else:
-            EmailRegex = re.search("[\w\d\.\-\_]+\@[\w\.]+", Data_to_Search)
-            URLRegex = re.search("(https?:\/\/(www\.)?)?([-a-zA-Z0-9:%._\+#=]{2,256})(\.[a-z]{2,6}\b([-a-zA-Z0-9:%_\+.#?&//=]*))", Data_to_Search)
 
-            if EmailRegex: # Email Identification
+            if Regex_Checker(Data_to_Search, "Email"): # Email Identification
 
                 if not "Email" in Dump_Types:
                     Dump_Types.append("Email")
 
-            if URLRegex: # URL Indentification
+            if Regex_Checker(Data_to_Search, "URL"): # URL Indentification
 
                 if not "URL" in Dump_Types:
                     Dump_Types.append("URL")
@@ -383,39 +443,14 @@ def Make_Directory(Plugin_Name):
     File_Path = os.path.dirname(os.path.realpath('__file__'))
     Directory = f"{File_Path}/static/protected/output/{Plugin_Name}/{Year}/{Month}/{Day}"
 
-    try:
+    if not os.path.isdir(Directory):
         os.makedirs(Directory)
         logging.info(f"{Date()} General Library - Using new directory: {Directory}.")
 
-    except:
+    else:
         logging.info(f"{Date()} General Library - Using existing directory: {Directory}.")
     
     return Directory
-
-def Get_Latest_URLs(Pull_URL, Scrape_Regex_URL):
-    Scrape_URLs = []
-    Content = ""
-    Content_String = ""
-
-    try:
-        Content = requests.get(Pull_URL).text
-        Content_String = str(Content)
-
-    except:
-        logging.warning(f"{Date()} General Library - Failed to connect.")
-
-    try:
-        Scrape_URLs_Raw = re.findall(Scrape_Regex_URL, Content_String)
-
-        for Temp_URL_Extensions in Scrape_URLs_Raw:
-
-            if not Temp_URL_Extensions in Scrape_URLs:
-                Scrape_URLs.append(Temp_URL_Extensions)
-
-    except:
-        logging.warning(f"{Date()} General Library - Failed to regex URLs.")
-
-    return Scrape_URLs
 
 def Get_Title_Requests_Module(URL):
 
@@ -424,7 +459,7 @@ def Get_Title_Requests_Module(URL):
         if URL.startswith('http://') or URL.startswith('https://'):
 
             if 'file:/' not in URL:
-                Soup = BeautifulSoup(requests.get(URL).text, features="lxml")
+                Soup = BeautifulSoup(Request_Handler(URL), features="lxml")
                 return Soup.title.text
 
             else:
@@ -509,6 +544,18 @@ def Regex_Checker(Query, Type):
 
     elif Type == "URL":
         Regex = re.search(r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", Query)
+
+    elif Type == "MD5":
+        Regex = re.search(r"([a-fA-F0-9]{32})\W", Query)
+
+    elif Type == "SHA1":
+        Regex = re.search(r"([a-fA-F0-9]{40})\W", Query)
+
+    elif Type == "SHA256":
+        Regex = re.search(r"([a-fA-F0-9]{64})\W", Query)
+
+    elif Type == "Credentials":
+        Regex = re.search(r"[\w\d\.\-\_]+\@[\w\.]+\:.*", Query)
 
     else:
         return None

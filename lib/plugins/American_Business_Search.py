@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os, re, logging, requests, plugins.common.General as General
+import os, re, logging, plugins.common.General as General
 
 Plugin_Name = "American-Business"
 Concat_Plugin_Name = "americanbusiness"
 The_File_Extensions = {"Main": ".html", "Query": ".html"}
 Domain = "sec.gov"
-headers = General.URL_Headers(User_Agent=False)
 
 def Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -29,13 +28,14 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                 if Type == "CIK":
                     Main_URL = f'https://www.{Domain}/cgi-bin/browse-edgar?action=getcompany&CIK={Query}&owner=exclude&count=40&hidefilings=0'
-                    Response = requests.get(Main_URL, headers=headers).text
+                    Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{Domain}")
+                    Response = Responses["Regular"]
 
                     try:
 
                         if 'No matching CIK.' not in Response:
                             Query = str(int(Query))
-                            Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                            Response = Responses["Filtered"]
 
                             if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, f"edgar-american-business-search-{Query.lower()}", The_File_Extensions["Query"])
@@ -53,8 +53,9 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                 elif Type == "ACN":
                     Main_URL = f'https://www.{Domain}/cgi-bin/browse-edgar?company={Query}&owner=exclude&action=getcompany'
-                    Response = requests.get(Main_URL, headers=headers).text
-                    Filtered_Response = General.Response_Filter(Response, f"https://www.{Domain}")
+                    Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{Domain}")
+                    Response = Responses["Regular"]
+                    Filtered_Response = Responses["Filtered"]
                     Limit = General.Get_Limit(kwargs)
 
                     try:
@@ -72,8 +73,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                     Full_CIK_URL = f'https://www.{Domain}/cgi-bin/browse-edgar?action=getcompany&CIK={CIK_URL}&owner=exclude&count=40&hidefilings=0'
 
                                     if Full_CIK_URL not in Cached_Data and Full_CIK_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                        Current_Response = requests.get(Full_CIK_URL, headers=headers).text
-                                        Current_Response = General.Response_Filter(Current_Response, f"https://www.{Domain}")
+                                        Current_Responses = General.Request_Handler(Full_CIK_URL, Filter=True, Host=f"https://www.{Domain}")
+                                        Current_Response = Current_Responses["Filtered"]
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, str(Current_Response), ACN.replace(' ', '-'), The_File_Extensions["Query"])
 
                                         if Output_file:

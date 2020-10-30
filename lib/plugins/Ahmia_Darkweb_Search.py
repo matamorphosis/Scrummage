@@ -31,7 +31,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
         for Query in Query_List:
             Tor_Pull_URL = Tor_General_URL + Query
-            Tor_Scrape_URLs = General.Get_Latest_URLs(Tor_Pull_URL, Tor_Scrape_Regex_URL)
+            Tor_Scrape_URLs = General.Request_Handler(Tor_Pull_URL, Scrape_Regex_URL=Tor_Scrape_Regex_URL)
 
             if Tor_Scrape_URLs:
                 Output_file = General.Main_File_Create(Directory, Tor_Plugin_Name.lower(), "\n".join(Tor_Scrape_URLs), Query, The_File_Extension)
@@ -55,7 +55,7 @@ def Search(Query_List, Task_ID, **kwargs):
                 logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - No Tor links scraped.")
 
             I2P_Pull_URL = I2P_General_URL + Query
-            I2P_Scrape_URLs = General.Get_Latest_URLs(I2P_Pull_URL, I2P_Scrape_Regex_URL)
+            I2P_Scrape_URLs = General.Request_Handler(I2P_Pull_URL, Scrape_Regex_URL=I2P_Scrape_Regex_URL)
 
             if I2P_Scrape_URLs:
                 Output_file = General.Main_File_Create(Directory, I2P_Plugin_Name.lower(), "\n".join(I2P_Scrape_URLs), Query, The_File_Extension)

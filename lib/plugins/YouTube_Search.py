@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, requests, json, os, logging
+import plugins.common.General as General, json, os, logging
 from googleapiclient import discovery
 
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "YouTube"
 Domain = "youtube.com"
-headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -64,8 +63,8 @@ def Search(Query_List, Task_ID, **kwargs):
 
             for Search_Result in Search_Response.get('items', []):
                 Full_Video_URL = f"https://www.{Domain}/watch?v=" + Search_Result['id']['videoId']
-                Search_Video_Response = requests.get(Full_Video_URL, headers=headers).text
-                Search_Video_Response = General.Response_Filter(Search_Video_Response, f"https://www.{Domain}")
+                Search_Video_Responses = General.Request_Handler(Full_Video_URL, Filter=True, Host=f"https://www.{Domain}")
+                Search_Video_Response = Search_Video_Responses["Filtered"]
                 Title = "YouTube | " + Search_Result['snippet']['title']
 
                 if Full_Video_URL not in Cached_Data and Full_Video_URL not in Data_to_Cache:

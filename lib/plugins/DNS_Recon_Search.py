@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, plugins.common.checkdmarc as checkdmarc, json, os, logging, requests
+import plugins.common.General as General, plugins.common.checkdmarc as checkdmarc, json, os, logging
 
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Plugin_Name = "DNS-Recon"
@@ -33,8 +33,8 @@ def Search(Query_List, Task_ID):
                     Title = "DNS Information for " + DNS_Item['base_domain']
 
                     if Link not in Data_to_Cache and Link not in Cached_Data:
-                        Response = requests.get(Link, headers=General.URL_Headers(User_Agent=True)).text
-                        Response = General.Response_Filter(Response, f"https://www.{Query}")
+                        Responses = General.Request_Handler(Link, Filter=True, Host=f"https://www.{Query}")
+                        Response = Responses["Filtered"]
                         Main_File = General.Main_File_Create(Directory, Plugin_Name, Output_Dict, Query, The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, Title, The_File_Extensions["Query"])
 
@@ -53,8 +53,8 @@ def Search(Query_List, Task_ID):
                 Title = "DNS Information for " + Query
 
                 if Link not in Data_to_Cache and Link not in Cached_Data:
-                    Response = requests.get(Link, headers=General.URL_Headers(User_Agent=True)).text
-                    Response = General.Response_Filter(Response, f"https://www.{Query}")
+                    Responses = General.Request_Handler(Link, Filter=True, Host=f"https://www.{Query}")
+                    Response = Responses["Filtered"]
                     Main_File = General.Main_File_Create(Directory, Plugin_Name, Output_Dict, Query, The_File_Extensions["Main"])
                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Response, Title, The_File_Extensions["Query"])
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, logging, os, json, plugins.common.General as General
+import logging, os, json, plugins.common.General as General
 from shodan import Shodan
 
 Plugin_Name = "Shodan"
@@ -121,8 +121,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     Title = "Shodan | " + Query
 
                     if Shodan_URL not in Cached_Data and Shodan_URL not in Data_to_Cache:
-                        Shodan_Response = requests.get(Shodan_URL, headers=General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)).text
-                        Shodan_Response = General.Response_Filter(Shodan_Response, f"https://www.{Domain}")
+                        Shodan_Responses = General.Request_Handler(Shodan_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                        Shodan_Response = Shodan_Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Shodan_Response, Query, The_File_Extensions["Query"])
 
                         if Output_file:

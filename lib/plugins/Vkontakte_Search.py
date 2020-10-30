@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-import requests, logging, os, json, plugins.common.General as General
+import logging, os, json, plugins.common.General as General
 
 Plugin_Name = "Vkontakte"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "vk.com"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Load_Configuration():
     File_Dir = os.path.dirname(os.path.realpath('__file__'))
@@ -65,7 +64,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
         for Query in Query_List:
 
             if Type == "User":
-                VK_Response = requests.get(f"https://api.{Domain}/method/users.search?v=5.52&access_token={VK_Access_Token}&fields=verified, blacklisted, sex, bdate, city, country, home_town, photo_50, photo_100, photo_200_orig, photo_200, photo_400_orig, photo_max, photo_max_orig, online, lists, domain, has_mobile, contacts, site, education, universities, schools, status, last_seen, followers_count, common_count, counters, occupation, nickname, relatives, relation, personal, connections, exports, wall_comments, activities, interests, music, movies, tv, books, games, about, quotes, can_post, can_see_all_posts, can_see_audio, can_write_private_message, timezone, screen_name&q={Query}&count={str(Limit)}").text
+                VK_Response = General.Request_Handler(f"https://api.{Domain}/method/users.search?v=5.52&access_token={VK_Access_Token}&fields=verified, blacklisted, sex, bdate, city, country, home_town, photo_50, photo_100, photo_200_orig, photo_200, photo_400_orig, photo_max, photo_max_orig, online, lists, domain, has_mobile, contacts, site, education, universities, schools, status, last_seen, followers_count, common_count, counters, occupation, nickname, relatives, relation, personal, connections, exports, wall_comments, activities, interests, music, movies, tv, books, games, about, quotes, can_post, can_see_all_posts, can_see_audio, can_write_private_message, timezone, screen_name&q={Query}&count={str(Limit)}")
                 JSON_Response = json.loads(VK_Response)
                 JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
@@ -84,8 +83,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                 Title = f"VK User | {Full_Name}"
 
                                 if VK_URL not in Cached_Data and VK_URL not in Data_to_Cache:
-                                    VK_Item_Response = requests.get(VK_URL, headers=headers).text
-                                    VK_Item_Response = General.Response_Filter(VK_Item_Response, f"https://{Domain}")
+                                    VK_Item_Responses = General.Request_Handler(VK_URL, Filter=True, Host=f"https://{Domain}")
+                                    VK_Item_Response = VK_Item_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, VK_Item_Response, VK_URL, The_File_Extensions["Query"])
 
                                     if Output_file:
@@ -102,7 +101,7 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                     logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - No results found.")
 
             if Type == "Group":
-                VK_Response = requests.get(f"https://api.{Domain}/method/groups.search?v=5.52&access_token={VK_Access_Token}&q={Query}&count={str(Limit)}").text
+                VK_Response = General.Request_Handler(f"https://api.{Domain}/method/groups.search?v=5.52&access_token={VK_Access_Token}&q={Query}&count={str(Limit)}")
                 JSON_Response = json.loads(VK_Response)
                 JSON_Output_Response = json.dumps(JSON_Response, indent=4, sort_keys=True)
                 Main_File = General.Main_File_Create(Directory, Plugin_Name, JSON_Output_Response, Query, The_File_Extensions["Main"])
@@ -121,8 +120,8 @@ def Search(Query_List, Task_ID, Type, **kwargs):
                                 Title = f"VK Group | {Full_Name}"
 
                                 if VK_URL not in Cached_Data and VK_URL not in Data_to_Cache:
-                                    VK_Item_Response = requests.get(VK_URL, headers=headers).text
-                                    VK_Item_Response = General.Response_Filter(VK_Item_Response, f"https://{Domain}")
+                                    VK_Item_Responses = General.Request_Handler(VK_URL, Filter=True, Host=f"https://{Domain}")
+                                    VK_Item_Response = VK_Item_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name, VK_Item_Response, VK_URL, The_File_Extensions["Query"])
 
                                     if Output_file:

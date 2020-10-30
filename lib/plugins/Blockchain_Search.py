@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # Version 2 - Added Monero Blockchain Support
-import requests, re, os, logging, plugins.common.General as General
+import re, os, logging, plugins.common.General as General
 
 Plugin_Name = "Blockchain"
 The_File_Extension = ".html"
 Domain = "blockchain.com"
-headers = General.URL_Headers(User_Agent=False)
 
 def Transaction_Search(Query_List, Task_ID, Type, **kwargs):
 
@@ -40,7 +39,7 @@ def Transaction_Search(Query_List, Task_ID, Type, **kwargs):
 
                 if Query_Regex:
                     Main_URL = f"https://www.{Domain}/{Type}/tx/{Query}"
-                    Main_Response = requests.get(Main_URL, headers=headers).text
+                    Main_Response = General.Request_Handler(Main_URL)
 
                     if Type == "btc":
                         Address_Regex = re.findall(r"\/btc\/address\/([\d\w]{26,34})", Main_Response)
@@ -62,8 +61,8 @@ def Transaction_Search(Query_List, Task_ID, Type, **kwargs):
                             Query_URL = f"https://www.{Domain}/{Type}/address/{Transaction}"
 
                             if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                Transaction_Response = requests.get(Query_URL, headers=headers).text
-                                Transaction_Response = General.Response_Filter(Transaction_Response, f"https://www.{Domain}")
+                                Transaction_Responses = General.Request_Handler(Query_URL, Filter=True, Host=f"https://www.{Domain}")
+                                Transaction_Response = Transaction_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, The_File_Extension)
 
                                 if Output_file:
@@ -84,11 +83,11 @@ def Transaction_Search(Query_List, Task_ID, Type, **kwargs):
         else:
             Alt_Domain = "localmonero.co"
             Query_URL = f"https://{Alt_Domain}/blocks/search/{Query}"
-            Transaction_Response = requests.get(Query_URL, headers=headers).text
+            Transaction_Response = General.Request_Handler(Query_URL)
 
             if "Whoops, looks like something went wrong." not in Transaction_Response and Query_URL not in Cached_Data and Query_URL not in Data_to_Cache:
-                Transaction_Response = requests.get(Query_URL).text
-                Transaction_Response = General.Response_Filter(Transaction_Response, f"https://{Alt_Domain}")
+                Transaction_Responses = General.Request_Handler(Query_URL, Filter=True, Host=f"https://{Alt_Domain}")
+                Transaction_Response = Transaction_Responses["Filtered"]
                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Query, The_File_Extension)
 
                 if Output_file:
@@ -139,7 +138,7 @@ def Address_Search(Query_List, Task_ID, Type, **kwargs):
 
             if Query_Regex:
                 Main_URL = f"https://www.{Domain}/{Type}/address/{Query}"
-                Main_Response = requests.get(Main_URL, headers=headers).text
+                Main_Response = General.Request_Handler(Main_URL)
 
                 if Type == "btc":
                     Transaction_Regex = re.findall(r"\/btc\/tx\/([\d\w]{64})", Main_Response)
@@ -161,8 +160,8 @@ def Address_Search(Query_List, Task_ID, Type, **kwargs):
                         Query_URL = f"https://www.{Domain}/{Type}/tx/{Transaction}"
 
                         if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(Limit):
-                            Transaction_Response = requests.get(Query_URL, headers=headers).text
-                            Transaction_Response = General.Response_Filter(Transaction_Response, f"https://www.{Domain}")
+                            Transaction_Responses = General.Request_Handler(Query_URL, Filter=True, Host=f"https://www.{Domain}")
+                            Transaction_Response = Transaction_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, The_File_Extension)
 
                             if Output_file:

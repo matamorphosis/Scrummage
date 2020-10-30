@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, os, logging, json, re, plugins.common.General as General
+import os, logging, json, plugins.common.General as General
 
 Plugin_Name = "SSLMate"
 The_File_Extension = ".json"
@@ -41,12 +41,11 @@ def Search(Query_List, Task_ID):
 
             if Subdomains:
                 Request = f'https://api.certspotter.com/v1/issuances?domain={Query}&include_subdomains=true&expand=dns_names&expand=issuer&expand=cert'
-                Response = requests.get(Request, headers=General.URL_Headers(User_Agent=True)).text
 
             else:
                 Request = f'https://api.certspotter.com/v1/issuances?domain={Query}&expand=dns_names&expand=issuer&expand=cert'
-                Response = requests.get(Request, headers=General.URL_Headers(User_Agent=True)).text
 
+            Response = General.Request_Handler(Request)
             JSON_Response = json.loads(Response)
 
             if 'exists' not in JSON_Response:
@@ -56,9 +55,8 @@ def Search(Query_List, Task_ID):
                     if Request not in Cached_Data and Request not in Data_to_Cache:
 
                         try:
-                            SSLMate_Regex = re.search("([\w\d]+)\.[\w]{2,3}(\.[\w]{2,3})?(\.[\w]{2,3})?", Query)
 
-                            if SSLMate_Regex:
+                            if General.Regex_Checker(Query, "Domain"):
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Plugin_Name.lower(), json.dumps(JSON_Response, indent=4, sort_keys=True), SSLMate_Regex.group(1), The_File_Extension)
 
                                 if Output_file:

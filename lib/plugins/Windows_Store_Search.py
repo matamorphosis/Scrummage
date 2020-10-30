@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import requests, logging, os, re, plugins.common.General as General
+import logging, os, re, plugins.common.General as General
 
 Plugin_Name = "Windows-Store"
 Concat_Plugin_Name = "windowsstore"
 The_File_Extension = ".html"
 Domain = "microsoft.com"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 
@@ -27,7 +26,7 @@ def Search(Query_List, Task_ID, **kwargs):
 
         for Query in Query_List:
             Main_URL = f"https://www.{Domain}/en-{Location}/search?q={Query}"
-            Win_Store_Response = requests.get(Main_URL, headers=headers).text
+            Win_Store_Response = General.Request_Handler(Main_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
             Main_File = General.Main_File_Create(Directory, Plugin_Name, Win_Store_Response, Query, The_File_Extension)
             Win_Store_Regex = re.findall(r"\/en\-au\/p\/([\w\-]+)\/([\w\d]+)", Win_Store_Response)
             Output_Connections = General.Connections(Query, Plugin_Name, Domain, "Application", Task_ID, Concat_Plugin_Name)
@@ -37,8 +36,8 @@ def Search(Query_List, Task_ID, **kwargs):
 
                 for Regex_Group_1, Regex_Group_2 in Win_Store_Regex:
                     Item_URL = f"https://www.microsoft.com/en-au/p/{Regex_Group_1}/{Regex_Group_2}"
-                    Win_Store_Response = requests.get(Item_URL, headers=headers).text
-                    Win_Store_Response = General.Response_Filter(Win_Store_Response, f"https://www.{Domain}")
+                    Win_Store_Responses = General.Request_Handler(Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{Domain}")
+                    Win_Store_Response = Win_Store_Responses["Filtered"]
                     Title = "Windows Store | " + General.Get_Title(Item_URL)
 
                     if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(Limit):

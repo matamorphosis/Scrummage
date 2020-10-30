@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, logging, os, json, re, plugins.common.General as General
+import logging, os, re, plugins.common.General as General
 
 Plugin_Name = "Default-Password"
 Concat_Plugin_Name = "defaultpassword"
@@ -27,8 +27,9 @@ def Search(Query_List, Task_ID, **kwargs):
         for Query in Query_List:
             URL_Body = f'https://{Domain}'
             Main_URL = URL_Body + '/' + Query.lower().replace(' ', '-')
-            Response = requests.get(Main_URL, headers=headers).text
-            Filtered_Response = General.Response_Filter(Response, f"https://www.{Domain}")
+            Responses = General.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{Domain}")
+            Response = Responses["Regular"]
+            Filtered_Response = Responses["Filtered"]
             Main_File = General.Main_File_Create(Directory, Plugin_Name, Filtered_Response, Query, The_File_Extension)
             Regex = re.findall(r'\<tr\>\s+\<td\sclass\=\"name\"\>\s+\<a\shref\=\"([\/\d\w\-\+\?\.]+)\"\>([\/\d\w\-\+\?\.\(\)\s\,\;\:\~\`\!\@\#\$\%\^\&\*\[\]\{\}]+)\<\/a\>\s+\<\/td\>', Response)
 
@@ -38,14 +39,14 @@ def Search(Query_List, Task_ID, **kwargs):
 
                 for URL, Title in Regex:
                     Item_URL = URL_Body + URL
-                    Current_Response = requests.get(Item_URL, headers=headers).text
+                    Current_Response = General.Request_Handler(Item_URL)
                     Current_Item_Regex = re.search(r'\<button\sclass\=\"btn\sbtn\-primary\spassword\"\s+data\-data\=\"([\-\d\w\?\/]+)\"\s+data\-toggle\=\"modal\"\s+data\-target\=\"\#modal\"\s+\>show\sme\!\<\/button\>', Current_Response)
 
                     if Current_Item_Regex:
 
                         try:
                             Detailed_Item_URL = URL_Body + Current_Item_Regex.group(1)
-                            Detailed_Response = requests.get(Detailed_Item_URL, headers=headers).text
+                            Detailed_Response = General.Request_Handler(Item_URL)
                             JSON_Response = General.Is_JSON(Detailed_Response)
 
                             if JSON_Response:
