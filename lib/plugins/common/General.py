@@ -7,6 +7,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
 Configuration_File = os.path.join('plugins/common/config', 'config.json')
+Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
 def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Host="", Data={}, **kwargs):
     try:
@@ -15,7 +16,7 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=Fals
         if type(Data) == dict:
 
             if User_Agent:
-                Headers['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+                Headers['User-Agent'] = Current_User_Agent
 
             if Application_JSON_CT:
                 Headers['Content-Type'] = 'application/json'

@@ -3,7 +3,6 @@
 import os, logging, socket, requests, plugins.common.Rotor as Rotor, plugins.common.General as General, multiprocessing, multiprocessing.pool as mpool
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-headers = General.URL_Headers(User_Agent=True)
 
 class Fuzzer:
 
@@ -54,20 +53,21 @@ class Fuzzer:
                 Cache = Query + ":" + Response
 
                 if Cache not in self.Cached_Data and Cache not in self.Data_to_Cache:
+                    headers = {"User-Agent": General.Current_User_Agent}
 
                     try:
                         HTTP_Web_Host = 'http://' + Query
                         Web_Host = HTTP_Web_Host
                         requests.get(Web_Host, headers=headers, verify=False)
 
-                    except requests.exceptions.ConnectionError as ConnErr:
+                    except requests.exceptions.ConnectionError:
 
                         try:
                             HTTPS_Web_Host = Web_Host.replace("http://", "https://")
                             requests.get(HTTPS_Web_Host, headers=headers, verify=False)
                             Web_Host = HTTPS_Web_Host
 
-                        except requests.exceptions.ConnectionError as ConnErr:
+                        except requests.exceptions.ConnectionError:
                             logging.warning(f"{General.Date()} {__name__.strip('plugins.')} - Unable to connect to a valid host neither via HTTP nor HTTPS. Result will still be created.")
 
                     self.Valid_Results.append(f"{Query},{Response}")
@@ -197,8 +197,8 @@ class Fuzzer:
                         Current_Domain = Host[0].strip('https://').strip('http://')
 
                         try:
-                            Current_Response = requests.get(Host[0], headers=headers, verify=False).text
-                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
+                            Current_Responses = General.Request_Handler(Host[0], Filter=True, Host=Host[0], Risky_Plugin=True)
+                            Current_Response = Current_Responses["Filtered"]
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -209,7 +209,7 @@ class Fuzzer:
                             else:
                                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-                        except requests.exceptions.ConnectionError as ConnErr:
+                        except requests.exceptions.ConnectionError:
                             Output_File_List = [Main_File]
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
@@ -279,8 +279,8 @@ class Fuzzer:
                         Current_Domain = Host[0].strip('https://').strip('http://')
 
                         try:
-                            Current_Response = requests.get(Host[0], headers=headers, verify=False).text
-                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
+                            Current_Responses = General.Request_Handler(Host[0], Filter=True, Host=Host[0], Risky_Plugin=True)
+                            Current_Response = Current_Responses["Filtered"]
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -291,7 +291,7 @@ class Fuzzer:
                             else:
                                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-                        except requests.exceptions.ConnectionError as ConnErr:
+                        except requests.exceptions.ConnectionError:
                             Output_File_List = [Main_File]
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
@@ -361,8 +361,8 @@ class Fuzzer:
                         Current_Domain = Host[0].strip('https://').strip('http://')
 
                         try:
-                            Current_Response = requests.get(Host[0], headers=headers, verify=False).text
-                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
+                            Current_Responses = General.Request_Handler(Host[0], Filter=True, Host=Host[0], Risky_Plugin=True)
+                            Current_Response = Current_Responses["Filtered"]
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -373,7 +373,7 @@ class Fuzzer:
                             else:
                                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-                        except requests.exceptions.ConnectionError as ConnErr:
+                        except requests.exceptions.ConnectionError:
                             Output_File_List = [Main_File]
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
@@ -449,8 +449,8 @@ class Fuzzer:
                         Current_Domain = Host[0].strip('https://').strip('http://')
 
                         try:
-                            Current_Response = requests.get(Host[0], headers=headers, verify=False).text
-                            Current_Response = General.Response_Filter(Current_Response, Host[0], Risky_Plugin=True)
+                            Current_Responses = General.Request_Handler(Host[0], Filter=True, Host=Host[0], Risky_Plugin=True)
+                            Current_Response = Current_Responses["Filtered"]
                             Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
 
                             if Output_File:
@@ -461,7 +461,7 @@ class Fuzzer:
                             else:
                                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
 
-                        except requests.exceptions.ConnectionError as ConnErr:
+                        except requests.exceptions.ConnectionError:
                             Output_File_List = [Main_File]
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
