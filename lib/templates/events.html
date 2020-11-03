@@ -17,6 +17,29 @@
 		<main>
 			<section>
 				<div id="loader">&nbsp;</div>
+	            {% if Filter_Name and Filter_Value %}
+	            <div id="refresh-div" style="display: none;">
+	                <form id="refresh" action="{{ url_for ('events_filtered') }}" method=get autocomplete="off">
+	                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter" value="{{Filter_Name}}">
+	                    <datalist id="browsers">
+	                        {% for Item in Event_Filters %}
+	                        <option value="{{Item}}"></option>
+	                        {% endfor %}
+	                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value" value="{{Filter_Value}}"><input class="button-red" name="setfilter" type=submit value="Set">
+	                </form>
+	            </div>
+	            {% else %}
+	            <div id="refresh-div" style="display: none;">
+	                <form id="refresh" action="{{ url_for ('events_filtered') }}" method=get autocomplete="off">
+	                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter">
+	                    <datalist id="browsers">
+	                        {% for Item in Event_Filters %}
+	                        <option value="{{Item}}"></option>
+	                        {% endfor %}
+	                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value"><input class="button-red" name="setfilter" type=submit value="Set">
+	                </form>
+	            </div>
+	            {% endif %}
 				<noscript>
 					<p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
 				</noscript>
@@ -51,10 +74,11 @@
 				function showPage() {
 					document.getElementById("loader").style.display = "none";
 					document.getElementById("loader-message").style.display = "none";
+					document.getElementById("refresh-div").style.display = null;
 					document.getElementById("paginate").style.display = null;
 					document.getElementById("fc").style.display = null;
-					document.getElementsByTagName("INPUT")[0].placeholder='Search';
-					document.getElementsByTagName("INPUT")[0].className='js_search';
+					document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+					document.getElementsByTagName("INPUT")[3].className='js_search';
 				}
 				</script>
 			</section>

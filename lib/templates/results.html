@@ -61,7 +61,7 @@
                                             <td class="nonscreenshottab">Screenshot Disabled</td>
                                         {% endif %}
                                     {% else %}
-                                        <td class="nonscreenshottab">Screenshot Requested</td>
+                                        <td class="nonscreenshottab">Already Requested</td>
                                     {% endif %}
                                 {% else %}
                                     <td class="nonscreenshottab">Not Available</td>
@@ -169,12 +169,35 @@
                         }
                    });
                 }
-                </script>>
+                </script>
             </div>
         </main>
         {% else %}
         <main>
             <div id="loader">&nbsp;</div>
+            {% if Filter_Name and Filter_Value %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('results_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter" value="{{Filter_Name}}">
+                    <datalist id="browsers">
+                        {% for Item in Result_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value" value="{{Filter_Value}}"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% else %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('results_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter">
+                    <datalist id="browsers">
+                        {% for Item in Result_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% endif %}
             <noscript>
                 <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
             </noscript>
@@ -226,11 +249,11 @@
                     </form>
                     <button id="select_all_button" style="display: none;" class="button" onclick="checkAll(this)">Select All</button>
                     <button id="deselect_all_button" style="display: none;" class="button-disabled" onclick="checkAll(this)" disabled="true">Deselect All</button>
-                    <button id="bottom_delete_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete Result</button>
-                    <button id="bottom_open_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to open the selected result items: ' + getSelectValues() + '?') && sendRequest('open');" disabled="true">Open Result</button>
-                    <button id="bottom_inspect_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to inspect the selected result items: ' + getSelectValues() + '?') && sendRequest('inspect');" disabled="true">Inspect Result</button>
-                    <button id="bottom_review_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to review the selected result items: ' + getSelectValues() + '?') && sendRequest('review');" disabled="true">Review Result</button>
-                    <button id="bottom_close_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to close the selected result items: ' + getSelectValues() + '?') && sendRequest('close');" disabled="true">Close Result</button>
+                    <button id="bottom_delete_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete</button>
+                    <button id="bottom_open_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to open the selected result items: ' + getSelectValues() + '?') && sendRequest('open');" disabled="true">Open</button>
+                    <button id="bottom_inspect_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to inspect the selected result items: ' + getSelectValues() + '?') && sendRequest('inspect');" disabled="true">Inspect</button>
+                    <button id="bottom_review_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to review the selected result items: ' + getSelectValues() + '?') && sendRequest('review');" disabled="true">Review</button>
+                    <button id="bottom_close_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to close the selected result items: ' + getSelectValues() + '?') && sendRequest('close');" disabled="true">Close</button>
                 </div>
                 <script type="text/javascript">
                 var myVar;
@@ -243,6 +266,7 @@
                 function showPage() {
                     document.getElementById("loader").style.display = "none";
                     document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("refresh-div").style.display = null;
                     document.getElementById("paginate").style.display = null;
                     document.getElementById("newresult").style.display = null;
                     ButtonArr.forEach(function(item) {
@@ -251,8 +275,8 @@
                     document.getElementById("select_all_button").style.display = null;
                     document.getElementById("deselect_all_button").style.display = null;
                     document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                    document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[3].className='js_search';
                 }
 
                 function getSelectValues() {
@@ -308,16 +332,8 @@
                             } else {
                                 document.getElementById(item[0]).className = "button";
                             }
-                            if($('#select:checked').length >= 2) {
-                                document.querySelector("#" + item[0]).innerText = item[1] + ' Results';
-                            }
                         });
                     } else{
-                        if($('#select:checked').length === 1) {
-                            ButtonArr.forEach(function(item) {
-                                document.querySelector("#" + item[0]).innerText = item[1] + ' Result';
-                            });
-                        }
                         if($('#select:checked').length === 0) {
                         //Otherwise, disable the submit button.
                             ButtonArr.forEach(function(item) {
@@ -383,10 +399,11 @@
                 function showPage() {
                     document.getElementById("loader").style.display = "none";
                     document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("refresh-div").style.display = null;
                     document.getElementById("paginate").style.display = null;
                     document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                    document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[3].className='js_search';
                 }
                 </script>
                 {% endif %}

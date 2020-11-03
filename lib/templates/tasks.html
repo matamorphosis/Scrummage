@@ -113,6 +113,29 @@
         {% if not edit_task and not new_task and form_step == 0 %}
         <main>
             <div id="loader">&nbsp;</div>
+            {% if Filter_Name and Filter_Value %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('tasks_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter" value="{{Filter_Name}}">
+                    <datalist id="browsers">
+                        {% for Item in Task_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value" value="{{Filter_Value}}"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% else %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('tasks_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter">
+                    <datalist id="browsers">
+                        {% for Item in Task_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% endif %}
             <noscript>
                 <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
             </noscript>
@@ -150,9 +173,9 @@
                             {% if is_admin %}
                             <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="taskchkbox" value="{{result[0]}}"></td>
                             {% endif %}
-                            <td id="queryplugintasktab" class="nonscreenshottab" style="max-width: 200px; word-wrap: break-word">{{result[1]}}</td>
+                            <td id="queryplugintasktab" class="nonscreenshottab" style="max-width: 150px; word-wrap: break-word">{{result[1]}}</td>
                             <td id="queryplugintasktab" class="nonscreenshottab">{{result[2]}}</td>
-                            <td id="desfreqlimtasktab" class="nonscreenshottab">{{result[3]}}</td>
+                            <td id="desfreqlimtasktab" class="nonscreenshottab" style="max-width: 200px;">{{result[3]}}</td>
                             <td id="desfreqlimtasktab" class="nonscreenshottab">{{result[4]}}</td>
                             <td id="desfreqlimtasktab" class="nonscreenshottab">{{result[5]}}</td>
                             {% if is_admin %}
@@ -178,7 +201,7 @@
                     </tbody>
                 </table>
                 {% if is_admin %}
-                <div class="buttons-bottom">
+                <div id="taskbuttons" class="buttons-bottom">
                     <form action="{{ url_for('new_task') }}" method=post autocomplete="off">
                         <input name="newtask" class="button" type=submit value="New Task">
                     </form>
@@ -187,8 +210,8 @@
                     </form>
                     <button id="select_all_button" style="display: none;" class="button" onclick="checkAll(this)">Select All</button>
                     <button id="deselect_all_button" style="display: none;" class="button-disabled" onclick="checkAll(this)" disabled="true">Deselect All</button>
-                    <button id="bottom_delete_button" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected task items: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete Task</button>
-                    <button id="bottom_duplicate_button" class="button-disabled" onclick="return confirm('Are you sure you want to duplicate the selected task items: ' + getSelectValues() + '?') && sendRequest('Duplicate');" disabled="true">Duplicate Task</button>
+                    <button id="bottom_delete_button" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected task items: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</button>
+                    <button id="bottom_duplicate_button" class="button-disabled" onclick="return confirm('Are you sure you want to duplicate the selected task items: ' + getSelectValues() + '?') && sendRequest('Duplicate');" disabled="true">Duplicate</button>
                 </div>
                 {% endif %}
             </div>
@@ -203,12 +226,13 @@
             function showPage() {
                 document.getElementById("loader").style.display = "none";
                 document.getElementById("loader-message").style.display = "none";
+                document.getElementById("refresh-div").style.display = null;
                 document.getElementById("paginate").style.display = null;
                 document.getElementById("fc").style.display = null;
                 document.getElementById("select_all_button").style.display = null;
                 document.getElementById("deselect_all_button").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
+                document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+                document.getElementsByTagName("INPUT")[3].className='js_search';
             }
 
             function getSelectValues() {
@@ -262,15 +286,7 @@
                     document.getElementById("bottom_delete_button").className = "button-red";
                     document.getElementById("bottom_duplicate_button").disabled = false;
                     document.getElementById("bottom_duplicate_button").className = "button";
-                    if($('#select:checked').length >= 2) {
-                        document.querySelector("#bottom_delete_button").innerText = 'Delete Tasks'
-                        document.querySelector("#bottom_duplicate_button").innerText = 'Duplicate Tasks'
-                    }
                 } else{
-                    if($('#select:checked').length === 1) {
-                        document.querySelector("#bottom_delete_button").innerText = 'Delete Task'
-                        document.querySelector("#bottom_duplicate_button").innerText = 'Duplicate Task'
-                    }
                     if($('#select:checked').length === 0) {
                     //Otherwise, disable the submit button.
                         document.getElementById("bottom_delete_button").disabled = true;
@@ -336,10 +352,11 @@
             function showPage() {
                 document.getElementById("loader").style.display = "none";
                 document.getElementById("loader-message").style.display = "none";
+                document.getElementById("refresh-div").style.display = null;
                 document.getElementById("paginate").style.display = null;
                 document.getElementById("fc").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
+                document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+                document.getElementsByTagName("INPUT")[3].className='js_search';
             }
             </script>
             {% endif %}

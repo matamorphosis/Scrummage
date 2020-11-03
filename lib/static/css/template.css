@@ -1081,6 +1081,18 @@ table.dataTable,table.dataTable th,table.dataTable td
     color: #fff;
 }
 
+.field_textarea_short {
+    padding: 6px;
+    border: 1px solid #303030;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    outline: none;
+    border-radius: 2px;
+    background-color: #000;
+    color: #fff;
+}
+
 .follow {
     text-decoration: none;
     color: #ffffff;
@@ -1205,11 +1217,27 @@ table.dataTable,table.dataTable th,table.dataTable td
 }
 
 #accbuttons {
-    width: 1050px;
+    width: 730px;
+}
+
+#taskbuttons {
+    width: 470px;
 }
 
 #resbuttons {
-    width: 784px;
+    width: 530px;
+}
+
+@-moz-document url-prefix() {
+    #accbuttons {
+        width: 780px;
+    }
+    #resbuttons {
+        width: 570px;
+    }
+    #taskbuttons {
+        width: 500px;
+    }
 }
 
 .apitab {
@@ -1380,6 +1408,12 @@ table.dataTable,table.dataTable th,table.dataTable td
     border-radius: 2px;
 }
 
+@-moz-document url-prefix() {
+    .table_buttons {
+        width: 90px;
+    }
+}
+
 .task_buttons {
     display: inline-block;
 }
@@ -1446,6 +1480,11 @@ input, textarea {
 }
 
 .field_textarea:focus {
+    border: 1px solid #303030;
+    box-shadow: 0 0 5px grey;
+}
+
+.field_textarea_short:focus {
     border: 1px solid #303030;
     box-shadow: 0 0 5px grey;
 }
@@ -1625,16 +1664,16 @@ body code.styled {
 
 @media only screen and (max-width: 500px) {
     #chart1 {
-      width: 350px;
-      height: 175px;
+        width: 350px;
+        height: 175px;
     }
     #chart2 {
-      width: 350px;
-      height: 175px;
+        width: 350px;
+        height: 175px;
     }
     #chart3 {
-      width: 350px;
-      height: 175px;
+        width: 350px;
+        height: 175px;
     }
 }
 
@@ -1696,14 +1735,13 @@ body code.styled {
     .dataTables_wrapper .dataTables_info {
         padding-bottom: 0px;
     }
-    .field-container {
-        padding-top: 43px;
-    }
     .field_textarea {
         width: 80%;
     }
-    #firstli {
-        padding-top: 2px
+    @-moz-document url-prefix() {
+        #firstli {
+            padding-top: 36px;
+        }
     }
     .follow {
         display: none;
@@ -1809,14 +1847,6 @@ body code.styled {
         text-align: center;
         padding-top: 43px;
     }
-    #refresh-div {
-        background: #303030;
-        border-radius: 2px;
-        right: unset;
-        top: unset;
-        position: unset;
-        width: 315px;
-    }
 }
 
 @media only screen and (max-width: 1385px) {
@@ -1830,7 +1860,7 @@ body code.styled {
     }
 }
 
-@media only screen and (max-width: 1332px) {
+@media only screen and (max-width: 1260px) {
     .buttons-bottom {
         position: unset;
         top: unset;
@@ -1838,6 +1868,29 @@ body code.styled {
         right: unset;
         text-align: center;
         width: unset;
+    }
+    #refresh-div {
+        background: #303030;
+        border-radius: 2px;
+        right: unset;
+        top: unset;
+        position: unset;
+        width: 420px;
+        padding-left: 10px;
+    }
+    @-moz-document url-prefix() {
+        #refresh-div {
+            width: 500px;
+        }
+    }
+}
+
+@media only screen and (max-width: 540px) {
+    .field_textarea_short {
+        width: 120px;
+    }
+    #refresh-div {
+        width: 360px;
     }
 }
 

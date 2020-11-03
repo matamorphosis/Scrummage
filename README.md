@@ -3,7 +3,9 @@
 
 # Scrummage  
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
-**VERSION 2.7**
+**VERSION 3.0**
+- Major UX Enhancements
+- Added filter to more effectively narrow down results, tasks, events, and users.
 - New Plugins, refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
 - Improved web scraping for findings, refer to the new wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Web-Scraping)
 - More efficient, centrally managed code.

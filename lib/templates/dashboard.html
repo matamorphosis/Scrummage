@@ -19,13 +19,13 @@
         <p class="message">Please enable JavaScript to render this page. Otherwise the graphs won't load.</p>
     </noscript>
     <main>
-        <form id="refresh" action="/dashboard/set-refresh" method=post autocomplete="off">
+        <form id="refresh" action="{{ url_for ('dashboard_refresh') }}" method=post autocomplete="off">
             <div id="refresh-div">
                 <p id="dash-refresh">Auto Refresh (In Seconds):</p><select name="interval" id="interval">
                     <option value="0">No Refresh</option>
                     <option value="5">5</option>
                     <option value="10">10</option>
-                    <option value="15">15</option>
+                    <option value="15">15</opshboardtion>
                     <option value="20">20</option>
                     <option value="20">30</option>
                     <option value="20">60</option>
@@ -45,21 +45,21 @@
                     {% endif %}
                         <div class="dashboard_small_div"><p class="dashboard_p">Overview of Open Findings</p><canvas id="chart1"></canvas>
                             <script>
-                                var data = {{open_set[0] | safe}};
-                                var labels = {{open_set[1] | safe}};
-                                var colors = {{open_set[2] | safe}};
+                                var c1data = {{open_set[0] | safe}};
+                                var c1labels = {{open_set[1] | safe}};
+                                var c1colors = {{open_set[2] | safe}};
                                 var dataset = {
-                                    "labels": labels,
+                                    "labels": c1labels,
                                     "datasets":[
                                         {
                                             "label":"Open Results",
-                                            "data": data,
-                                            "backgroundColor": colors
+                                            "data": c1data,
+                                            "backgroundColor": c1colors
                                         }
                                     ]
                                 };
 
-                                var chart1 = new Chart(document.getElementById("chart1"), {
+                                var chart1var = new Chart(document.getElementById("chart1"), {
                                     type: 'doughnut',
                                     data: dataset,
                                     options: {
@@ -76,6 +76,13 @@
                                         }
                                     }
                                 });
+
+                                chart1.onclick = function(evt){
+                                    var activePoints = chart1var.getElementsAtEvent(evt);
+                                    var selectedIndex = activePoints[0]._index;
+                                    var url = "/results/filtered?filter=Result Type&filtervalue=" + c1labels[selectedIndex];
+                                    window.open(url);
+                                };
                             </script>
                         </div>
                     </div>
@@ -90,21 +97,21 @@
                     {% endif %}
                     <div class="dashboard_small_div"><p class="dashboard_p">Overview of Closed Findings</p><canvas id="chart2"></canvas>
                         <script>
-                            var data = {{closed_set[0] | safe}};
-                            var labels = {{closed_set[1] | safe}};
-                            var colors = {{closed_set[2] | safe}};
+                            var c2data = {{closed_set[0] | safe}};
+                            var c2labels = {{closed_set[1] | safe}};
+                            var c2colors = {{closed_set[2] | safe}};
                             var dataset = {
-                                "labels": labels,
+                                "labels": c2labels,
                                 "datasets":[
                                     {
                                         "label":"Closed Results",
-                                        "data": data,
-                                        "backgroundColor": colors
+                                        "data": c2data,
+                                        "backgroundColor": c2colors
                                     }
                                 ]
                             };
 
-                            var chart2 = new Chart(document.getElementById("chart2"), {
+                            var chart2var = new Chart(document.getElementById("chart2"), {
                                 type: 'doughnut',
                                 data: dataset,
                                 options: {
@@ -121,6 +128,13 @@
                                     }
                                 }
                             });
+
+                            chart2.onclick = function(evt){
+                                var activePoints = chart2var.getElementsAtEvent(evt);
+                                var selectedIndex = activePoints[0]._index;
+                                var url = "/results/filtered?filter=Result Type&filtervalue=" + c2labels[selectedIndex];
+                                window.open(url);
+                            };
                         </script></div>
                     </div>
                     {% endif %}
@@ -132,21 +146,21 @@
                     {% endif %}
                     <div class="dashboard_small_div"><p class="dashboard_p">Overview of Findings Under Inspection or Review</p><canvas id="chart3"></canvas>
                         <script>
-                            var data = {{mixed_set[0] | safe}};
-                            var labels = {{mixed_set[1] | safe}};
-                            var colors = {{mixed_set[2] | safe}};
+                            var c3data = {{mixed_set[0] | safe}};
+                            var c3labels = {{mixed_set[1] | safe}};
+                            var c3colors = {{mixed_set[2] | safe}};
                             var dataset = {
-                                "labels": labels,
+                                "labels": c3labels,
                                 "datasets":[
                                     {
                                         "label":"Mixed Results",
-                                        "data": data,
-                                        "backgroundColor": colors
+                                        "data": c3data,
+                                        "backgroundColor": c3colors
                                     }
                                 ]
                             };
 
-                            var chart3 = new Chart(document.getElementById("chart3"), {
+                            var chart3var = new Chart(document.getElementById("chart3"), {
                                 type: 'doughnut',
                                 data: dataset,
                                 options: {
@@ -163,6 +177,13 @@
                                     }
                                 }
                             });
+
+                            chart3.onclick = function(evt){
+                                var activePoints = chart3var.getElementsAtEvent(evt);
+                                var selectedIndex = activePoints[0]._index;
+                                var url = "/results/filtered?filter=Result Type&filtervalue=" + c3labels[selectedIndex];
+                                window.open(url);
+                            };
                         </script></div>
                     </div>
                     {% endif %}
@@ -174,16 +195,19 @@
             <div class="dashboard_large_outer_bottom_div">
                 <div class="dashboard_large_bottom_div"><p class="dashboard_p">Most Common Task Types</p><canvas id="chart4" style="width: 80%; height: 450px"></canvas>
                 <script>
-                    new Chart(document.getElementById("chart4"),{
+                    var barlabels = {{bar_set[0] | safe}};
+                    var bardata = {{bar_set[1] | safe}};
+                    var barcolors = {{bar_set[2] | safe}}
+                    var chart4var = new Chart(document.getElementById("chart4"),{
                         "type":"bar",
                         "data": {
-                            "labels": {{bar_set[0] | safe}},
+                            "labels": barlabels,
                             "datasets": [
                                 {
-                                    "data": {{bar_set[1] | safe}},
+                                    "data": bardata,
                                     "fill": false,
-                                    "backgroundColor": {{bar_set[2] | safe}},
-                                    "borderColor": {{bar_set[2] | safe}},
+                                    "backgroundColor": barcolors,
+                                    "borderColor": barcolors,
                                     "borderWidth": 0
                                 }
                             ]
@@ -217,6 +241,13 @@
                             }
                         }
                     });
+
+                    chart4.onclick = function(evt){
+                        var activePoints = chart4var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/tasks/filtered?filter=Plugin&filtervalue=" + barlabels[selectedIndex];
+                        window.open(url);
+                    };
                 </script></div>
             </div>
             </section>

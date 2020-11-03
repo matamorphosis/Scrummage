@@ -374,10 +374,11 @@ if __name__ == "__main__":
             result = cursor.fetchone()
 
             if result:
-                print(result[2])
-                print(result[5])
                 Plugin_to_Call = Plugin_Caller(Plugin_Name=result[2], Limit=result[5], Task_ID=Task_ID, Query=result[1])
                 Plugin_to_Call.Call_Plugin()
 
         except:
-            sys.exit("[-] Invalid Task ID, please provide a valid Task ID")
+            sys.exit("[-] Invalid Task ID, please provide a valid Task ID.")
+
+    else:
+        sys.exit("[-] No task provided.")

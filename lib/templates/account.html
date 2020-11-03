@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Scrummage Change Account Password.">
+        <meta name="description" content="Scrummage Account.">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
@@ -18,6 +18,29 @@
         {% if form_step == 0 %}
         <main>
             <div id="loader">&nbsp;</div>
+            {% if Filter_Name and Filter_Value %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('account_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter" value="{{Filter_Name}}">
+                    <datalist id="browsers">
+                        {% for Item in Account_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value" value="{{Filter_Value}}"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% else %}
+            <div id="refresh-div" style="display: none;">
+                <form id="refresh" action="{{ url_for ('account_filtered') }}" method=get autocomplete="off">
+                    <p id="dash-refresh">Filter: </p><input id="textarea" class="field_textarea_short" list="browsers" name=filter placeholder="Filter">
+                    <datalist id="browsers">
+                        {% for Item in Account_Filters %}
+                        <option value="{{Item}}"></option>
+                        {% endfor %}
+                    </datalist><p id="dash-refresh">=</p><input id="textarea" class="field_textarea_short" name=filtervalue placeholder="Value"><input class="button-red" name="setfilter" type=submit value="Set">
+                </form>
+            </div>
+            {% endif %}
             <noscript>
                 <p class="message">Please enable JavaScript to render this page. Otherwise it won't completely load.</p>
             </noscript>
@@ -57,11 +80,11 @@
                     </form>
                     <button id="select_all_button" style="display: none;" class="button" onclick="checkAll(this)">Select All</button>
                     <button id="deselect_all_button" style="display: none;" class="button-disabled" onclick="checkAll(this)" disabled="true">Deselect All</button>
-                    <button id="bottom_delete_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected users: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete User</button>
-                    <button id="bottom_block_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to block the selected users: ' + getSelectValues() + '?') && sendRequest('Block');" disabled="true">Block User</button>
-                    <button id="bottom_unblock_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to unblock the selected users: ' + getSelectValues() + '?') && sendRequest('Unblock');" disabled="true">Unblock User</button>
-                    <button id="bottom_demote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to demote the selected users: ' + getSelectValues() + '?') && sendRequest('Demote');" disabled="true">Demote User</button>
-                    <button id="bottom_promote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to promote the selected users: ' + getSelectValues() + '?') && sendRequest('Promote');" disabled="true">Promote User</button>
+                    <button id="bottom_delete_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to delete the selected users: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</button>
+                    <button id="bottom_block_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to block the selected users: ' + getSelectValues() + '?') && sendRequest('Block');" disabled="true">Block</button>
+                    <button id="bottom_unblock_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to unblock the selected users: ' + getSelectValues() + '?') && sendRequest('Unblock');" disabled="true">Unblock</button>
+                    <button id="bottom_demote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to demote the selected users: ' + getSelectValues() + '?') && sendRequest('Demote');" disabled="true">Demote</button>
+                    <button id="bottom_promote_button" style="display: none;" class="button-disabled" onclick="return confirm('Are you sure you want to promote the selected users: ' + getSelectValues() + '?') && sendRequest('Promote');" disabled="true">Promote</button>
                     <button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
                     <form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey', accountid=current_user_id) }}" method=post autocomplete="off">
                         <input class="button" name="getapikey" type=submit value="Reload Key">
@@ -118,19 +141,7 @@
                         }
                         document.getElementById(button[0]).disabled = false;
                     });
-                    if($('#select:checked').length >= 2) {
-                        buttons.forEach(button => {
-                            var current_button = "#" + button[0];
-                            document.querySelector(current_button).innerText = button[1] + ' Users'
-                        });
-                    }
                 } else{
-                    if($('#select:checked').length === 1) {
-                        buttons.forEach(button => {
-                            var current_button = "#" + button[0];
-                            document.querySelector(current_button).innerText = button[1] + ' User'
-                        });
-                    }
                     if($('#select:checked').length === 0) {
                         buttons.forEach(button => {
                             document.getElementById(button[0]).disabled = true;
@@ -224,14 +235,15 @@
             function showPage() {
                 document.getElementById("loader").style.display = "none";
                 document.getElementById("loader-message").style.display = "none";
+                document.getElementById("refresh-div").style.display = null;
                 document.getElementById("paginate").style.display = null;
                 ButtonArr.forEach(function(item) {
                     document.getElementById(item).style.display = null;
                 });
                 document.getElementById("createuser").style.display = null;
                 document.getElementById("fc").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
+                document.getElementsByTagName("INPUT")[3].placeholder='Quick Search';
+                document.getElementsByTagName("INPUT")[3].className='js_search';
             }
             </script>
         </main>

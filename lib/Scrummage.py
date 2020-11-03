@@ -17,7 +17,7 @@ if __name__ == '__main__':
         from crontab import CronTab
         from logging.handlers import RotatingFileHandler
         from ratelimiter import RateLimiter
-        import os, re, plugin_caller, getpass, time, sys, threading, html, secrets, jwt, matplotlib, logging, plugins.common.Connectors as Connectors, plugins.common.General as General
+        import os, re, plugin_caller, getpass, time, sys, threading, html, secrets, jwt, matplotlib, logging, importlib, plugins.common.Connectors as Connectors, plugins.common.General as General
 
         Valid_Plugins = ["Ahmia Darkweb Search", "Blockchain - Bitcoin Address Search",
                          "Blockchain - Bitcoin Cash Address Search", "Blockchain - Ethereum Address Search",
@@ -68,13 +68,14 @@ if __name__ == '__main__':
                                  "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
                                  "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
                                  "Threat Crowd - Virus Report Search", "Vehicle Registration Search"]
-        API_Plugins = ["Business Search - United Kingdom Business Number",
-                       "Business Search - United Kingdom Company Name", "Certificate Transparency - SSLMate",
-                       "Craigslist Search", "Ebay Search", "Flickr Search",
-                       "Google Search", "Hunter Search - Domain", "Hunter Search - Email", "Naver Search",
-                       "Pinterest - Board Search", "Pinterest - Pin Search",
-                       "Reddit Search", "Shodan Search - Domain", "Shodan Search - Query",
-                       "Twitter Scraper", "Vulners Search", "Yandex Search", "YouTube Search", "IP Stack Search"]
+        API_Plugins = {"Business Search - United Kingdom Business Number": "plugins.UK_Business_Search",
+                       "Business Search - United Kingdom Company Name": "plugins.UK_Business_Search", "Certificate Transparency - SSLMate": "plugins.Certificate_Transparency_SSLMate",
+                       "Craigslist Search": "plugins.Craigslist_Search", "Ebay Search": "plugins.Ebay_Search", "Flickr Search": "plugins.Flickr_Search",
+                       "Google Search": "plugins.Google_Search", "Have I Been Pwned - Password Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Email Search": "plugins.Have_I_Been_Pwned",
+                         "Have I Been Pwned - Breach Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Account Search": "plugins.Have_I_Been_Pwned", "Hunter Search - Domain": "plugins.Hunter_Search", "Hunter Search - Email": "plugins.Hunter_Search", "Naver Search": "plugins.Naver_Search",
+                       "Pinterest - Board Search": "plugins.Pinterest_Search", "Pinterest - Pin Search": "plugins.Pinterest_Search",
+                       "Reddit Search": "plugins.Reddit_Search", "Shodan Search - Domain": "plugins.Shodan_Search", "Shodan Search - Query": "plugins.Shodan_Search",
+                       "Twitter Scraper": "plugins.Twitter_Scraper", "Vulners Search": "plugins.Vulners_Search", "Yandex Search": "plugins.Yandex_Search", "YouTube Search": "plugins.YouTube_Search", "IP Stack Search": "plugins.IPStack_Search"}
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = ["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
                          "BSB Details", "Certificate", "Search Result", "Credentials", "Domain Information",
@@ -82,7 +83,11 @@ if __name__ == '__main__':
                          "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing",
                          "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Exploit",
                          "Economic Details", "Virus", "Virus Report", "Web Application Architecture", "IP Address Information"]
-        Version = "2.7"
+        Result_Filters = ["Result ID", "Task ID", "Title", "Plugin", "Status", "Domain", "Link", "Created At", "Updated At", "Result Type"]
+        Task_Filters = ["Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At"]
+        Event_Filters = ["Event ID", "Description", "Created At"]
+        Account_Filters = ["User ID", "Username", "Blocked", "Is Admin"]
+        Version = "3.0"
         Permit_Screenshots = True
 
         try:
@@ -311,77 +316,22 @@ if __name__ == '__main__':
         def Output_API_Checker(Plugin_Name):
 
             try:
+                In_Dict = False
+                Result = None
 
-                if Plugin_Name in API_Plugins:
+                for API_Key, API_Value in API_Plugins.items():
 
-                    if Plugin_Name == API_Plugins[0] or Plugin_Name == API_Plugins[1]:
-                        import plugins.UK_Business_Search as UK_Business_Search
-                        Result = UK_Business_Search.Load_Configuration()
+                    if Plugin_Name == API_Key:
+                        In_Dict = True
+                        Module = importlib.import_module(API_Value)
+                        Result = Module.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[2]:
-                        import plugins.Certificate_Transparency as Certificate_Transparency
-                        Result = Certificate_Transparency.Load_Configuration()
 
-                    elif Plugin_Name == API_Plugins[3]:
-                        import plugins.Craigslist_Search as Craigslist_Search
-                        Result = Craigslist_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[4]:
-                        import plugins.Ebay_Search as Ebay_Search
-                        Result = Ebay_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[5]:
-                        import plugins.Flickr_Search as Flickr_Search
-                        Result = Flickr_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[6]:
-                        import plugins.Google_Search as Google_Search
-                        Result = Google_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[7]:
-                        import plugins.Naver_Search as Naver_Search
-                        Result = Naver_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[8] or Plugin_Name == API_Plugins[9]:
-                        import plugins.Pinterest_Search as Pinterest_Search
-                        Result = Pinterest_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[10]:
-                        import plugins.Reddit_Search as Reddit_Search
-                        Result = Reddit_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[11] or Plugin_Name == API_Plugins[12]:
-                        import plugins.Shodan_Search as Shodan_Search
-                        Result = Shodan_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[13]:
-                        import plugins.Twitter_Scraper as Twitter_Scraper
-                        Result = Twitter_Scraper.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[14]:
-                        import plugins.Vulners_Search as Vulners_Search
-                        Result = Vulners_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[15]:
-                        import plugins.Yandex_Search as Yandex_Search
-                        Result = Yandex_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[16]:
-                        import plugins.YouTube_Search as YouTube_Search
-                        Result = YouTube_Search.Load_Configuration()
-
-                    elif Plugin_Name == API_Plugins[17]:
-                        import plugins.IPStack_Search as IPStack_Search
-                        Result = IPStack_Search.Load_Configuration()
-
-                    if Result:
-                        return "Passed"
-
-                    else:
-                        return "Failed"
+                if In_Dict:
+                    return Result
 
                 else:
-                    return "N/A"
+                    return True
 
             except Exception as e:
                 app.logger.error(e)
@@ -1096,10 +1046,52 @@ if __name__ == '__main__':
                 if session.get('user'):
                     Cursor.execute("SELECT * FROM events ORDER BY event_id DESC LIMIT 1000")
                     events = Cursor.fetchall()
-                    return render_template('events.html', username=session.get('user'), events=events)
+                    return render_template('events.html', username=session.get('user'), events=events, Event_Filters=Event_Filters)
 
                 else:
                     session["next_page"] = "events"
+                    return redirect(url_for('no_session'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('events'))
+
+        @app.route('/events/filtered', methods=['GET', 'POST'])
+        def events_filtered():
+
+            try:
+            
+                if session.get('user'):
+                
+                    if 'filter' in request.args and 'filtervalue' in request.args:
+                        Filter = str(request.args['filter'])
+                        Filter_Value = str(request.args['filtervalue'])
+
+                        if "ID" in Filter:
+                            Filter_Value = int(Filter_Value)
+
+                        if Filter in Event_Filters:
+                            Converted_Filter = Filter.lower().replace(" ", "_")
+                        
+                            if type(Filter_Value) == int:
+                                Cursor.execute(f"SELECT * FROM events WHERE {Converted_Filter} = {Filter_Value} ORDER BY event_id DESC LIMIT 1000")
+
+                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
+                                Cursor.execute(f"SELECT * FROM events WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY event_id DESC LIMIT 1000")
+                            
+                            else:
+                                return redirect(url_for('events'))
+
+                            return render_template('events.html', username=session.get('user'), events=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Event_Filters=Event_Filters)
+
+                        else:
+                            return redirect(url_for('events'))
+
+                    else:
+                        return redirect(url_for('events'))
+
+                else:
+                    session["next_page"] = "events_filtered"
                     return redirect(url_for('no_session'))
 
             except Exception as e:
@@ -1259,12 +1251,67 @@ if __name__ == '__main__':
                     session['task_limit'] = 0
                     session['task_query'] = ""
                     session['task_id'] = 0
-                    Cursor.execute("SELECT * FROM tasks")
+                    Cursor.execute("SELECT * FROM tasks ORDER BY task_id DESC LIMIT 1000")
                     task_results = Cursor.fetchall()
-                    return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=task_results)
+                    return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=task_results, Task_Filters=Task_Filters)
 
                 else:
                     session["next_page"] = "tasks"
+                    return redirect(url_for('no_session'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('tasks'))
+
+        @app.route('/tasks/filtered', methods=['GET', 'POST'])
+        def tasks_filtered():
+
+            try:
+            
+                if session.get('user'):
+                    session['form_step'] = 0
+                    session['form_type'] = ""
+                    session['task_frequency'] = ""
+                    session['task_description'] = ""
+                    session['task_limit'] = 0
+                    session['task_query'] = ""
+                    session['task_id'] = 0
+                
+                    if 'filter' in request.args and 'filtervalue' in request.args:
+                        Filter = str(request.args['filter'])
+                        Filter_Value = str(request.args['filtervalue'])
+
+                        if "ID" in Filter:
+                            Filter_Value = int(Filter_Value)
+
+                        if Filter in Task_Filters:
+                            Converted_Filter = Filter.lower().replace(" ", "_")
+                            Current_Bad_Chars = Bad_Characters
+
+                            for Current_Char in [")", "(", "-", "*", "/"]:
+
+                                if Current_Char in Current_Bad_Chars:
+                                    Current_Bad_Chars.remove(Current_Char)
+                        
+                            if type(Filter_Value) == int:
+                                Cursor.execute(f"SELECT * FROM tasks WHERE {Converted_Filter} = {Filter_Value} ORDER BY task_id DESC LIMIT 1000")
+
+                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
+                                Cursor.execute(f"SELECT * FROM tasks WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY task_id DESC LIMIT 1000")
+                            
+                            else:
+                                return redirect(url_for('tasks'))
+
+                            return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Task_Filters=Task_Filters)
+
+                        else:
+                            return redirect(url_for('tasks'))
+
+                    else:
+                        return redirect(url_for('tasks'))
+
+                else:
+                    session["next_page"] = "tasks_filtered"
                     return redirect(url_for('no_session'))
 
             except Exception as e:
@@ -1596,7 +1643,7 @@ if __name__ == '__main__':
                                 if result[6] == "Running":
                                     return jsonify({"Error": "Task is already running."}), 500
 
-                                if Output_API_Checker(result[2]) == "Failed":
+                                if not Output_API_Checker(result[2]):
                                     jsonify({"Error": f"The task type {result[2]} has not been configured. Please update its configuration in the config.json file."}), 500
 
                                 else:
@@ -1643,7 +1690,7 @@ if __name__ == '__main__':
                                                is_admin=session.get('is_admin'), results=task_results,
                                                error="Task is already running.")
 
-                    if Output_API_Checker(result[2]) == "Failed":
+                    if not Output_API_Checker(result[2]):
                         Cursor.execute("SELECT * FROM tasks")
                         task_results = Cursor.fetchall()
                         return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'),
@@ -2822,6 +2869,49 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('results'))
 
+        @app.route('/results/filtered', methods=['GET', 'POST'])
+        def results_filtered():
+
+            try:
+            
+                if session.get('user'):
+                    session['form_step'] = 0
+                
+                    if 'filter' in request.args and 'filtervalue' in request.args:
+                        Filter = str(request.args['filter'])
+                        Filter_Value = str(request.args['filtervalue'])
+
+                        if "ID" in Filter:
+                            Filter_Value = int(Filter_Value)
+
+                        if Filter in Result_Filters:
+                            Converted_Filter = Filter.lower().replace(" ", "_")
+                        
+                            if type(Filter_Value) == int:
+                                Cursor.execute(f"SELECT * FROM results WHERE {Converted_Filter} = {Filter_Value} ORDER BY result_id DESC LIMIT 1000")
+
+                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
+                                Cursor.execute(f"SELECT * FROM results WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY result_id DESC LIMIT 1000")
+                            
+                            else:
+                                return redirect(url_for('results'))
+
+                            return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Result_Filters=Result_Filters)
+
+                        else:
+                            return redirect(url_for('results'))
+
+                    else:
+                        return redirect(url_for('results'))
+
+                else:
+                    session["next_page"] = "results_filtered"
+                    return redirect(url_for('no_session'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('results'))
+
         @app.route('/results', methods=['GET'])
         def results():
 
@@ -2830,7 +2920,7 @@ if __name__ == '__main__':
                 if session.get('user'):
                     session['form_step'] = 0
                     Cursor.execute("SELECT * FROM results ORDER BY result_id DESC LIMIT 1000")
-                    return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall())
+                    return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Result_Filters=Result_Filters)
 
                 else:
                     session["next_page"] = "results"
@@ -3859,14 +3949,64 @@ if __name__ == '__main__':
                         session['form_type'] = ""
                         session['other_user_id'] = 0
                         Cursor.execute('SELECT * FROM users ORDER BY user_id')
-                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'))
+                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters)
 
                     else:
-                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'))
+                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters)
 
                 else:
                     session["next_page"] = "account"
                     return redirect(url_for('no_session'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('account'))
+
+        @app.route('/account/filtered', methods=['GET', 'POST'])
+        def account_filtered():
+
+            try:
+
+                if session.get('is_admin') and session.get('is_admin'):
+                    session['form_step'] = 0
+                    session['form_type'] = ""
+                    session['other_user_id'] = 0
+            
+                    if 'filter' in request.args and 'filtervalue' in request.args:
+                        Filter = str(request.args['filter'])
+                        Filter_Value = str(request.args['filtervalue'])
+
+                        if "ID" in Filter:
+                            Filter_Value = int(Filter_Value)
+
+                        if Filter in Account_Filters:
+                            Converted_Filter = Filter.lower().replace(" ", "_")
+                        
+                            if type(Filter_Value) == int:
+                                Cursor.execute(f"SELECT * FROM users WHERE {Converted_Filter} = {Filter_Value} ORDER BY user_id DESC LIMIT 1000")
+
+                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
+                                Cursor.execute(f"SELECT * FROM users WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY user_id DESC LIMIT 1000")
+                            
+                            else:
+                                return redirect(url_for('account'))
+
+                            return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Account_Filters=Account_Filters)
+
+                        else:
+                            return redirect(url_for('account'))
+
+                    else:
+                        return redirect(url_for('account'))
+
+                else:
+
+                    if not session.get('user'):
+                        session["next_page"] = "account"
+                        return redirect(url_for('no_session'))
+
+                    else:
+                        return redirect(url_for('account'))
 
             except Exception as e:
                 app.logger.error(e)
