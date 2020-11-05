@@ -38,7 +38,6 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
         Latest_Tweets = API.user_timeline(screen_name=Handle, count=Limit)
 
         for Tweet in Latest_Tweets:
-            Link = ""
 
             try:
                 JSON_Response.append({
@@ -47,7 +46,6 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
                     'author_name': Tweet.user.screen_name,
                     'url': Tweet.entities['urls'][0]["expanded_url"]
                 })
-                Link = Tweet.entities['urls'][0]["expanded_url"]
 
             except:
                 JSON_Response.append({
@@ -62,18 +60,18 @@ def General_Pull(Handle, Limit, Directory, API, Task_ID):
 
         for JSON_Item in JSON_Response:
 
-            if 'text' in JSON_Item and 'url' in JSON_Item:
+            if all(Item in JSON_Item for Item in ['id', 'url', 'text']):
                 Link = JSON_Item['url']
 
                 if Link not in Cached_Data and Link not in Data_to_Cache:
-                    logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - {Link}")
+                    Title = "Twitter | " + JSON_Item['text']
                     Item_Responses = General.Request_Handler(Link, Filter=True, Host=f"https://{Domain}")
                     Item_Response = Item_Responses["Filtered"]
 
                     Output_file = General.Create_Query_Results_Output_File(Directory, Handle, Plugin_Name, Item_Response, str(JSON_Item['id']), The_File_Extensions["Query"])
 
                     if Output_file:
-                        Output_Connections.Output([Main_File, Output_file], Link, General.Get_Title(Link), Plugin_Name.lower())
+                        Output_Connections.Output([Main_File, Output_file], Link, Title, Plugin_Name.lower())
                         Data_to_Cache.append(Link)
 
                     else:

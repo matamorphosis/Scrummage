@@ -718,8 +718,9 @@ if __name__ == '__main__':
                                             
                                             return 0
 
-                                        driver.implicitly_wait(5)
                                         driver.get(result[0])
+                                        driver.implicitly_wait(10)
+                                        time.sleep(10)
                                         total_height = driver.execute_script("return document.body.scrollHeight")
                                         driver.set_window_size(1920, total_height)
                                         driver.save_screenshot(f"static/protected/screenshots/{screenshot_file}")
@@ -840,8 +841,9 @@ if __name__ == '__main__':
                                     
                                     return 0
 
-                                driver.implicitly_wait(5)
                                 driver.get(result[0])
+                                driver.implicitly_wait(10)
+                                time.sleep(10)
                                 total_height = driver.execute_script("return document.body.scrollHeight")
                                 driver.set_window_size(1920, total_height)
                                 driver.save_screenshot(f"static/protected/screenshots/{screenshot_file}")
