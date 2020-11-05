@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! command -v google-chrome &> /dev/null
+then
+    echo "[-] You need to install Google Chrome, before you can update the Chrome Driver."
+    exit
+fi
 if [[ $EUID -ne 0 ]]
 then
     echo "[-] This script must be run as root." 

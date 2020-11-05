@@ -7,13 +7,9 @@ else
 	if [ -f /etc/redhat-release ]; then
 		yum update
 		yum install -y yum-utils python36-setuptools postgresql postgresql-contrib python3-psycopg2 wget unzip git openssl
+		wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+		yum install ./google-chrome-stable_current_*.rpm
 		easy_install-3.6 pip
-	fi
-
-	if [ -f /etc/lsb-release ]; then
-		apt update
-		apt install -y python3 python3-pip python3-psycopg2 postgresql postgresql-contrib build-essential wget unzip git openssl
-		service postgresql start
 	fi
 
 	if [ -e /etc/os-release ]; then
@@ -22,11 +18,20 @@ else
 		. /usr/lib/os-release
 	fi
 
-	if [[ "$ID_LIKE" = *"suse"* ]]; then
-		zypper update
-		zypper install -n python3 python3-pip python3-psycopg2 postgresql postgresql-contrib wget unzip git openssl
-		zypper install -n -t pattern devel_basis
-		systemctl start postgresql
+	if [ -f /etc/lsb-release ] || [ -f /etc/os-release ] || [ -f /usr/lib/os-release ]; then
+		if [[ "$ID_LIKE" = *"suse"* ]]; then
+			echo "[i] This installer does not currently support the installation of Google Chrome on SUSE systems. To enable screenshot functionality, please manually install Google Chrome on this system."
+			zypper update
+			zypper install -n python3 python3-pip python3-psycopg2 postgresql postgresql-contrib wget unzip git openssl
+			zypper install -n -t pattern devel_basis
+			systemctl start postgresql
+		else
+			apt update
+			apt install -y python3 python3-pip python3-psycopg2 postgresql postgresql-contrib build-essential wget unzip git openssl
+			service postgresql start
+			wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+			apt install ./google-chrome-stable_current_amd64.deb -y
+		fi
 	fi
 
 	LINE=`printf %"$COLUMNS"s |tr " " "-"`
