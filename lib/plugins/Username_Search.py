@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import logging, os, re, plugins.common.General as General
+import logging, os, re, time, plugins.common.General as General
 
 Plugin_Name = "Username-Search"
 Concat_Plugin_Name = "usernamesearch"
@@ -24,9 +24,13 @@ def Search(Query_List, Task_ID, **kwargs):
         Limit = General.Get_Limit(kwargs)
 
         for Query in Query_List:
+
+            if Query_List.index(Query) != 0:
+                time.sleep(5)
+                
             Main_URL = f"https://{Domain}/results_normal.php"
             body = {"ran": "", "username": Query}
-            Responses = General.Request_Handler(Main_URL, Method="POST", Application_JSON_CT=True, Data=body, Filter=True, Host=f"https://{Domain}")
+            Responses = General.Request_Handler(Main_URL, Method="POST", Data=body, Filter=True, Host=f"https://{Domain}", Optional_Headers={"Content-Type": "application/x-www-form-urlencoded"})
             Response = Responses["Regular"]
             Filtered_Response = Responses["Filtered"]
             Main_File = General.Main_File_Create(Directory, Plugin_Name, Filtered_Response, Query, The_File_Extension)
