@@ -87,7 +87,7 @@ if __name__ == '__main__':
         Task_Filters = ["Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At"]
         Event_Filters = ["Event ID", "Description", "Created At"]
         Account_Filters = ["User ID", "Username", "Blocked", "Is Admin"]
-        Version = "3.0"
+        Version = "3.1"
         Permit_Screenshots = True
 
         try:
@@ -200,12 +200,12 @@ if __name__ == '__main__':
                         for char in self.password:
 
                             if char in Bad_Characters:
-                                Message = f"Failed login attempt for the provided user ID {str(User_Details[0])} with a password that contains potentially dangerous characters."
+                                Message = f"Failed login attempt for the provided user {str(User_Details[1])} with a password that contains potentially dangerous characters."
                                 app.logger.warning(Message)
                                 Create_Event(Message)
                                 return {"Message": True}
 
-                        Message = f"Failed login attempt for user {str(User_Details[0])}."
+                        Message = f"Failed login attempt for user {str(User_Details[1])}."
                         app.logger.warning(Message)
                         Create_Event(Message)
                         return {"Message": True}
@@ -909,6 +909,30 @@ if __name__ == '__main__':
                         current_mixed_results = Cursor.fetchall()
                         mixed_values.append([current_mixed_results[0][0]])
 
+                    Dates = General.Date(Additional_Last_Days=5, Date_Only=True)
+                    Successful_User_Dates_Count = []
+                    Unsuccessful_User_Dates_Count = []
+                    Cursor.execute('SELECT username FROM users;')
+                    Current_Users = Cursor.fetchall()
+                    Current_Index = 2
+
+                    for Current_User in Current_Users:
+                        Current_User = Current_User[0]
+                        Successful_User_Dates = []
+                        Unsuccessful_User_Dates = []
+
+                        for Date in Dates:
+                            Cursor.execute(f'SELECT count(*) FROM events WHERE created_at LIKE \'{Date}%\' AND description LIKE \'Successful login from {Current_User}%\';')
+                            Current_Date_Count = Cursor.fetchall()
+                            Successful_User_Dates.append(Current_Date_Count[0][0])
+                            Cursor.execute(f'SELECT count(*) FROM events WHERE created_at LIKE \'{Date}%\' AND description LIKE \'Failed login attempt for user {Current_User}%\';')
+                            Current_Date_Count = Cursor.fetchall()
+                            Unsuccessful_User_Dates.append(Current_Date_Count[0][0])
+
+                        Successful_User_Dates_Count.append({"label": Current_User, "data": Successful_User_Dates, "fill": False, "backgroundColor": colors_original[Current_Index], "borderColor": colors_original[Current_Index], "lineTension": 0.5})
+                        Unsuccessful_User_Dates_Count.append({"label": Current_User, "data": Unsuccessful_User_Dates, "fill": False, "backgroundColor": colors_original[Current_Index], "borderColor": colors_original[Current_Index], "lineTension": 0.5})
+                        Current_Index += 2
+
                     most_common_tasks_labels = []
                     most_common_tasks_values = []
                     Cursor.execute("SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;")
@@ -928,11 +952,8 @@ if __name__ == '__main__':
                         Use_Mixed = False
 
                     if most_common_tasks:
-                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
-
-                    else:
-                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], refreshrate=session.get('dashboard-refresh'), version=Version, Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed)
-
+                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], successful_line_set=[Dates, json.dumps(Successful_User_Dates_Count)], unsuccessful_line_set=[Dates, json.dumps(Unsuccessful_User_Dates_Count)], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
+                
                 else:
                     session["next_page"] = "dashboard"
                     return redirect(url_for('no_session'))
@@ -999,10 +1020,34 @@ if __name__ == '__main__':
 
                         Cursor.execute("""SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;""")
                         most_common_tasks = Cursor.fetchall()
-                        data = {"Open Issues": open_values, "Closed Issues": closed_values, "Issues Under Review or inspection": mixed_values, "Most Common Tasks": [{}]}
+                        data = {"Open Issues": open_values, "Closed Issues": closed_values, "Issues Under Review or inspection": mixed_values, "Most Common Tasks": [{}], "Successful Logins in the Last 5 Days": [], "Failed Login Attempts in the Last 5 Days": []}
                         
                         for mc_task in most_common_tasks:
                             data["Most Common Tasks"][0][mc_task[0]] = mc_task[1]
+
+                        Dates = General.Date(Additional_Last_Days=5, Date_Only=True)
+                        Successful_User_Dates_Count = []
+                        Unsuccessful_User_Dates_Count = []
+                        Cursor.execute('SELECT username FROM users;')
+                        Current_Users = Cursor.fetchall()
+                        Current_Index = 2
+
+                        for Current_User in Current_Users:
+                            Current_User = Current_User[0]
+                            Successful_User_Dates = []
+                            Unsuccessful_User_Dates = []
+
+                            for Date in Dates:
+                                Cursor.execute(f'SELECT count(*) FROM events WHERE created_at LIKE \'{Date}%\' AND description LIKE \'Successful login from {Current_User}%\';')
+                                Current_Date_Count = Cursor.fetchall()
+                                Successful_User_Dates.append({Date: Current_Date_Count[0][0]})
+                                Cursor.execute(f'SELECT count(*) FROM events WHERE created_at LIKE \'{Date}%\' AND description LIKE \'Failed login attempt for user {Current_User}%\';')
+                                Current_Date_Count = Cursor.fetchall()
+                                Unsuccessful_User_Dates.append({Date: Current_Date_Count[0][0]})
+
+                            data["Successful Logins in the Last 5 Days"].append({Current_User: {"Dates": Successful_User_Dates}})
+                            data["Failed Login Attempts in the Last 5 Days"].append({Current_User: {"Dates": Unsuccessful_User_Dates}})
+                            Current_Index += 2
 
                         return jsonify(data), 200
 
@@ -1048,7 +1093,7 @@ if __name__ == '__main__':
                 if session.get('user'):
                     Cursor.execute("SELECT * FROM events ORDER BY event_id DESC LIMIT 1000")
                     events = Cursor.fetchall()
-                    return render_template('events.html', username=session.get('user'), events=events, Event_Filters=Event_Filters)
+                    return render_template('events.html', username=session.get('user'), events=events, Event_Filters=Event_Filters, Event_Filter_Values=[], Event_Filter_Iterator=list(range(0, len(Event_Filters))))
 
                 else:
                     session["next_page"] = "events"
@@ -1064,30 +1109,37 @@ if __name__ == '__main__':
             try:
             
                 if session.get('user'):
-                
-                    if 'filter' in request.args and 'filtervalue' in request.args:
-                        Filter = str(request.args['filter'])
-                        Filter_Value = str(request.args['filtervalue'])
+                    SQL_Query_Start = "SELECT * FROM events WHERE "
+                    SQL_Query_End = " ORDER BY event_id DESC LIMIT 1000"
+                    SQL_Query_Args = []
+                    Event_Filter_Values = []
 
-                        if "ID" in Filter:
-                            Filter_Value = int(Filter_Value)
+                    for Event_Filter in Event_Filters:
+                        Current_Filter_Value = str(request.args.get(Event_Filter))
 
-                        if Filter in Event_Filters:
-                            Converted_Filter = Filter.lower().replace(" ", "_")
+                        if Current_Filter_Value and Current_Filter_Value != '':
+
+                            if "ID" in Event_Filter:
+                                Current_Filter_Value = int(Current_Filter_Value)
+
+                            Converted_Filter = Event_Filter.lower().replace(" ", "_")
                         
-                            if type(Filter_Value) == int:
-                                Cursor.execute(f"SELECT * FROM events WHERE {Converted_Filter} = {Filter_Value} ORDER BY event_id DESC LIMIT 1000")
+                            if type(Current_Filter_Value) == int:
+                                SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
-                                Cursor.execute(f"SELECT * FROM events WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY event_id DESC LIMIT 1000")
+                            elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                                SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
+
+                            Event_Filter_Values.append(Current_Filter_Value)
                             
-                            else:
-                                return redirect(url_for('events'))
-
-                            return render_template('events.html', username=session.get('user'), events=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Event_Filters=Event_Filters)
-
                         else:
-                            return redirect(url_for('events'))
+                            Event_Filter_Values.append("")
+
+                    if len(SQL_Query_Args) > 0:
+                        SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                        SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
+                        Cursor.execute(SQL_Statement)
+                        return render_template('events.html', username=session.get('user'), events=Cursor.fetchall(), Event_Filters=Event_Filters, Event_Filter_Values=Event_Filter_Values, Event_Filter_Iterator=list(range(0, len(Event_Filters))))
 
                     else:
                         return redirect(url_for('events'))
@@ -1255,7 +1307,7 @@ if __name__ == '__main__':
                     session['task_id'] = 0
                     Cursor.execute("SELECT * FROM tasks ORDER BY task_id DESC LIMIT 1000")
                     task_results = Cursor.fetchall()
-                    return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=task_results, Task_Filters=Task_Filters)
+                    return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=task_results, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                 else:
                     session["next_page"] = "tasks"
@@ -1278,16 +1330,20 @@ if __name__ == '__main__':
                     session['task_limit'] = 0
                     session['task_query'] = ""
                     session['task_id'] = 0
+                    SQL_Query_Start = "SELECT * FROM tasks WHERE "
+                    SQL_Query_End = " ORDER BY task_id DESC LIMIT 1000"
+                    SQL_Query_Args = []
+                    Task_Filter_Values = []
                 
-                    if 'filter' in request.args and 'filtervalue' in request.args:
-                        Filter = str(request.args['filter'])
-                        Filter_Value = str(request.args['filtervalue'])
+                    for Task_Filter in Task_Filters:
+                        Current_Filter_Value = str(request.args.get(Task_Filter))
 
-                        if "ID" in Filter:
-                            Filter_Value = int(Filter_Value)
+                        if Current_Filter_Value and Current_Filter_Value != '':
 
-                        if Filter in Task_Filters:
-                            Converted_Filter = Filter.lower().replace(" ", "_")
+                            if "ID" in Task_Filter:
+                                Current_Filter_Value = int(Current_Filter_Value)
+
+                            Converted_Filter = Task_Filter.lower().replace(" ", "_")
                             Current_Bad_Chars = Bad_Characters
 
                             for Current_Char in [")", "(", "-", "*", "/"]:
@@ -1295,19 +1351,22 @@ if __name__ == '__main__':
                                 if Current_Char in Current_Bad_Chars:
                                     Current_Bad_Chars.remove(Current_Char)
                         
-                            if type(Filter_Value) == int:
-                                Cursor.execute(f"SELECT * FROM tasks WHERE {Converted_Filter} = {Filter_Value} ORDER BY task_id DESC LIMIT 1000")
+                            if type(Current_Filter_Value) == int:
+                                SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
-                                Cursor.execute(f"SELECT * FROM tasks WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY task_id DESC LIMIT 1000")
+                            elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                                SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                             
-                            else:
-                                return redirect(url_for('tasks'))
-
-                            return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Task_Filters=Task_Filters)
+                            Task_Filter_Values.append(Current_Filter_Value)
 
                         else:
-                            return redirect(url_for('tasks'))
+                            Task_Filter_Values.append("")
+
+                    if len(SQL_Query_Args) > 0:
+                        SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                        SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
+                        Cursor.execute(SQL_Statement)
+                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Task_Filters=Task_Filters, Task_Filter_Values=Task_Filter_Values, Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                     else:
                         return redirect(url_for('tasks'))
@@ -2878,30 +2937,43 @@ if __name__ == '__main__':
             
                 if session.get('user'):
                     session['form_step'] = 0
-                
-                    if 'filter' in request.args and 'filtervalue' in request.args:
-                        Filter = str(request.args['filter'])
-                        Filter_Value = str(request.args['filtervalue'])
+                    SQL_Query_Start = "SELECT * FROM results WHERE "
+                    SQL_Query_End = " ORDER BY result_id DESC LIMIT 1000"
+                    SQL_Query_Args = []
+                    Result_Filter_Values = []
 
-                        if "ID" in Filter:
-                            Filter_Value = int(Filter_Value)
+                    for Result_Filter in Result_Filters:
+                        Current_Filter_Value = str(request.args.get(Result_Filter))
 
-                        if Filter in Result_Filters:
-                            Converted_Filter = Filter.lower().replace(" ", "_")
-                        
-                            if type(Filter_Value) == int:
-                                Cursor.execute(f"SELECT * FROM results WHERE {Converted_Filter} = {Filter_Value} ORDER BY result_id DESC LIMIT 1000")
+                        if Current_Filter_Value and Current_Filter_Value != '':
 
-                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
-                                Cursor.execute(f"SELECT * FROM results WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY result_id DESC LIMIT 1000")
+                            if "ID" in Result_Filter:
+                                Current_Filter_Value = int(Current_Filter_Value)
+
+                            Converted_Filter = Result_Filter.lower().replace(" ", "_")
                             
-                            else:
-                                return redirect(url_for('results'))
+                            if type(Current_Filter_Value) == int:
+                                SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                            return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Result_Filters=Result_Filters)
+                            elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+
+                                if Result_Filter == "Status" and Current_Filter_Value == "Mixed":
+                                    Mixed_Options = ['Inspecting', 'Reviewing']
+                                    SQL_Query_Args.append(f'status = ANY (ARRAY{str(Mixed_Options)})')
+
+                                else:
+                                    SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
+                            
+                            Result_Filter_Values.append(Current_Filter_Value)
 
                         else:
-                            return redirect(url_for('results'))
+                            Result_Filter_Values.append("")
+
+                    if len(SQL_Query_Args) > 0:
+                        SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                        SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
+                        Cursor.execute(SQL_Statement)
+                        return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Finding_Types=Finding_Types, Result_Filters=Result_Filters, Result_Filter_Values=Result_Filter_Values, Result_Filter_Iterator=list(range(0, len(Result_Filters))))
 
                     else:
                         return redirect(url_for('results'))
@@ -2922,7 +2994,7 @@ if __name__ == '__main__':
                 if session.get('user'):
                     session['form_step'] = 0
                     Cursor.execute("SELECT * FROM results ORDER BY result_id DESC LIMIT 1000")
-                    return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Result_Filters=Result_Filters)
+                    return render_template('results.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Finding_Types=Finding_Types , Result_Filters=Result_Filters, Result_Filter_Values=[], Result_Filter_Iterator=list(range(0, len(Result_Filters))))
 
                 else:
                     session["next_page"] = "results"
@@ -3951,10 +4023,10 @@ if __name__ == '__main__':
                         session['form_type'] = ""
                         session['other_user_id'] = 0
                         Cursor.execute('SELECT * FROM users ORDER BY user_id')
-                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters)
+                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))))
 
                     else:
-                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters)
+                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'))
 
                 else:
                     session["next_page"] = "account"
@@ -3973,30 +4045,37 @@ if __name__ == '__main__':
                     session['form_step'] = 0
                     session['form_type'] = ""
                     session['other_user_id'] = 0
+                    SQL_Query_Start = "SELECT * FROM users WHERE "
+                    SQL_Query_End = " ORDER BY user_id DESC LIMIT 1000"
+                    SQL_Query_Args = []
+                    Account_Filter_Values = []
             
-                    if 'filter' in request.args and 'filtervalue' in request.args:
-                        Filter = str(request.args['filter'])
-                        Filter_Value = str(request.args['filtervalue'])
+                    for Account_Filter in Account_Filters:
+                        Current_Filter_Value = str(request.args.get(Account_Filter))
 
-                        if "ID" in Filter:
-                            Filter_Value = int(Filter_Value)
+                        if Current_Filter_Value and Current_Filter_Value != '':
 
-                        if Filter in Account_Filters:
-                            Converted_Filter = Filter.lower().replace(" ", "_")
+                            if "ID" in Account_Filter:
+                                Current_Filter_Value = int(Current_Filter_Value)
+
+                            Converted_Filter = Account_Filter.lower().replace(" ", "_")
                         
-                            if type(Filter_Value) == int:
-                                Cursor.execute(f"SELECT * FROM users WHERE {Converted_Filter} = {Filter_Value} ORDER BY user_id DESC LIMIT 1000")
+                            if type(Current_Filter_Value) == int:
+                                SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                            elif (type(Filter_Value) == str and not any(char in Filter_Value for char in Bad_Characters)):
-                                Cursor.execute(f"SELECT * FROM users WHERE {Converted_Filter} = \'{Filter_Value}\' ORDER BY user_id DESC LIMIT 1000")
+                            elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                                SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                             
-                            else:
-                                return redirect(url_for('account'))
-
-                            return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Filter_Name=Filter, Filter_Value=Filter_Value, Finding_Types=Finding_Types, Account_Filters=Account_Filters)
+                            Account_Filter_Values.append(Current_Filter_Value)
 
                         else:
-                            return redirect(url_for('account'))
+                            Account_Filter_Values.append("")
+
+                    if len(SQL_Query_Args) > 0:
+                        SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                        SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
+                        Cursor.execute(SQL_Statement)
+                        return render_template('account.html', username=session.get('user'), form_step=session.get('form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=Account_Filter_Values, Account_Filter_Iterator=list(range(0, len(Account_Filters))))
 
                     else:
                         return redirect(url_for('account'))

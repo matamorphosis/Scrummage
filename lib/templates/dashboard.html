@@ -80,7 +80,7 @@
                                 chart1.onclick = function(evt){
                                     var activePoints = chart1var.getElementsAtEvent(evt);
                                     var selectedIndex = activePoints[0]._index;
-                                    var url = "/results/filtered?filter=Result Type&filtervalue=" + c1labels[selectedIndex];
+                                    var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Open&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
                                     window.open(url);
                                 };
                             </script>
@@ -132,7 +132,7 @@
                             chart2.onclick = function(evt){
                                 var activePoints = chart2var.getElementsAtEvent(evt);
                                 var selectedIndex = activePoints[0]._index;
-                                var url = "/results/filtered?filter=Result Type&filtervalue=" + c2labels[selectedIndex];
+                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Closed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
                                 window.open(url);
                             };
                         </script></div>
@@ -181,7 +181,7 @@
                             chart3.onclick = function(evt){
                                 var activePoints = chart3var.getElementsAtEvent(evt);
                                 var selectedIndex = activePoints[0]._index;
-                                var url = "/results/filtered?filter=Result Type&filtervalue=" + c3labels[selectedIndex];
+                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Mixed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
                                 window.open(url);
                             };
                         </script></div>
@@ -190,10 +190,10 @@
                 </div>
             </div>
             </section>
-            {% if bar_set %}
             <section>
             <div class="dashboard_large_outer_bottom_div">
-                <div class="dashboard_large_bottom_div"><p class="dashboard_p">Most Common Task Types</p><canvas id="chart4" style="width: 80%; height: 450px"></canvas>
+                {% if bar_set %}
+                <div class="dashboard_small_bottom_left_div"><p class="dashboard_p">Most Common Task Types</p><canvas id="chart4" style="width: 80%; height: 325px"></canvas>
                 <script>
                     var barlabels = {{bar_set[0] | safe}};
                     var bardata = {{bar_set[1] | safe}};
@@ -245,13 +245,107 @@
                     chart4.onclick = function(evt){
                         var activePoints = chart4var.getElementsAtEvent(evt);
                         var selectedIndex = activePoints[0]._index;
-                        var url = "/tasks/filtered?filter=Plugin&filtervalue=" + barlabels[selectedIndex];
+                        var url = "/tasks/filtered?Task+ID=&Query=&Plugin=" + barlabels[selectedIndex] + "&Description=&Frequency=&Task+Limit=&Status=&Created+At=&Updated+At=&setfilter=Set";
+                        window.open(url);
+                    };
+                </script></div>
+                <div class="dashboard_med_bottom_div">{% else %}<div class="dashboard_med_bottom_left_div">{% endif %}<p class="dashboard_p">Successful Logins in the Last 5 Days</p><canvas id="chart5" style="width: 80%; height: 325px"></canvas>
+                <script>
+                    var linelabels = {{successful_line_set[0] | safe}};
+                    var linedatasets = JSON.parse('{{successful_line_set[1] | safe}}');
+                    var chart5var = new Chart(document.getElementById("chart5"),{
+                        "type":"line",
+                        "data":{
+                            "labels": linelabels,
+                            "datasets": linedatasets
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+
+                    chart5.onclick = function(evt){
+                        var activePoints = chart5var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/events/filtered?Event+ID=&Description=Successful+login+from&Created+At=" + unlinelabels[selectedIndex] + "&setfilter=Set";
+                        window.open(url);
+                    };
+                </script></div>
+                {% if bar_set %}
+                <div class="dashboard_small_bottom_right_div">{% else %}<div class="dashboard_med_bottom_right_div">{% endif %}<p class="dashboard_p">Failed Login Attempts in the Last 5 Days</p><canvas id="chart6" style="width: 80%; height: 325px"></canvas>
+                <script>
+                    var unlinelabels = {{unsuccessful_line_set[0] | safe}};
+                    var unlinedatasets = JSON.parse('{{unsuccessful_line_set[1] | safe}}');
+                    var chart6var = new Chart(document.getElementById("chart6"),{
+                        "type":"line",
+                        "data":{
+                            "labels": unlinelabels,
+                            "datasets": unlinedatasets
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+
+                    chart6.onclick = function(evt){
+                        var activePoints = chart6var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/events/filtered?Event+ID=&Description=Failed+login+attempt+for+user&Created+At=" + unlinelabels[selectedIndex] + "&setfilter=Set";
                         window.open(url);
                     };
                 </script></div>
             </div>
             </section>
-            {% endif %}
             <footer><p class="aboutinfo"><a href="https://github.com/matamorphosis/Scrummage" id="version">Scrummage v{{version}}</a></p></footer>
         </div>
     </main>

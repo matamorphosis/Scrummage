@@ -814,6 +814,50 @@ table.dataTable,table.dataTable th,table.dataTable td
     width: 550px;
 }
 
+.collapsible_filter {
+    background-color: transparent;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+.collapsible_filter_content {
+    padding: 6px;
+    display: none;
+    overflow: hidden;
+    background-color: #000;
+    border: 1px solid #303030;
+}
+
+.collapsible_filter_content form dl dd .field_textarea_short {
+    width: 90%;
+}
+
+#collapsible_filter_button:hover {
+    color: #DC143C;
+}
+
+#collapsible_filter_form {
+    text-align: center;
+    width: 95%;
+}
+
+#filter_box {
+    width: 20%;
+    float: right;
+    position: absolute;
+    right: 0%;
+    top: 2px;
+}
+
 .login_div {
     text-align: center;
     padding: 20px 0px 20px 0px;
@@ -1065,7 +1109,41 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .dashboard_large_outer_bottom_div {
     display: inline-block;
-    width: 99%
+    width: 99%;
+}
+
+.dashboard_small_bottom_left_div {
+    display: inline-block;
+    width: 33%;
+    float: left;
+}
+
+.dashboard_med_bottom_left_div {
+    display: inline-block;
+    width: 49%;
+    float: left;
+}
+
+.dashboard_med_bottom_div {
+    display: inline-block;
+    width: 33%;
+}
+
+.dashboard_large_bottom_div {
+    display: inline-block;
+    width: 100%;
+}
+
+.dashboard_small_bottom_right_div {
+    display: inline-block;
+    width: 33%;
+    float: right;
+}
+
+.dashboard_med_bottom_right_div {
+    display: inline-block;
+    width: 49%;
+    float: right;
 }
 
 .field_textarea {
@@ -1658,6 +1736,14 @@ body code.styled {
     padding: 20px 0px 0px 0px;
 }
 
+#chart5 {
+    padding: 20px 0px 0px 0px;
+}
+
+#chart6 {
+    padding: 20px 0px 0px 0px;
+}
+
 .unpredicted_page {
     padding-top: 30px;
 }
@@ -1674,6 +1760,37 @@ body code.styled {
     #chart3 {
         width: 350px;
         height: 175px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .dashboard_small_bottom_left_div {
+        display: block;
+        width: 100%;
+        float: unset;
+    }
+    .dashboard_med_bottom_left_div {
+        display: block;
+        width: 100%;
+        float: unset;
+    }
+    .dashboard_med_bottom_div {
+        display: block;
+        width: 100%;
+    }
+    .dashboard_large_bottom_div {
+        display: block;
+        width: 100%;
+    }
+    .dashboard_small_bottom_right_div {
+        display: block;
+        width: 100%;
+        float: unset;
+    }
+    .dashboard_med_bottom_right_div {
+        display: block;
+        width: 100%;
+        float: unset;
     }
 }
 
@@ -1845,6 +1962,26 @@ body code.styled {
     }
     #refresh {
         text-align: center;
+        padding-top: 43px;
+    }
+    #filter_box {
+        padding-top: 10px;
+        width: 100%;
+        float: unset;
+        position: unset;
+        right: unset;
+        top: unset;
+    }
+    .collapsible_filter {
+        background-color: #303030;
+        padding: 6px;
+        border-radius: 2px;
+    }
+    .collapsible_filter_content {
+        background-color: unset;
+        border: unset;
+    }
+    .field-container {
         padding-top: 43px;
     }
 }
