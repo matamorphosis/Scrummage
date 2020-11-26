@@ -954,6 +954,9 @@ if __name__ == '__main__':
                     if most_common_tasks:
                         return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], successful_line_set=[Dates, json.dumps(Successful_User_Dates_Count)], unsuccessful_line_set=[Dates, json.dumps(Unsuccessful_User_Dates_Count)], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
                 
+                    else:
+                        return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], successful_line_set=[Dates, json.dumps(Successful_User_Dates_Count)], unsuccessful_line_set=[Dates, json.dumps(Unsuccessful_User_Dates_Count)], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
+
                 else:
                     session["next_page"] = "dashboard"
                     return redirect(url_for('no_session'))
