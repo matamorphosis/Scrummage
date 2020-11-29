@@ -5,7 +5,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 **VERSION 3.1**
 - Major UX Enhancements
-- Improved filtering to more effectively narrow down results, tasks, events, and users.
+- Improved filtering to more effectively narrow down results, tasks, events, and users. Refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Filtering-Elements-in-Tables)
 - New Plugins, refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/The-Long-List-of-Tasks)
 - Improved web scraping for findings, refer to the new wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Web-Scraping)
 - New dashboard features (API Inclusive).
