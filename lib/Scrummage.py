@@ -1148,7 +1148,7 @@ if __name__ == '__main__':
                         return redirect(url_for('events'))
 
                 else:
-                    session["next_page"] = "events_filtered"
+                    session["next_page"] = "events"
                     return redirect(url_for('no_session'))
 
             except Exception as e:
@@ -1375,7 +1375,7 @@ if __name__ == '__main__':
                         return redirect(url_for('tasks'))
 
                 else:
-                    session["next_page"] = "tasks_filtered"
+                    session["next_page"] = "tasks"
                     return redirect(url_for('no_session'))
 
             except Exception as e:
@@ -1532,12 +1532,12 @@ if __name__ == '__main__':
                             session['form_step'] = 1
 
                             if tasktype == "new":
-                                return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins)
+                                return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                             elif tasktype == "edit":
                                 Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (session.get('task_id'),))
                                 result = Cursor.fetchone()
-                                return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins, results=result)
+                                return render_template('tasks.html', username=session.get('user'), form_type=session.get('form_type'), is_admin=session.get('is_admin'), form_step=session.get('form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('form_type'), Valid_Plugins=Valid_Plugins, results=result, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                         else:
                             return redirect(url_for('tasks'))
@@ -1650,7 +1650,7 @@ if __name__ == '__main__':
                                 return render_template('tasks.html', username=session.get('user'),
                                                        form_step=session.get('form_step'),
                                                        is_admin=session.get('is_admin'), results=results,
-                                                       error=f"Failed to remove task ID {str(del_id)} from crontab.")
+                                                       error=f"Failed to remove task ID {str(del_id)} from crontab.", Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                         Cursor.execute("DELETE FROM tasks WHERE task_id = %s;", (del_id,))
                         Connection.commit()
@@ -1752,14 +1752,14 @@ if __name__ == '__main__':
                         task_results = Cursor.fetchall()
                         return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'),
                                                is_admin=session.get('is_admin'), results=task_results,
-                                               error="Task is already running.")
+                                               error="Task is already running.", Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                     if not Output_API_Checker(result[2]):
                         Cursor.execute("SELECT * FROM tasks")
                         task_results = Cursor.fetchall()
                         return render_template('tasks.html', username=session.get('user'), form_step=session.get('form_step'),
                                                is_admin=session.get('is_admin'), results=task_results,
-                                               api_check="Failed")
+                                               api_check="Failed", Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                     else:
                         Plugin_to_Call = plugin_caller.Plugin_Caller(Plugin_Name=result[2], Limit=result[5], Query=result[1], Task_ID=Plugin_ID)
@@ -1886,14 +1886,14 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown error."}), 500
 
-        @app.route('/tasks/new', methods=['POST'])
+        @app.route('/tasks/new', methods=['POST', 'GET'])
         def new_task():
 
             try:
 
                 if session.get('user') and session.get('is_admin'):
 
-                    if session.get('form_step') == 0:
+                    if session.get('form_step') == 0 or request.method == "GET":
                         session['form_step'] += 1
                         return render_template('tasks.html', username=session.get('user'),
                                                form_type=session.get('form_type'),
@@ -1954,12 +1954,34 @@ if __name__ == '__main__':
                                                                is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                                 else:
+                                    Current_Query_List = General.Convert_to_List(session['task_query'])
 
-                                    if any(char in session.get('task_query') for char in Bad_Characters):
-                                        return render_template('tasks.html', username=session.get('user'),
+                                    for Current_Query in Current_Query_List:
+
+                                        if session["form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                   form_step=session.get('form_step'), new_task=True,
                                                                    form_type=session.get('form_type'),
-                                                                   form_step=session.get('form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                                   is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
+                                                                   is_admin=session.get('is_admin'),
+                                                                   error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+
+                                        elif session["form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
+                                            sess_form_type = session["form_type"]
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                   form_step=session.get('form_step'), new_task=True,
+                                                                   form_type=session.get('form_type'),
+                                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
+                                                                   is_admin=session.get('is_admin'),
+                                                                   error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+
+                                        if any(char in Current_Query for char in Bad_Characters):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                       form_type=session.get('form_type'),
+                                                                       form_step=session.get('form_step'), new_task=True,
+                                                                       is_admin=session.get('is_admin'),
+                                                                       Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
+                                                                       error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 Current_Timestamp = General.Date()  # Variable set as it is needed for two different functions and needs to be consistent.
                                 Cursor.execute('INSERT INTO tasks (query, plugin, description, frequency, task_limit, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (
@@ -2021,7 +2043,7 @@ if __name__ == '__main__':
                 else:
 
                     if not session.get('user'):
-                        session["next_page"] = "tasks"
+                        session["next_page"] = "new_task"
                         return redirect(url_for('no_session'))
 
                     else:
@@ -2257,31 +2279,34 @@ if __name__ == '__main__':
                                                                error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                                 else:
+                                    Current_Query_List = General.Convert_to_List(session['task_query'])
 
-                                    if session["form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(session['task_query']) > 15:
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('form_step'), edit_task=True,
-                                                               form_type=session.get('form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
-                                                               is_admin=session.get('is_admin'),
-                                                               error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+                                    for Current_Query in Current_Query_List:
 
-                                    elif session["form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(session['task_query']) > 10:
-                                        sess_form_type = session["form_type"]
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('form_step'), edit_task=True,
-                                                               form_type=session.get('form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
-                                                               is_admin=session.get('is_admin'),
-                                                               error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
-
-                                    if any(char in session.get('task_query') for char in Bad_Characters):
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                   form_type=session.get('form_type'),
+                                        if session["form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
+                                            return render_template('tasks.html', username=session.get('user'),
                                                                    form_step=session.get('form_step'), edit_task=True,
-                                                                   is_admin=session.get('is_admin'),
+                                                                   form_type=session.get('form_type'),
                                                                    Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
-                                                                   error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                   is_admin=session.get('is_admin'),
+                                                                   error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+
+                                        elif session["form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
+                                            sess_form_type = session["form_type"]
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                   form_step=session.get('form_step'), edit_task=True,
+                                                                   form_type=session.get('form_type'),
+                                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
+                                                                   is_admin=session.get('is_admin'),
+                                                                   error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+
+                                        if any(char in Current_Query for char in Bad_Characters):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                       form_type=session.get('form_type'),
+                                                                       form_step=session.get('form_step'), edit_task=True,
+                                                                       is_admin=session.get('is_admin'),
+                                                                       Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, results=results,
+                                                                       error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 Update_Cron = False
 
@@ -2485,14 +2510,14 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown Exception Occurred."}), 500
 
-        @app.route('/results/new', methods=['POST'])
+        @app.route('/results/new', methods=['POST', 'GET'])
         def new_result():
 
             try:
 
                 if session.get('user') and session.get('is_admin'):
 
-                    if session.get('form_step') == 0:
+                    if session.get('form_step') == 0 or request.method == "GET":
                         session['form_step'] += 1
                         return render_template('results.html', username=session.get('user'),
                                                form_step=session.get('form_step'),
@@ -2565,7 +2590,7 @@ if __name__ == '__main__':
                 else:
 
                     if not session.get('user'):
-                        session["next_page"] = "results"
+                        session["next_page"] = "new_results"
                         return redirect(url_for('no_session'))
 
                     else:
@@ -3214,14 +3239,14 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown error."}), 500
 
-        @app.route('/account/new', methods=['POST'])
+        @app.route('/account/new', methods=['POST', 'GET'])
         def new_account():
 
             try:
 
                 if session.get('user') and session.get('is_admin'):
 
-                    if session.get('form_step') == 0:
+                    if session.get('form_step') == 0 or request.method == "GET":
                         session['form_step'] += 1
                         session['form_type'] = "CreateUser"
                         return render_template('account.html', username=session.get('user'),
@@ -3308,7 +3333,7 @@ if __name__ == '__main__':
                 else:
 
                     if not session.get('user'):
-                        session["next_page"] = "account"
+                        session["next_page"] = "new_account"
                         return redirect(url_for('no_session'))
 
                     else:

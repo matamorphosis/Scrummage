@@ -124,7 +124,13 @@
                     <p class="message"><strong>Message:</strong> {{ message }}</p>
                 {% endif %}
                 {% if api_check == "Failed" %}
-                <div style="padding-top: 50px;"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">API Configuration Check Failed.</p><p class="api_message">Please add the appropriate details to the Scrummage configuration file before running this task.</p>
+                <div id="api_window"><div id="close_x_div"><p id="close_x" onclick="close_window()">×</p></div><div id="inner_api_window"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">API Configuration Check Failed.</p><p class="api_message">Please add the appropriate details to the Scrummage configuration file before running this task.</p></div>
+                <script>
+                    function close_window() {
+                        var close_item = document.getElementById("api_window");
+                        close_item.style.display = "none";
+                    }
+                </script>
                 {% endif %}
                 <table id="paginate" style="width: 100%;">
                     <thead>

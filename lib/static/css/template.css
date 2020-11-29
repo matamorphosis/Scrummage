@@ -709,6 +709,10 @@ table.dataTable,table.dataTable th,table.dataTable td
     border: 0;
     background-color: #303030;
     border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
 }
 
 .button_next {
@@ -723,6 +727,10 @@ table.dataTable,table.dataTable th,table.dataTable td
     border: 0;
     background-color: #303030;
     border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
 }
 
 .button_prv {
@@ -737,6 +745,10 @@ table.dataTable,table.dataTable th,table.dataTable td
     border: 0;
     background-color: #303030;
     border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
 }
 
 .button-red {
@@ -751,6 +763,10 @@ table.dataTable,table.dataTable th,table.dataTable td
     border: 0;
     background-color: #303030;
     border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
 }
 
 .button-run {
@@ -765,6 +781,10 @@ table.dataTable,table.dataTable th,table.dataTable td
     border: 0;
     background-color: #303030;
     border: 1px solid #303030;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
 }
 
 .button-disabled {
@@ -856,6 +876,42 @@ table.dataTable,table.dataTable th,table.dataTable td
     position: absolute;
     right: 0%;
     top: 2px;
+}
+
+#api_window {
+    position: absolute;
+    float: center;
+    left: 30%;
+    right: 30%;
+    background-color: #000;
+    z-index: 20000;
+    border-radius: 2px;
+    border: solid 1px #303030;
+    padding: 0px 5px 30px 5px;
+}
+
+#inner_api_window {
+    padding-top: 30px;
+}
+
+#close_x_div {
+    text-align: right;
+}
+
+#close_x {
+    color: #fff;
+    font-size: 24px;
+    width: 5px;
+    padding-right: 10px;
+    float: right;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+#close_x:hover {
+    color: #DC143C;
 }
 
 .login_div {
@@ -1764,6 +1820,10 @@ body code.styled {
 }
 
 @media only screen and (max-width: 800px) {
+    #api_window {
+        left: 10%;
+        right: 10%;
+    }
     .dashboard_small_bottom_left_div {
         display: block;
         width: 100%;
@@ -1795,6 +1855,10 @@ body code.styled {
 }
 
 @media only screen and (max-width: 1050px) {
+    #api_window {
+        left: 20%;
+        right: 20%;
+    }
     #refresh {
         padding-top: 50px;
     }
