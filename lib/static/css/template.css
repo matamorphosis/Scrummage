@@ -926,6 +926,7 @@ table.dataTable,table.dataTable th,table.dataTable td
 .dashboard_small_div {
     text-align: center;
     display: inline-block;
+    width: 100%;
 }
 
 .dashboard_large_div {
@@ -1147,15 +1148,18 @@ table.dataTable,table.dataTable th,table.dataTable td
 .dashboard_small_outer_div_left {
     display: inline-block;
     float: left;
+    width: 33%;
 }
 
 .dashboard_small_outer_div_right {
     display: inline-block;
     float: right;
+    width: 33%;
 }
 
 .dashboard_small_outer_div {
     display: inline-block;
+    width: 33%;
 }
 
 .dashboard_large_outer_div {
