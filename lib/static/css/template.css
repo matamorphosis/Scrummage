@@ -1147,13 +1147,11 @@ table.dataTable,table.dataTable th,table.dataTable td
 
 .dashboard_small_outer_div_left {
     display: inline-block;
-    float: left;
     width: 33%;
 }
 
 .dashboard_small_outer_div_right {
     display: inline-block;
-    float: right;
     width: 33%;
 }
 
@@ -1856,9 +1854,41 @@ body code.styled {
         width: 100%;
         float: unset;
     }
+    .dashboard_small_outer_div_left {
+        display: unset;
+        float: unset;
+        width: 99%;
+    }
+    .dashboard_small_outer_div_right {
+        display: unset;
+        float: unset;
+        width: 99%;
+    }
+    .dashboard_small_outer_div {
+        width: 99%;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .dashboard_small_outer_div_left {
+        display: unset;
+        float: unset;
+        width: 99%;
+    }
+    .dashboard_small_outer_div_right {
+        display: unset;
+        float: unset;
+        width: 99%;
+    }
+    .dashboard_small_outer_div {
+        width: 99%;
+    }
 }
 
 @media only screen and (max-width: 1050px) {
+    .dashboard_small_div {
+        display: block;
+    }
     #api_window {
         left: 20%;
         right: 20%;
@@ -1908,14 +1938,6 @@ body code.styled {
         position: fixed;
         z-index: 50000;
         width: 100%;
-    }
-    .dashboard_small_outer_div_left {
-        display: inline-block;
-        float: unset;
-    }
-    .dashboard_small_outer_div_right {
-        display: inline-block;
-        float: unset;
     }
     .dataTables_wrapper .dataTables_info {
         padding-bottom: 0px;
