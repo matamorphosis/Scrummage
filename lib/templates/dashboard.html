@@ -50,7 +50,7 @@
                                 var c1colors = {{open_set[2] | safe}};
                                 var dataset = {
                                     "labels": c1labels,
-                                    "datasets":[
+                                    "datasets": [
                                         {
                                             "label":"Open Results",
                                             "data": c1data,
@@ -80,7 +80,7 @@
                                 chart1.onclick = function(evt){
                                     var activePoints = chart1var.getElementsAtEvent(evt);
                                     var selectedIndex = activePoints[0]._index;
-                                    var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Open&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
+                                    var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Open&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c1labels[selectedIndex] + "&setfilter=Set";
                                     window.open(url);
                                 };
                             </script>
@@ -102,7 +102,7 @@
                             var c2colors = {{closed_set[2] | safe}};
                             var dataset = {
                                 "labels": c2labels,
-                                "datasets":[
+                                "datasets": [
                                     {
                                         "label":"Closed Results",
                                         "data": c2data,
@@ -132,7 +132,7 @@
                             chart2.onclick = function(evt){
                                 var activePoints = chart2var.getElementsAtEvent(evt);
                                 var selectedIndex = activePoints[0]._index;
-                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Closed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
+                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Closed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c2labels[selectedIndex] + "&setfilter=Set";
                                 window.open(url);
                             };
                         </script></div>
@@ -151,7 +151,7 @@
                             var c3colors = {{mixed_set[2] | safe}};
                             var dataset = {
                                 "labels": c3labels,
-                                "datasets":[
+                                "datasets": [
                                     {
                                         "label":"Mixed Results",
                                         "data": c3data,
