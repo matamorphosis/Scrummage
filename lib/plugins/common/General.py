@@ -85,8 +85,35 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=Fals
     except Exception as e:
         logging.warning(f"{Date()} General Library - {str(e)}.")
 
-def Date():
-    return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+def Date(Additional_Last_Days=0, Date_Only=False):
+
+    if Additional_Last_Days > 0:
+        Additional_Last_Days_Range = Additional_Last_Days - 1
+        Real_Dates = []
+
+        while Additional_Last_Days_Range < Additional_Last_Days and Additional_Last_Days_Range >= 0:
+            Today = datetime.datetime.now()
+            Day = datetime.timedelta(days=Additional_Last_Days_Range)
+            Real_Date = Today - Day
+
+            if Date_Only:
+                Real_Date = str(Real_Date.strftime('%Y-%m-%d'))
+
+            else:
+                Real_Date = str(Real_Date.strftime('%Y-%m-%d %H:%M:%S'))
+
+            Real_Dates.append(Real_Date)
+            Additional_Last_Days_Range -= 1
+
+        return Real_Dates
+
+    else:
+
+        if Date_Only:
+            return str(datetime.datetime.now().strftime('%Y-%m-%d'))
+
+        else:
+            return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 def Get_Limit(kwargs):
 
