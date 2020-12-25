@@ -43,7 +43,7 @@ if __name__ == '__main__':
                          "Instagram - Location Search", "Instagram - Media Search", "Instagram - Tag Search",
                          "Instagram - User Search", "iTunes Store Search", "Library Genesis Search", "Naver Search",
                          "Phishstats Search", "Google Play Store Search", "Pinterest - Board Search",
-                         "Pinterest - Pin Search", "Reddit Search", "RSS Feed Search", "Shodan Search - Domain",
+                         "Pinterest - Pin Search", "Reddit Search", "RSS Feed Search", "Shodan Search - IP Address",
                          "Shodan Search - Query", "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
                          "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
                          "Threat Crowd - Virus Report Search", "Torrent Search", "Twitter Scraper", "Username Search",
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                                  "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes",
                                  "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search",
                                  "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search",
-                                 "IP Stack Search", "Instagram - Media Search", "Pinterest - Pin Search", "Shodan Search - Domain",
+                                 "IP Stack Search", "Instagram - Media Search", "Pinterest - Pin Search", "Shodan Search - IP Address",
                                  "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
                                  "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
                                  "Threat Crowd - Virus Report Search", "Vehicle Registration Search"]
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                        "Google Search": "plugins.Google_Search", "Have I Been Pwned - Password Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Email Search": "plugins.Have_I_Been_Pwned",
                          "Have I Been Pwned - Breach Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Account Search": "plugins.Have_I_Been_Pwned", "Hunter Search - Domain": "plugins.Hunter_Search", "Hunter Search - Email": "plugins.Hunter_Search", "Naver Search": "plugins.Naver_Search",
                        "Pinterest - Board Search": "plugins.Pinterest_Search", "Pinterest - Pin Search": "plugins.Pinterest_Search",
-                       "Reddit Search": "plugins.Reddit_Search", "Shodan Search - Domain": "plugins.Shodan_Search", "Shodan Search - Query": "plugins.Shodan_Search",
+                       "Reddit Search": "plugins.Reddit_Search", "Shodan Search - IP Address": "plugins.Shodan_Search", "Shodan Search - Query": "plugins.Shodan_Search",
                        "Twitter Scraper": "plugins.Twitter_Scraper", "Vulners Search": "plugins.Vulners_Search", "Yandex Search": "plugins.Yandex_Search", "YouTube Search": "plugins.YouTube_Search", "IP Stack Search": "plugins.IPStack_Search"}
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = ["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",

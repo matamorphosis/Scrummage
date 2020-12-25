@@ -93,7 +93,7 @@ class Plugin_Caller:
                 import plugins.Shodan_Search as Shodan_Search
                 Thread_1 = threading.Thread(target=Shodan_Search.Search, args=(self.query, self.task_id, "Search",), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Shodan Search - Host":
+            elif self.plugin_name == "Shodan Search - IP Address":
                 import plugins.Shodan_Search as Shodan_Search
                 Thread_1 = threading.Thread(target=Shodan_Search.Search, args=(self.query, self.task_id, "Host",))
 
