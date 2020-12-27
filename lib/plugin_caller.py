@@ -359,15 +359,16 @@ if __name__ == "__main__":
     import argparse, sys
     Parser = argparse.ArgumentParser(description='Plugin Caller calls Scrummage plugins.')
     Parser.add_argument('-t', '--task', help='This option is used to specify a task ID to run. ./plugin_caller.py -t 1')
+    Parser.add_argument('-c', '--config', help='This option is used to specify the location of the configuration file. This is necessary due to the nature of scheduling tasks in Scrummage. ./plugin_caller.py -t 1 -c /home/Scrummage/lib/plugins/common/config/config.json')
     Arguments = Parser.parse_args()
 
     Task_ID = 0
 
-    if Arguments.task:
+    if Arguments.task and Arguments.config:
 
         try:
             Task_ID = int(Arguments.task)
-            Connection = Connectors.Load_Main_Database()
+            Connection = Connectors.Load_Main_Database(Optional_File_Location=Arguments.config)
             cursor = Connection.cursor()
             PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
             cursor.execute(PSQL_Select_Query, (Task_ID,))
@@ -378,7 +379,7 @@ if __name__ == "__main__":
                 Plugin_to_Call.Call_Plugin()
 
         except:
-            sys.exit("[-] Invalid Task ID, please provide a valid Task ID.")
+            sys.exit("[-] Invalid Task ID or configuration file.")
 
     else:
-        sys.exit("[-] No task provided.")
+        sys.exit("[-] No task or configuration file provided.")

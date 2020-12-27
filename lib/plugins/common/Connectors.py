@@ -134,10 +134,16 @@ def Load_Elasticsearch_Configuration():
     except Exception as e:
         logging.warning(f"{Date()} Connectors Library - {str(e)}.")
 
-def Load_Main_Database():
+def Load_Main_Database(Optional_File_Location=False):
+
+    if Optional_File_Location:
+        Current_Configuration_File = Optional_File_Location
+    
+    else:
+        Current_Configuration_File = Configuration_File
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Current_Configuration_File) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DB_Info = Configuration_Data['postgresql']
             DB_Host = DB_Info['host']

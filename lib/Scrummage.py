@@ -1411,7 +1411,9 @@ if __name__ == '__main__':
                                         Cursor.execute("SELECT * FROM tasks WHERE query = %s AND plugin = %s AND description = %s AND frequency = %s AND task_limit = %s AND status = %s AND created_at = %s AND updated_at = %s;", (result[1], result[2], result[3], result[4], str(result[5]), "Stopped", str(Current_Timestamp), str(Current_Timestamp),))
                                         result = Cursor.fetchone()
                                         task_id = result[0]
-                                        Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(task_id)}'
+                                        File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                        Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
+                                        Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(task_id)} -c {Configuration_File}'
 
                                         try:
                                             my_cron = CronTab(user=getpass.getuser())
@@ -1481,8 +1483,10 @@ if __name__ == '__main__':
                                 task_id = result[0]
 
                                 try:
+                                    File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
                                     my_cron = CronTab(user=getpass.getuser())
-                                    job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(task_id)}')
+                                    job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(task_id)} -c {Configuration_File}')
                                     job.setall(result[4])
                                     my_cron.write()
 
@@ -1578,7 +1582,9 @@ if __name__ == '__main__':
                                 result = Cursor.fetchone()
 
                                 if result:
-                                    Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(del_id)}'
+                                    File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
+                                    Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(del_id)} -c {Configuration_File}'
 
                                     try:
                                         my_cron = CronTab(user=getpass.getuser())
@@ -1632,6 +1638,8 @@ if __name__ == '__main__':
                         del_id = int(del_id)
                         Cursor.execute("SELECT frequency FROM tasks WHERE task_id = %s", (del_id,))
                         result = Cursor.fetchone()
+                        File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                        Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
 
                         if result:
 
@@ -1640,7 +1648,7 @@ if __name__ == '__main__':
 
                                 for job in my_cron:
 
-                                    if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(del_id)}':
+                                    if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(del_id)} -c {Configuration_File}':
                                         my_cron.remove(job)
                                         my_cron.write()
 
@@ -1841,7 +1849,9 @@ if __name__ == '__main__':
                                         current_task_id = result[0]
 
                                         if Frequency != "":
-                                            Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)}'
+                                            File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                            Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
+                                            Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)} -c {Configuration_File}'
 
                                             try:
                                                 my_cron = CronTab(user=getpass.getuser())
@@ -2000,8 +2010,10 @@ if __name__ == '__main__':
                                     current_task_id = result[0]
 
                                     try:
+                                        File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                        Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
                                         my_cron = CronTab(user=getpass.getuser())
-                                        job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)}')
+                                        job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)} -c {Configuration_File}')
                                         job.setall(session.get('task_frequency'))
                                         my_cron.write()
                                         Message = f"Task ID {(current_task_id)} created by {session.get('user')}."
@@ -2021,7 +2033,8 @@ if __name__ == '__main__':
                                                            new_task=True, is_admin=session.get('is_admin'),
                                                            results=results, error=Frequency_Error)
 
-                                return redirect(url_for('tasks'))
+                                else:
+                                    return redirect(url_for('tasks'))
 
                             else:
                                 return render_template('tasks.html', username=session.get('user'),
@@ -2324,10 +2337,12 @@ if __name__ == '__main__':
 
                                         try:
                                             my_cron = CronTab(user=getpass.getuser())
+                                            File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                            Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
 
                                             for job in my_cron:
 
-                                                if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(session.get("task_id"))}':
+                                                if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(session.get("task_id"))} -c {Configuration_File}':
                                                     my_cron.remove(job)
                                                     my_cron.write()
 
@@ -2352,14 +2367,16 @@ if __name__ == '__main__':
 
                                     try:
                                         my_cron = CronTab(user=getpass.getuser())
+                                        File_Dir = os.path.dirname(os.path.realpath('__file__'))
+                                        Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
 
                                         for job in my_cron:
 
-                                            if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)}':
+                                            if job.command == f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)} -c {Configuration_File}':
                                                 my_cron.remove(job)
                                                 my_cron.write()
 
-                                        job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)}')
+                                        job = my_cron.new(command=f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)} -c {Configuration_File}')
                                         job.setall(session.get('task_frequency'))
                                         my_cron.write()
 
@@ -2379,7 +2396,8 @@ if __name__ == '__main__':
                                                            new_task=True, is_admin=session.get('is_admin'),
                                                            results=results, error=Frequency_Error)
 
-                                return redirect(url_for('tasks'))
+                                else:
+                                    return redirect(url_for('tasks'))
 
                             else:
                                 return render_template('tasks.html', username=session.get('user'),
