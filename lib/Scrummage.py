@@ -2021,7 +2021,7 @@ if __name__ == '__main__':
                                         Create_Event(Message)
 
                                     except:
-                                        Frequency_Error = f"Task created but no cronjob was created due to the supplied frequency being invalid, please double check the frequency for task ID {str(session.get('task_id'))} and use the \"Edit\" button to update it in order for the cronjob to be created."
+                                        Frequency_Error = f"Task created but no cronjob was created due to the supplied frequency being invalid, please double check the frequency for task ID {str(current_task_id)} and use the \"Edit\" button to update it in order for the cronjob to be created."
 
                                 session['form_step'] = 0
                                 Cursor.execute("SELECT * FROM tasks")
@@ -2381,7 +2381,7 @@ if __name__ == '__main__':
                                         my_cron.write()
 
                                     except:
-                                        Frequency_Error = f"Task updated but no cronjob was added, and any valid original cron jobs for this task have been removed due to an invalid frequency being supplied, please double check the frequency for task ID {str(session.get('task_id'))} and use the \"Edit\" button to edit the frequency to create a cronjob."
+                                        Frequency_Error = f"Task updated but no cronjob was added, and any valid original cron jobs for this task have been removed due to an invalid frequency being supplied, please double check the frequency for task ID {str(current_task_id)} and use the \"Edit\" button to edit the frequency to create a cronjob."
 
                                 Message = f"Task ID {str(session.get('task_id'))} updated by {session.get('user')}."
                                 app.logger.warning(Message)
