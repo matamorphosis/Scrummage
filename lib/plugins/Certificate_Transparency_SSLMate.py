@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-import os, logging, json, plugins.common.General as General
+import os, logging, json, plugins.common.General as General, plugins.common.Connectors as Connectors
 
 Plugin_Name = "SSLMate"
 The_File_Extension = ".json"
 Domain = "sslmate.com"
 
 def Load_Configuration():
-    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
-
+    
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             SSLMate_Details = Configuration_Data[Plugin_Name.lower()]
             SSLMate_Subdomains = SSLMate_Details['search_subdomain']

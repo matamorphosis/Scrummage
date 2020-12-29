@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import plugins.common.General as General, json, os, logging
+import plugins.common.General as General, plugins.common.Connectors as Connectors, json, os, logging
 from googleapiclient import discovery
 
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
@@ -7,13 +7,11 @@ Plugin_Name = "YouTube"
 Domain = "youtube.com"
 
 def Load_Configuration():
-    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Loading configuration data.")
 
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             YouTube_Details = Configuration_Data[Plugin_Name.lower()]
             YouTube_Developer_Key = YouTube_Details['developer_key']

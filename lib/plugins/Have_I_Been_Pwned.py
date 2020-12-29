@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import pyhibp, json, os, logging, plugins.common.General as General
+import pyhibp, json, os, logging, plugins.common.General as General, plugins.common.Connectors as Connectors
 from pyhibp import pwnedpasswords as pw
 # Version 2 of this plugin. Now requires an API key.
 
@@ -9,13 +9,11 @@ The_File_Extension = ".json"
 Domain = "haveibeenpwned.com"
 
 def Load_Configuration():
-    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Loading configuration data.")
 
     try:
 
-        with open(Configuration_File) as JSON_File:
+        with open(Connectors.Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             HIBP_Details = Configuration_Data[Concat_Plugin_Name]
             API_Key = HIBP_Details['api_key']

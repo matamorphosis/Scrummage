@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import logging, os, json, plugins.common.General as General
+import logging, os, json, plugins.common.General as General, plugins.common.Connectors as Connectors
 from shodan import Shodan
 
 Plugin_Name = "Shodan"
@@ -7,13 +7,11 @@ The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "shodan.io"
 
 def Load_Configuration():
-    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Loading configuration data.")
 
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             Shodan_Details = Configuration_Data[Plugin_Name.lower()]
 

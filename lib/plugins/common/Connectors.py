@@ -7,8 +7,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from defectdojo_api import defectdojo
 
-File_Dir = os.path.dirname(os.path.realpath('__file__'))
-Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
+def Set_Configuration_File():
+    File_Dir = os.path.dirname(os.path.realpath('__file__'))
+    return os.path.join(File_Dir, 'plugins/common/config/config.json')
 
 def Date():
     return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -17,7 +18,7 @@ def Load_Chrome_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading RTIR configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             GC_Details = Configuration_Data['google-chrome']
             GC_App_Path = GC_Details['application-path']
@@ -36,7 +37,7 @@ def Load_CSV_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading CSV configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             CSV_Details = Configuration_Data['csv']
             Use_CSV = CSV_Details['use-csv']
@@ -54,7 +55,7 @@ def Load_DOCX_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading DOCX configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DOCX_Details = Configuration_Data['docx-report']
             Use_DOCX = DOCX_Details['use-docx']
@@ -72,7 +73,7 @@ def Load_Defect_Dojo_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading DefectDojo configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DD_Details = Configuration_Data['defectdojo']
             DD_API_Key = DD_Details['api_key']
@@ -96,7 +97,7 @@ def Load_Email_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading email configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             Email_Details = Configuration_Data['email']
             Email_SMTP_Server = Email_Details['smtp_server']
@@ -118,7 +119,7 @@ def Load_Elasticsearch_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading Elasticsearch configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             Elasticsearch_Details = Configuration_Data['elasticsearch']
             Elasticsearch_Service = Elasticsearch_Details['service']
@@ -134,16 +135,11 @@ def Load_Elasticsearch_Configuration():
     except Exception as e:
         logging.warning(f"{Date()} Connectors Library - {str(e)}.")
 
-def Load_Main_Database(Optional_File_Location=False):
-
-    if Optional_File_Location:
-        Current_Configuration_File = Optional_File_Location
-    
-    else:
-        Current_Configuration_File = Configuration_File
+def Load_Main_Database():
 
     try:
-        with open(Current_Configuration_File) as JSON_File:
+
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DB_Info = Configuration_Data['postgresql']
             DB_Host = DB_Info['host']
@@ -176,7 +172,7 @@ def Load_JIRA_Configuration():
 
     try:
 
-        with open(Configuration_File) as json_file:  
+        with open(Set_Configuration_File()) as json_file:  
             Configuration_Data = json.load(json_file)
             JSON_Details = Configuration_Data['JIRA']
             JIRA_Project_Key = JSON_Details['project_key']
@@ -199,7 +195,7 @@ def Load_Slack_Configuration():
 
     try:
 
-        with open(Configuration_File) as json_file:  
+        with open(Set_Configuration_File()) as json_file:  
             Configuration_Data = json.load(json_file)
             JSON_Details = Configuration_Data['slack']
             Slack_Token = JSON_Details['token']
@@ -219,7 +215,7 @@ def Load_Scumblr_Configuration():
 
     try:
 
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             PostgreSQL_Details = Configuration_Data['scumblr']
             PostgreSQL_Host = PostgreSQL_Details['host']
@@ -241,7 +237,7 @@ def Load_RTIR_Configuration():
     logging.info(f"{Date()} Connectors Library - Loading RTIR configuration data.")
 
     try:
-        with open(Configuration_File) as JSON_File:
+        with open(Set_Configuration_File()) as JSON_File:
             Configuration_Data = json.load(JSON_File)
             RTIR_Details = Configuration_Data['rtir']
             RTIR_HTTP_Service  = RTIR_Details['service']
@@ -266,6 +262,7 @@ def CSV_Output(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task_
         Use_CSV = Load_CSV_Configuration()
 
         if Use_CSV:
+            File_Dir = os.path.dirname(os.path.realpath('__file__'))
             Headings = ["Title", "Plugin", "Domain", "Link", "Created At", "Output Files", "Result Type", "Task ID"]
             Data = [Title, Plugin_Name, Domain, Link, Date(), Output_File, Result_Type, str(Task_ID)]
             Complete_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.csv"
@@ -295,6 +292,7 @@ def DOCX_Output(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task
         Use_DOCX = Load_DOCX_Configuration()
 
         if Use_DOCX:
+            File_Dir = os.path.dirname(os.path.realpath('__file__'))
             Complete_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
 
             if os.path.exists(Complete_File):

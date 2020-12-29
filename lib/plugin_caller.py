@@ -356,30 +356,35 @@ class Plugin_Caller:
         Thread_2.join()
         
 if __name__ == "__main__":
-    import argparse, sys
+    import argparse, os, sys, pathlib
     Parser = argparse.ArgumentParser(description='Plugin Caller calls Scrummage plugins.')
     Parser.add_argument('-t', '--task', help='This option is used to specify a task ID to run. ./plugin_caller.py -t 1')
-    Parser.add_argument('-c', '--config', help='This option is used to specify the location of the configuration file. This is necessary due to the nature of scheduling tasks in Scrummage. ./plugin_caller.py -t 1 -c /home/Scrummage/lib/plugins/common/config/config.json')
     Arguments = Parser.parse_args()
-
+    Scrummage_Working_Directory = pathlib.Path(__file__).parent.absolute()
+    os.chdir(Scrummage_Working_Directory)
     Task_ID = 0
 
-    if Arguments.task and Arguments.config:
+    if str(Scrummage_Working_Directory) == str(os.getcwd()):
 
-        try:
-            Task_ID = int(Arguments.task)
-            Connection = Connectors.Load_Main_Database(Optional_File_Location=Arguments.config)
-            cursor = Connection.cursor()
-            PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
-            cursor.execute(PSQL_Select_Query, (Task_ID,))
-            result = cursor.fetchone()
+        if Arguments.task:
 
-            if result:
-                Plugin_to_Call = Plugin_Caller(Plugin_Name=result[2], Limit=result[5], Task_ID=Task_ID, Query=result[1])
-                Plugin_to_Call.Call_Plugin()
+            try:
+                Task_ID = int(Arguments.task)
+                Connection = Connectors.Load_Main_Database()
+                cursor = Connection.cursor()
+                PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
+                cursor.execute(PSQL_Select_Query, (Task_ID,))
+                result = cursor.fetchone()
 
-        except:
-            sys.exit("[-] Invalid Task ID or configuration file.")
+                if result:
+                    Plugin_to_Call = Plugin_Caller(Plugin_Name=result[2], Limit=result[5], Task_ID=Task_ID, Query=result[1])
+                    Plugin_to_Call.Call_Plugin()
+
+            except:
+                sys.exit("[-] Invalid Task ID.")
+
+        else:
+            sys.exit("[-] No task provided.")
 
     else:
-        sys.exit("[-] No task or configuration file provided.")
+        sys.exit("[-] Failed to set working directory.")

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 import datetime, os, logging, re, requests, urllib, json, plugins.common.Connectors as Connectors
 from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
-Configuration_File = os.path.join('plugins/common/config', 'config.json')
 Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
 def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Host="", Data={}, **kwargs):
@@ -423,7 +422,7 @@ def Load_Location_Configuration():
 
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             General_Details = Configuration_Data['general']
             Location = General_Details['location']
@@ -442,7 +441,7 @@ def Load_Web_Scrape_Risk_Configuration():
     
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             Web_Scrape_Details = Configuration_Data['web-scraping']
             Risk_Level = int(Web_Scrape_Details['risk-level'])

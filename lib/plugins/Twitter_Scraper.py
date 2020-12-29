@@ -1,18 +1,16 @@
 #!/usr/bin/python3
-import json, os, logging, tweepy, plugins.common.General as General
+import json, os, logging, tweepy, plugins.common.General as General, plugins.common.Connectors as Connectors
 
 Plugin_Name = "Twitter"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "twitter.com"
 
 def Load_Configuration():
-    File_Dir = os.path.dirname(os.path.realpath('__file__'))
-    Configuration_File = os.path.join(File_Dir, 'plugins/common/config/config.json')
     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Loading configuration data.")
 
     try:
 
-        with open(Configuration_File) as JSON_File:  
+        with open(Connectors.Set_Configuration_File()) as JSON_File:  
             Configuration_Data = json.load(JSON_File)
             Twitter_Details = Configuration_Data[Plugin_Name.lower()]
             Consumer_Key = Twitter_Details['CONSUMER_KEY']
