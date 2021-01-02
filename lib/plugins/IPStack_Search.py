@@ -4,7 +4,6 @@ import plugins.common.General as General, json, os, logging, plugins.common.Conn
 The_File_Extension = ".json"
 Plugin_Name = "IPStack"
 Domain = "ipstack.com"
-headers = General.URL_Headers(User_Agent=True)
 
 def Load_Configuration():
     logging.info(f"{General.Date()} - {__name__.strip('plugins.')} - Loading configuration data.")

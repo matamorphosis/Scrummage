@@ -4,7 +4,6 @@ import json, os, logging, plugins.common.General as General
 Plugin_Name = "Threat-Crowd"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}
 Domain = "threatcrowd.org"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Search(Query_List, Task_ID, Type):
 

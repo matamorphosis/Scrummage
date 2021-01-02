@@ -64,43 +64,50 @@ def Search(Query_List, Task_ID, Type, **kwargs):
 
                     for Shodan_Item in API_Response["matches"]:
                         Shodan_Item_Module = Shodan_Item['_shodan']['module']
-                        Shodan_Item_Host = ""
-                        Shodan_Item_Port = 0
+                        Shodan_Item_Module = Shodan_Item_Module.replace('-simple-new', '')
 
-                        if 'http' in Shodan_Item:
-                            Shodan_Item_Host = Shodan_Item['http']['host']
-                            Shodan_Item_Response = Shodan_Item['http']['html']
+                        if Shodan_Item_Module.startswith("http"):
+                            Shodan_Item_Host = ""
+                            Shodan_Item_Port = 0
 
-                        elif 'ip_str' in Shodan_Item:
-                            Shodan_Item_Host = Shodan_Item['ip_str']
-                            Shodan_Item_Response = Shodan_Item['data']
+                            if 'http' in Shodan_Item:
+                                Shodan_Item_Host = Shodan_Item['http']['host']
+                                Shodan_Item_Response = Shodan_Item['http']['html']
 
-                        if Shodan_Item_Host:
+                            elif 'ip_str' in Shodan_Item and 'domains' in Shodan_Item and len(Shodan_Item['domains']) > 0:
+                                Shodan_Item_Host = Shodan_Item['domains'][0]
+                                Shodan_Item_Response = Shodan_Item['data']
 
-                            if 'port' in Shodan_Item_Host:
+                            elif 'ip_str' in Shodan_Item and 'domains' not in Shodan_Item:
+                                Shodan_Item_Host = Shodan_Item['ip_str']
+                                Shodan_Item_Response = Shodan_Item['data']
 
-                                if int(Shodan_Item['port']) not in [80, 443]:
-                                    Shodan_Item_Port = Shodan_Item['port']
+                            if Shodan_Item_Host:
 
-                            if Shodan_Item_Port != 0:
-                                Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}:{str(Shodan_Item_Port)}"
+                                if 'port' in Shodan_Item_Host:
 
-                            else:
-                                Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}"
+                                    if int(Shodan_Item['port']) not in [80, 443]:
+                                        Shodan_Item_Port = Shodan_Item['port']
 
-                            Title = "Shodan | " + str(Shodan_Item_Host)
-
-                            if Shodan_Item_URL not in Cached_Data and Shodan_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
-                                Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Shodan_Item_Response, Shodan_Item_Host, The_File_Extensions["Query"])
-
-                                if Output_file:
-                                    Output_Connections.Output([Main_File, Output_file], Shodan_Item_URL, Title, Plugin_Name.lower())
-                                    Data_to_Cache.append(Shodan_Item_URL)
+                                if Shodan_Item_Port != 0:
+                                    Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}:{str(Shodan_Item_Port)}"
 
                                 else:
-                                    logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
+                                    Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}"
 
-                                Current_Step += 1
+                                Title = "Shodan | " + str(Shodan_Item_Host)
+
+                                if Shodan_Item_URL not in Cached_Data and Shodan_Item_URL not in Data_to_Cache and Current_Step < int(Limit):
+                                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Shodan_Item_Response, Shodan_Item_Host, The_File_Extensions["Query"])
+
+                                    if Output_file:
+                                        Output_Connections.Output([Main_File, Output_file], Shodan_Item_URL, Title, Plugin_Name.lower())
+                                        Data_to_Cache.append(Shodan_Item_URL)
+
+                                    else:
+                                        logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to create output file. File may already exist.")
+
+                                    Current_Step += 1
 
                 elif Type == "Host":
                     Local_Plugin_Name = Plugin_Name + "-Host"

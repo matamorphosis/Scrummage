@@ -129,10 +129,6 @@ class Plugin_Caller:
                 import plugins.IPStack_Search as IPStack_Search
                 Thread_1 = threading.Thread(target=IPStack_Search.Search, args=(self.query, self.task_id,))
 
-            elif self.plugin_name == "iTunes Store Search":
-                import plugins.ITunes_Store_Search as ITunes_Store_Search
-                Thread_1 = threading.Thread(target=ITunes_Store_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
-
             elif self.plugin_name == "Instagram - User Search":
                 import plugins.Instagram_Search as Instagram_Search
                 Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "User"), kwargs={"Limit": self.limit, })
@@ -337,6 +333,10 @@ class Plugin_Caller:
             elif self.plugin_name == "Blockchain - Bitcoin Address Search":
                 import plugins.Blockchain_Search as Blockchain_Search
                 Thread_1 = threading.Thread(target=Blockchain_Search.Address_Search, args=(self.query, self.task_id, "btc",))
+
+            elif self.plugin_name == "Apple Store Search":
+                import plugins.Apple_Store_Search as Apple_Store_Search
+                Thread_1 = threading.Thread(target=Apple_Store_Search.Search, args=(self.query, self.task_id,), kwargs={"Limit": self.limit, })
 
             elif self.plugin_name == "Ahmia Darkweb Search":
                 import plugins.Ahmia_Darkweb_Search as Ahmia_Darkweb_Search

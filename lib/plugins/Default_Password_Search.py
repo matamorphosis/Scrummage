@@ -5,7 +5,6 @@ Plugin_Name = "Default-Password"
 Concat_Plugin_Name = "defaultpassword"
 The_File_Extension = ".html"
 Domain = "default-password.info"
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 def Search(Query_List, Task_ID, **kwargs):
 

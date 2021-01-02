@@ -362,7 +362,7 @@ def Defect_Dojo_Output(Title, Description):
         except (Exception, psycopg2.DatabaseError) as Error:
             logging.warning(Date() + str(Error))
 
-def Main_Database_Insert(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task_ID):
+def Main_Database_Insert(Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task_ID, Screenshot_Path=False):
     Connection = Load_Main_Database()
     logging.info(f"{Date()} Connectors Library - Loading Scrummage's Main Database configuration data.")
 
@@ -376,7 +376,12 @@ def Main_Database_Insert(Title, Plugin_Name, Domain, Link, Result_Type, Output_F
 
             if Item_Already_in_Database is None:
                 # Execute statement.
-                Cursor.execute("INSERT INTO results (title, plugin, status, domain, link, created_at, updated_at, output_file, result_type, task_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (Title, Plugin_Name, "Open", Domain, Link, Date(), Date(), Output_File, Result_Type, Task_ID,))
+
+                if not Screenshot_Path:
+                    Cursor.execute("INSERT INTO results (title, plugin, status, domain, link, created_at, updated_at, output_file, result_type, task_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (Title, Plugin_Name, "Open", Domain, Link, Date(), Date(), Output_File, Result_Type, Task_ID,))
+
+                else:
+                    Cursor.execute("INSERT INTO results (title, plugin, status, domain, link, created_at, updated_at, output_file, result_type, task_id, screenshot_url) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (Title, Plugin_Name, "Open", Domain, Link, Date(), Date(), Output_File, Result_Type, Task_ID, Screenshot_Path,))
 
             else:
                 logging.info(f"{Date()} Connectors Library - Entry already exists in the database. Skipping...")

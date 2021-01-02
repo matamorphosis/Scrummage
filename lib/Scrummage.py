@@ -41,7 +41,7 @@ if __name__ == '__main__':
                          "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search",
                          "Hunter Search - Domain", "Hunter Search - Email", "IP Stack Search",
                          "Instagram - Location Search", "Instagram - Media Search", "Instagram - Tag Search",
-                         "Instagram - User Search", "iTunes Store Search", "Library Genesis Search", "Naver Search",
+                         "Instagram - User Search", "Apple Store Search", "Library Genesis Search", "Naver Search",
                          "Phishstats Search", "Google Play Store Search", "Pinterest - Board Search",
                          "Pinterest - Pin Search", "Reddit Search", "RSS Feed Search", "Shodan Search - IP Address",
                          "Shodan Search - Query", "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
@@ -580,32 +580,33 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown error."}), 500
 
-        def Screenshot_Checker():
-            global Permit_Screenshots
-            Chrome_Config = Connectors.Load_Chrome_Configuration()
+        # def Screenshot_Checker():
+        #     global Permit_Screenshots
+        #     Chrome_Config = Connectors.Load_Chrome_Configuration()
 
-            if all(os.path.exists(Config) for Config in Chrome_Config): 
-                CHROME_PATH = Chrome_Config[0]
-                CHROMEDRIVER_PATH = Chrome_Config[1]
-                chrome_options = Options()
-                chrome_options.add_argument("--headless")
-                chrome_options.binary_location = CHROME_PATH
+        #     if all(os.path.exists(Config) for Config in Chrome_Config): 
+        #         CHROME_PATH = Chrome_Config[0]
+        #         CHROMEDRIVER_PATH = Chrome_Config[1]
+        #         chrome_options = Options()
+        #         chrome_options.add_argument("--headless")
+        #         chrome_options.binary_location = CHROME_PATH
 
-                try:
-                    driver = webdriver.Chrome(
-                        executable_path=CHROMEDRIVER_PATH,
-                        options=chrome_options
-                    )
+        #         try:
+        #             driver = webdriver.Chrome(
+        #                 executable_path=CHROMEDRIVER_PATH,
+        #                 options=chrome_options,
+        #                 service=ChromeDriverManager().install()
+        #             )
 
-                except Exception as e:
+        #         except Exception as e:
 
-                    if "session not created" in str(e):
-                        app.logger.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. The Chrome driver is located at {Chrome_Config[1]}. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
-                        Permit_Screenshots = False
+        #             if "session not created" in str(e):
+        #                 app.logger.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. The Chrome driver is located at {Chrome_Config[1]}. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
+        #                 Permit_Screenshots = False
 
-            else:
-                app.logger.warning("\033[0;31mOne or more of the values provided to the google chrome configuration in the config.json file do not reflect real files. Screenshot functionality has been disabled in the meantime. To correct this please accurately fill out the following section in the config.json file (Example values included, please ensure these reflect real files on your system)\n\n    \"google-chrome\": {\n        \"application-path\": \"/usr/bin/google-chrome\",\n        \"chromedriver-path\": \"/usr/bin/chromedriver\"\n    },\n\033[0m")
-                Permit_Screenshots = False
+        #     else:
+        #         app.logger.warning("\033[0;31mOne or more of the values provided to the google chrome configuration in the config.json file do not reflect real files. Screenshot functionality has been disabled in the meantime. To correct this please accurately fill out the following section in the config.json file (Example values included, please ensure these reflect real files on your system)\n\n    \"google-chrome\": {\n        \"application-path\": \"/usr/bin/google-chrome\",\n        \"chromedriver-path\": \"/usr/bin/chromedriver\"\n    },\n\033[0m")
+        #         Permit_Screenshots = False
 
         def requirement(f):
 
@@ -673,85 +674,18 @@ if __name__ == '__main__':
                             if Authentication_Verified["Admin"]:
 
                                 if request.method == 'POST':
-
-                                    def grab_screenshot(screenshot_id, user, Chrome_Config):
-                                        Cursor.execute('SELECT link FROM results WHERE result_id = %s', (screenshot_id,))
-                                        result = Cursor.fetchone()
-                                        Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (screenshot_id,))
-                                        SS_URL = Cursor.fetchone()
-                                        Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (screenshot_id,))
-                                        SS_Req = Cursor.fetchone()
-                                        Message = f"Screenshot requested for result number {str(screenshot_id)} by {user}."
-                                        app.logger.warning(Message)
-                                        Create_Event(Message)
-                                        Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (True, screenshot_id,))
-                                        Connection.commit()
-
-                                        if any(String in result[0] for String in Bad_Link_Strings):
-                                            return redirect(url_for('results'))
-
-                                        screenshot_file = result[0].replace("http://", "")
-                                        screenshot_file = screenshot_file.replace("https://", "")
-
-                                        if screenshot_file.endswith('/'):
-                                            screenshot_file = screenshot_file[:-1]
-
-                                        if '?' in screenshot_file:
-                                            screenshot_file_list = screenshot_file.split('?')
-                                            screenshot_file = screenshot_file_list[0]
-
-                                        for replaceable_item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
-                                            screenshot_file = screenshot_file.replace(replaceable_item, '-')
-
-                                        CHROME_PATH = Chrome_Config[0]
-                                        CHROMEDRIVER_PATH = Chrome_Config[1]
-                                        screenshot_file = f"{screenshot_file}.png"
-                                        chrome_options = Options()
-                                        chrome_options.add_argument("--headless")
-                                        chrome_options.binary_location = CHROME_PATH
-
-                                        try:
-                                            driver = webdriver.Chrome(
-                                                executable_path=CHROMEDRIVER_PATH,
-                                                options=chrome_options
-                                            )
-
-                                        except Exception as e:
-
-                                            if "session not created" in str(e):
-                                                e = str(e).strip('\n')
-                                                Message = f"Screenshot request terminated for result number {str(screenshot_id)} by application, please refer to the log."
-                                                Message_E = e.replace("Message: session not created: ", "")
-                                                Message_E = Message_E.replace("This version of", "The installed version of")
-                                                app.logger.warning(f"Screenshot Request Error: {Message_E}.")
-                                                app.logger.warning(f"Kindly replace the Chrome Web Driver, located at {Chrome_Config[1]}, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.")
-                                                Create_Event(Message)
-                                                Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (False, screenshot_id,))
-                                                Connection.commit()
-                                            
-                                            return 0
-
-                                        driver.get(result[0])
-                                        driver.implicitly_wait(10)
-                                        time.sleep(10)
-                                        total_height = driver.execute_script("return document.body.scrollHeight")
-                                        driver.set_window_size(1920, total_height)
-                                        driver.save_screenshot(f"static/protected/screenshots/{screenshot_file}")
-                                        driver.close()
-                                        Cursor.execute('UPDATE results SET screenshot_url = %s WHERE result_id = %s', (screenshot_file, screenshot_id,))
-                                        Connection.commit()
-
                                     ss_id = int(resultid)
                                     Chrome_Config = Connectors.Load_Chrome_Configuration()
 
                                     if all(os.path.exists(Config) for Config in Chrome_Config):
-                                        Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (screenshot_id,))
+                                        Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (ss_id,))
                                         SS_URL = Cursor.fetchone()
-                                        Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (screenshot_id,))
+                                        Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (ss_id,))
                                         SS_Req = Cursor.fetchone()
 
                                         if not SS_URL[0] and not SS_Req[0]:
-                                            Thread_1 = threading.Thread(target=grab_screenshot, args=(ss_id, Authentication_Verified["Username"], Chrome_Config))
+                                            Screenshot_Object = General.Screenshot(File_Path, False, Screenshot_ID=ss_id, Screenshot_User=str(session.get('user')))
+                                            Thread_1 = threading.Thread(target=Screenshot_Object.Grab_Screenshot)
                                             Thread_1.start()
                                             return jsonify({"Message": f"Successfully requested screenshot for {str(ss_id)}."}), 200
 
@@ -789,90 +723,26 @@ if __name__ == '__main__':
         def screenshot(resultid):
 
             try:
-                Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:']
 
                 if session.get('user') and session.get('is_admin'):
 
                     if Permit_Screenshots:
-
-                        def grab_screenshot(screenshot_id, user, Chrome_Config):
-                            Cursor.execute('SELECT link FROM results WHERE result_id = %s', (screenshot_id,))
-                            result = Cursor.fetchone()
-                            Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (screenshot_id,))
-                            SS_URL = Cursor.fetchone()
-                            Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (screenshot_id,))
-                            SS_Req = Cursor.fetchone()
-
-                            if not SS_URL[0] and not SS_Req[0]:
-                                Message = f"Screenshot requested for result number {str(screenshot_id)} by {user}."
-                                app.logger.warning(Message)
-                                Create_Event(Message)
-                                Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (True, screenshot_id,))
-                                Connection.commit()
-
-                                if any(String in result[0] for String in Bad_Link_Strings):
-                                    return redirect(url_for('results'))
-
-                                screenshot_file = result[0].replace("http://", "")
-                                screenshot_file = screenshot_file.replace("https://", "")
-
-                                if screenshot_file.endswith('/'):
-                                    screenshot_file = screenshot_file[:-1]
-
-                                if '?' in screenshot_file:
-                                    screenshot_file_list = screenshot_file.split('?')
-                                    screenshot_file = screenshot_file_list[0]
-
-                                for replaceable_item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
-                                    screenshot_file = screenshot_file.replace(replaceable_item, '-')
-
-                                CHROME_PATH = Chrome_Config[0]
-                                CHROMEDRIVER_PATH = Chrome_Config[1]
-                                screenshot_file = f"{screenshot_file}.png"
-                                chrome_options = Options()
-                                chrome_options.add_argument("--headless")
-                                chrome_options.binary_location = CHROME_PATH
-
-                                try:
-                                    driver = webdriver.Chrome(
-                                        executable_path=CHROMEDRIVER_PATH,
-                                        options=chrome_options
-                                    )
-
-                                except Exception as e:
-
-                                    if "session not created" in str(e):
-                                        e = str(e).strip('\n')
-                                        Message = f"Screenshot request terminated for result number {str(screenshot_id)} by application, please refer to the log."
-                                        Message_E = e.replace("Message: session not created: ", "")
-                                        Message_E = Message_E.replace("This version of", "The installed version of")
-                                        app.logger.warning(f"Screenshot Request Error: {Message_E}.")
-                                        app.logger.warning(f"Kindly replace the Chrome Web Driver, located at {Chrome_Config[1]}, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.")
-                                        Create_Event(Message)
-                                        Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (False, screenshot_id,))
-                                        Connection.commit()
-                                    
-                                    return 0
-
-                                driver.get(result[0])
-                                driver.implicitly_wait(10)
-                                time.sleep(10)
-                                total_height = driver.execute_script("return document.body.scrollHeight")
-                                driver.set_window_size(1920, total_height)
-                                driver.save_screenshot(f"static/protected/screenshots/{screenshot_file}")
-                                driver.close()
-                                Cursor.execute('UPDATE results SET screenshot_url = %s WHERE result_id = %s', (screenshot_file, screenshot_id,))
-                                Connection.commit()
-
-                            else:
-                                app.logger.warning(f"Screenshot already requested for result id {str(ss_id)}.")
-
                         ss_id = int(resultid)
                         Chrome_Config = Connectors.Load_Chrome_Configuration()
 
                         if all(os.path.exists(Config) for Config in Chrome_Config):
-                            Thread_1 = threading.Thread(target=grab_screenshot, args=(ss_id, str(session.get('user')), Chrome_Config))
-                            Thread_1.start()
+                            Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (ss_id,))
+                            SS_URL = Cursor.fetchone()
+                            Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (ss_id,))
+                            SS_Req = Cursor.fetchone()
+
+                            if not SS_URL[0] and not SS_Req[0]:
+                                Screenshot_Object = General.Screenshot(File_Path, False, Screenshot_ID=ss_id, Screenshot_User=str(session.get('user')))
+                                Thread_1 = threading.Thread(target=Screenshot_Object.Grab_Screenshot)
+                                Thread_1.start()
+
+                            else:
+                                app.logger.warning(f"Screenshot already requested for result id {str(ss_id)}.")
 
                         else:
                             app.logger.warning(f"Either Google Chrome or Chrome Driver have not been installed / configured. Screenshot request terminated.")                    
@@ -4233,7 +4103,8 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
 
-        Screenshot_Checker()
+        Screenshot_Object = General.Screenshot(File_Path, False)
+        Permit_Screenshots = Screenshot_Object.Screenshot_Checker()
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
 
     except Exception as e:

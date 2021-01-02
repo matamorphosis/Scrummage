@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import requests, logging, os, re, plugins.common.General as General, plugins.common.Connectors as Connectors, json, flickr_api
-headers = General.URL_Headers(User_Agent=True, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
 
 Plugin_Name = "Flickr"
 The_File_Extensions = {"Main": ".json", "Query": ".html"}

@@ -28,10 +28,12 @@ def Search(Query_List, Task_ID, **kwargs):
 
             try:
                 Request_Query = urllib.parse.quote(Query)
-                Response = requests.get(f"http://{Domain}/search?term={Request_Query}&country={Location}&entity=software&limit={str(Limit)}", headers=headers).text
+                Main_URL = f"http://{Domain}/search?term={Request_Query}&country={Location}&entity=software&limit={str(Limit)}"
+                Response = General.Request_Handler(Main_URL)
 
             except:
                 logging.warning(f"{General.Date()} - {__name__.strip('plugins.')} - Failed to make request, are you connected to the internet?")
+                break
 
             JSON_Response = json.loads(Response)
             Main_File = General.Main_File_Create(Directory, "iTunes", json.dumps(JSON_Response, indent=4, sort_keys=True), Query, The_File_Extensions["Main"])

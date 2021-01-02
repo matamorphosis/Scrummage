@@ -1,18 +1,153 @@
 #!/usr/bin/env python3
 
-import datetime, os, logging, re, requests, urllib, json, plugins.common.Connectors as Connectors
+import datetime, time, os, logging, re, requests, urllib, json, plugins.common.Connectors as Connectors
 from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
 Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
+class Screenshot:
+
+    def __init__(self, File_Path, Internally_Requested, **kwargs):
+        self.Internally_Requested = Internally_Requested
+        self.Chrome_Config = Connectors.Load_Chrome_Configuration()
+        self.File_Path = File_Path
+        self.Connection = Connectors.Load_Main_Database()
+        self.Cursor = self.Connection.cursor()
+
+        if not self.Internally_Requested and kwargs.get('Screenshot_ID') and kwargs.get('Screenshot_User'):
+            self.Screenshot_ID = kwargs['Screenshot_ID']
+            self.Screenshot_User = kwargs['Screenshot_User']
+
+        elif self.Internally_Requested and kwargs.get('Screenshot_Link'):
+            self.Screenshot_ID = False
+            self.Screenshot_User = False
+            self.Screenshot_Link = kwargs['Screenshot_Link']
+
+    def Screenshot_Checker(self):
+
+        if all(os.path.exists(Config) for Config in self.Chrome_Config): 
+            CHROME_PATH = self.Chrome_Config[0]
+            CHROMEDRIVER_PATH = self.Chrome_Config[1]
+            Chrome_Options = Options()
+            Chrome_Options.add_argument("--headless")
+            Chrome_Options.binary_location = CHROME_PATH
+
+            try:
+                driver = webdriver.Chrome(
+                    executable_path=CHROMEDRIVER_PATH,
+                    options=Chrome_Options
+                )
+                return True
+
+            except Exception as e:
+                print(e)
+
+                if "session not created" in str(e):
+                    app.logger.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. The Chrome driver is located at {Chrome_Config[1]}. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
+                    return False
+
+        else:
+            app.logger.warning("\033[0;31mOne or more of the values provided to the google chrome configuration in the config.json file do not reflect real files. Screenshot functionality has been disabled in the meantime. To correct this please accurately fill out the following section in the config.json file (Example values included, please ensure these reflect real files on your system)\n\n    \"google-chrome\": {\n        \"application-path\": \"/usr/bin/google-chrome\",\n        \"chromedriver-path\": \"/usr/bin/chromedriver\"\n    },\n\033[0m")
+            return False
+
+    def Grab_Screenshot(self):
+
+        try:
+            Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:']
+
+            if not self.Internally_Requested:
+                self.Cursor.execute('SELECT link FROM results WHERE result_id = %s', (self.Screenshot_ID,))
+                Result = self.Cursor.fetchone()
+                self.Screenshot_Link = Result[0]
+                Message = f"Screenshot requested for result number {str(self.Screenshot_ID)} by {self.Screenshot_User}."
+                logging.warning(Message)
+                self.Create_Event(Message)
+                self.Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (True, self.Screenshot_ID,))
+                self.Connection.commit()
+
+            if any(String in self.Screenshot_Link for String in Bad_Link_Strings):
+                return None
+
+            Screenshot_File = self.Screenshot_Link.replace("http://", "")
+            Screenshot_File = Screenshot_File.replace("https://", "")
+
+            if Screenshot_File.endswith('/'):
+                Screenshot_File = Screenshot_File[:-1]
+
+            if '?' in Screenshot_File:
+                Screenshot_File_List = Screenshot_File.split('?')
+                Screenshot_File = Screenshot_File_List[0]
+
+            for Replaceable_Item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
+                Screenshot_File = Screenshot_File.replace(Replaceable_Item, '-')
+
+            CHROME_PATH = self.Chrome_Config[0]
+            CHROMEDRIVER_PATH = self.Chrome_Config[1]
+            Screenshot_File = f"{Screenshot_File}.png"
+            Chrome_Options = Options()
+            Chrome_Options.add_argument("--headless")
+            Chrome_Options.binary_location = CHROME_PATH
+
+        except Exception as e:
+            logging.warning(f"{Date()} General Library - {str(e)}.")
+
+        try:
+            Driver = webdriver.Chrome(
+                executable_path=CHROMEDRIVER_PATH,
+                options=Chrome_Options
+            )
+
+        except Exception as e:
+            logging.warning(f"{Date()} General Library - {str(e)}.")
+
+            if "session not created" in str(e) and not self.Internally_Requested:
+                e = str(e).strip('\n')
+                Message = f"Screenshot request terminated for result number {str(self.Screenshot_ID)} by application, please refer to the log."
+                Message_E = e.replace("Message: session not created: ", "")
+                Message_E = Message_E.replace("This version of", "The installed version of")
+                logging.warning(f"Screenshot Request Error: {Message_E}.")
+                logging.warning(f"Kindly replace the Chrome Web Driver, located at {Chrome_Config[1]}, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.")
+                self.Create_Event(Message)
+                self.Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (False, self.Screenshot_ID,))
+                self.Connection.commit()
+            
+            return None
+
+        Driver.get(self.Screenshot_Link)
+        Driver.implicitly_wait(10)
+        time.sleep(10)
+        Total_Height = Driver.execute_script("return document.body.scrollHeight")
+        Driver.set_window_size(1920, Total_Height)
+        Driver.save_screenshot(os.path.join(self.File_Path, "static/protected/screenshots", Screenshot_File))
+        Driver.close()
+
+        if not self.Internally_Requested:
+            self.Cursor.execute('UPDATE results SET screenshot_url = %s WHERE result_id = %s', (Screenshot_File, self.Screenshot_ID,))
+            self.Connection.commit()
+
+        else:
+            return Screenshot_File
+
+    def Create_Event(self, Description):
+
+        try:
+            self.Cursor.execute("INSERT INTO events (description, created_at) VALUES (%s,%s)", (Description, Date()))
+            self.Connection.commit()
+
+        except Exception as e:
+            logging.error(f"{Date()} General Library - {str(e)}.")
+
 def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Host="", Data={}, **kwargs):
+
     try:
         Headers = {}
 
-        if type(Data) == dict:
+        if type(Data) == dict or type(Data) == str:
 
             if User_Agent:
                 Headers['User-Agent'] = Current_User_Agent
@@ -79,7 +214,7 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=Fals
                     return Response
 
         else:
-            logging.warning(f"{Date()} General Library - The data field needs to be in a dictionary format.")
+            logging.warning(f"{Date()} General Library - The data field needs to be in a dictionary or string format.")
 
     except Exception as e:
         logging.warning(f"{Date()} General Library - {str(e)}.")
@@ -270,7 +405,17 @@ class Connections():
             Relative_File = File.replace(os.path.dirname(os.path.realpath('__file__')), "")
             Relative_File_List.append(Relative_File)
 
-        Connectors.Main_Database_Insert(DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, ", ".join(Relative_File_List), self.Task_ID)
+        Automated_Screenshots = Load_Web_Scrape_Risk_Configuration()
+
+        if Automated_Screenshots[1]:
+            File_Dir = os.path.dirname(os.path.realpath('__file__'))
+            Screenshot_Object = Screenshot(File_Dir, True, Screenshot_Link=Link)
+            Screenshot_Path = Screenshot_Object.Grab_Screenshot()
+            Connectors.Main_Database_Insert(DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, ", ".join(Relative_File_List), self.Task_ID, Screenshot_Path=Screenshot_Path)
+
+        else:
+            Connectors.Main_Database_Insert(DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, ", ".join(Relative_File_List), self.Task_ID)
+
         Connectors.Elasticsearch_Main(DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, ", ".join(Complete_File_List), self.Task_ID, self.Concat_Plugin_Name)
         Connectors.Defect_Dojo_Output(DB_Title, self.Ticket_Text)
         Connectors.Scumblr_Main(self.Input, DB_Title, self.Title)
@@ -445,12 +590,13 @@ def Load_Web_Scrape_Risk_Configuration():
             Configuration_Data = json.load(JSON_File)
             Web_Scrape_Details = Configuration_Data['web-scraping']
             Risk_Level = int(Web_Scrape_Details['risk-level'])
+            Automated_Screenshots = Web_Scrape_Details['automated-screenshots']
 
             if Risk_Level > 3 or Risk_Level < 0:
                 logging.warning(f"{Date()} General Library - An invalid number has been specified, please provide a valid risk level in the config.json file, with a value from 1 to 3.")
 
             else:
-                return Risk_Level
+                return [Risk_Level, Automated_Screenshots]
 
     except:
         logging.warning(f"{Date()} General Library - Failed to load location details.")
@@ -519,6 +665,7 @@ def Get_Title(URL):
 
 def Response_Filter(Response, Host, Risky_Plugin=False):
     Risk_Level = Load_Web_Scrape_Risk_Configuration()
+    Risk_Level = Risk_Level[0]
 
     if (Risk_Level == 3) or (Risk_Level == 2 and not Risky_Plugin):
         Attributes = ["src", "href"]
