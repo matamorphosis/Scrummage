@@ -137,13 +137,9 @@ class Plugin_Caller:
                 import plugins.Instagram_Search as Instagram_Search
                 Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Tag"), kwargs={"Limit": self.limit, })
 
-            elif self.plugin_name == "Instagram - Media Search":
+            elif self.plugin_name == "Instagram - Post Search":
                 import plugins.Instagram_Search as Instagram_Search
-                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Media"))
-
-            elif self.plugin_name == "Instagram - Location Search":
-                import plugins.Instagram_Search as Instagram_Search
-                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Location"), kwargs={"Limit": self.limit, })
+                Thread_1 = threading.Thread(target=Instagram_Search.Search, args=(self.query, self.task_id, "Post"))
 
             elif self.plugin_name == "Hunter Search - Email":
                 import plugins.Hunter_Search as Hunter_Search

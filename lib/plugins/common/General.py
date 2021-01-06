@@ -625,33 +625,20 @@ def Make_Directory(Plugin_Name):
     
     return Directory
 
-def Get_Title_Requests_Module(URL):
+def Get_Title(URL, Requests=False):
 
     try:
 
         if URL.startswith('http://') or URL.startswith('https://'):
 
             if 'file:/' not in URL:
-                Soup = BeautifulSoup(Request_Handler(URL), features="lxml")
-                return Soup.title.text
 
-            else:
-                logging.warning(f"{Date()} General Library - This function does not work on files.")
+                if Requests:
+                    Soup = BeautifulSoup(Request_Handler(URL), features="lxml")
 
-        else:
-            logging.warning(f"{Date()} General Library - Invalid URL provided.")
+                else:
+                    Soup = BeautifulSoup(urllib.request.urlopen(URL), features="lxml")
 
-    except:
-        logging.warning(f"{Date()} General Library - Failed to get title.")
-
-def Get_Title(URL):
-
-    try:
-
-        if URL.startswith('http://') or URL.startswith('https://'):
-
-            if 'file:/' not in URL:
-                Soup = BeautifulSoup(urllib.request.urlopen(URL), features="lxml")
                 return Soup.title.text
 
             else:

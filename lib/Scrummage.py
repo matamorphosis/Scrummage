@@ -19,7 +19,7 @@ if __name__ == '__main__':
         from ratelimiter import RateLimiter
         import os, re, plugin_caller, getpass, pathlib, time, sys, threading, html, secrets, jwt, matplotlib, logging, importlib, plugins.common.Connectors as Connectors, plugins.common.General as General
 
-        Valid_Plugins = ["Ahmia Darkweb Search", "Blockchain - Bitcoin Address Search",
+        Valid_Plugins = sorted(["Ahmia Darkweb Search", "Blockchain - Bitcoin Address Search",
                          "Blockchain - Bitcoin Cash Address Search", "Blockchain - Ethereum Address Search",
                          "Blockchain - Bitcoin Transaction Search", "Blockchain - Bitcoin Cash Transaction Search",
                          "Blockchain - Ethereum Transaction Search", "Blockchain - Monero Transaction Search",
@@ -40,7 +40,7 @@ if __name__ == '__main__':
                          "Have I Been Pwned - Password Search", "Have I Been Pwned - Email Search",
                          "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search",
                          "Hunter Search - Domain", "Hunter Search - Email", "IP Stack Search",
-                         "Instagram - Location Search", "Instagram - Media Search", "Instagram - Tag Search",
+                         "Instagram - Post Search", "Instagram - Tag Search",
                          "Instagram - User Search", "Apple Store Search", "Library Genesis Search", "Naver Search",
                          "Phishstats Search", "Google Play Store Search", "Pinterest - Board Search",
                          "Pinterest - Pin Search", "Reddit Search", "RSS Feed Search", "Shodan Search - IP Address",
@@ -48,8 +48,8 @@ if __name__ == '__main__':
                          "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
                          "Threat Crowd - Virus Report Search", "Torrent Search", "Twitter Scraper", "Username Search",
                          "Vehicle Registration Search", "Vkontakte - User Search", "Vkontakte - Group Search",
-                         "Vulners Search", "Windows Store Search", "Yandex Search", "YouTube Search"]
-        Plugins_without_Limit = ["BSB Search", "Blockchain - Monero Transaction Search",
+                         "Vulners Search", "Windows Store Search", "Yandex Search", "YouTube Search"])
+        Plugins_without_Limit = sorted(["BSB Search", "Blockchain - Monero Transaction Search",
                                  "Business Search - American Central Index Key",
                                  "Business Search - Australian Business Number",
                                  "Business Search - Canadian Business Number",
@@ -64,10 +64,10 @@ if __name__ == '__main__':
                                  "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes",
                                  "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search",
                                  "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search",
-                                 "IP Stack Search", "Instagram - Media Search", "Pinterest - Pin Search", "Shodan Search - IP Address",
+                                 "IP Stack Search", "Instagram - Post Search", "Pinterest - Pin Search", "Shodan Search - IP Address",
                                  "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
                                  "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
-                                 "Threat Crowd - Virus Report Search", "Vehicle Registration Search"]
+                                 "Threat Crowd - Virus Report Search", "Vehicle Registration Search"])
         API_Plugins = {"Business Search - United Kingdom Business Number": "plugins.UK_Business_Search",
                        "Business Search - United Kingdom Company Name": "plugins.UK_Business_Search", "Certificate Transparency - SSLMate": "plugins.Certificate_Transparency_SSLMate",
                        "Craigslist Search": "plugins.Craigslist_Search", "Ebay Search": "plugins.Ebay_Search", "Flickr Search": "plugins.Flickr_Search",
