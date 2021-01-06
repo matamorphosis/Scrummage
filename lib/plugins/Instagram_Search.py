@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Version 2 - Moved away from instagram_explore library onto the intragramy library
 import json, requests, os, logging, plugins.common.General as General
 from collections import namedtuple
 

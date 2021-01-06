@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
+# Version 2 - Now requires an API key.
 import pyhibp, json, os, logging, plugins.common.General as General, plugins.common.Connectors as Connectors
 from pyhibp import pwnedpasswords as pw
-# Version 2 of this plugin. Now requires an API key.
 
 Plugin_Name = "Have-I-Been-Pwned"
 Concat_Plugin_Name = "haveibeenpwned"
