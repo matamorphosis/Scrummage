@@ -6,6 +6,7 @@
 **VERSION 3.2**
 - Code efficiency enhancements and bug fixes for plugins
 - New automated screenshot functionality. Refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Evidencing-Results-through-Web-Scraping-and-Screenshots)
+- Upgraded Instagram Plugin. Refer to the wiki page [here](https://github.com/matamorphosis/Scrummage/wiki/Record-of-Evolved-Plugins)
   
 Scrummage is an OSINT tool that centralises search functionality from powerful, yet simple OSINT sites. This project draws inspiration mainly from two other projects, including:  
 - The https://github.com/Netflix-Skunkworks/Scumblr project, which while is now deprecated, inspired this concept.

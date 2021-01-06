@@ -9,7 +9,7 @@ facebook-sdk
 selenium
 flask
 python-crontab
-instagram_explore
+instagramy
 slackclient==2.0.0
 vulners
 defectdojo_api
