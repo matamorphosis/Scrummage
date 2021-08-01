@@ -1,0 +1,7 @@
+*.json
+*.log*
+**/__pycache__
+**/protected
+**/python-pinterest-api
+**/certs
+**/dev

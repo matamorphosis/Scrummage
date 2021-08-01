@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Scrummage Output Methods Checks">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <title>Scrummage Verify Output</title>
+    </head>
+    <body onload="pageLoad()">
+    {% extends "template.html" %}
+    {% block content %}
+    {% if is_admin %}
+    <div id="loader">&nbsp;</div>
+    <noscript>
+        <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+    </noscript>
+    <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
+    <p id="loader-message" class="loaderabout">Checking Full List of Scrummage Task Output Statuses...</p>
+    <div style="display: none;" id="fc" class="field-container">
+        <table style="display:none;" id="paginate">
+            <thead>
+                <tr>
+                    <th>Output</th>
+                    <th>Verification Check Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for Configuration in Configurations %}
+                <tr>
+                    <td style="padding: 0px 0px 0px 10px;" class="nonscreenshottab">{{Configuration[0]}}</td>
+                    {% if Configuration[1] %}
+                    <td style="padding: 5px 0px 5px 0px;"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg></td>
+                    {% else %}
+                    <td style="padding: 5px 0px 5px 0px;"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                      <circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" />
+                      <path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" />
+                    </svg></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="display: none;" id="chkbuttons" class="buttons-bottom">
+            <button class="button" class="button" onclick="window.location.reload();">Reload Page</button>
+            <button class="button" class="button" onclick="sendRequest('config')">Configure Outputs</button>
+        </div>
+        <script type="text/javascript">
+            function sendRequest(typeOfRequest) {
+                if (arguments[0] === "config") {
+                    var uri = "{{ url_for('configure', configtype='outputs') }}";
+                    window.location.assign(uri);
+                }
+            }
+        </script>
+    </div>
+    <script>
+    var myVar;
+
+    function pageLoad() {
+      myVar = setTimeout(showPage, 1000);
+    }
+
+    function showPage() {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("loader-message").style.display = "none";
+        document.getElementById("loader_logo_outer").style.display = "none";
+        document.getElementById("paginate").style.display = null;
+        document.getElementById("fc").style.display = null;
+        document.getElementById("chkbuttons").style.display = null;
+        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+        document.getElementsByTagName("INPUT")[0].className='js_search';
+    }
+    </script>
+    {% endif %}
+    {% endblock %}
+    </body>
+</html>

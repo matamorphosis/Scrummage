@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Scrummage Dashboard.">
+        {% if refreshrate > 0 %}
+        <meta http-equiv="refresh" content="{{refreshrate}}">
+        {% endif %}
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/chart.js') }}"></script>
+        <title>Scrummage Dashboard</title>
+    </head>
+    <body>
+    {% extends "template.html" %}
+    {% block content %}
+    <noscript>
+        <p class="message">Please enable JavaScript to render this page. Otherwise the graphs won't load.</p>
+    </noscript>
+    <main>
+        <form id="refresh" action="{{ url_for ('dashboard_refresh') }}" method=post autocomplete="off">
+            <div id="refresh-div">
+                <p id="dash-refresh">Auto Refresh</p><select name="interval" id="interval">
+                    <option value="0">No Refresh</option>
+                    <option value="5">5 Seconds</option>
+                    <option value="10">10 Seconds</option>
+                    <option value="15">15 Seconds</option>
+                    <option value="20">20 Seconds</option>
+                    <option value="20">30 Seconds</option>
+                    <option value="20">60 Seconds</option>
+                </select>
+                <input class="button-run" name="setrefresh" type=submit value="Set">
+            </div>
+        </form>
+        <div class="dashboard_field-container">
+            <section>
+            <div class="dashboard_large_outer_div">
+                <div class="dashboard_large_div">
+                    {% if Use_Open %}
+                    {% if not Use_Closed and not Use_Mixed %}
+                    <div class="dashboard_small_outer_div">
+                    {% else %}
+                    <div class="dashboard_small_outer_div_left">
+                    {% endif %}
+                        <div class="dashboard_small_div"><p class="dashboard_p">Overview of Open Findings</p><canvas id="chart1"></canvas>
+                            <script>
+                                var c1data = {{open_set[0] | safe}};
+                                var c1labels = {{open_set[1] | safe}};
+                                var c1colors = {{open_set[2] | safe}};
+                                var dataset = {
+                                    "labels": c1labels,
+                                    "datasets":[
+                                        {
+                                            "label":"Open Results",
+                                            "data": c1data,
+                                            "backgroundColor": c1colors
+                                        }
+                                    ]
+                                };
+
+                                var chart1var = new Chart(document.getElementById("chart1"), {
+                                    type: 'doughnut',
+                                    data: dataset,
+                                    options: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        layout: {
+                                            padding: {
+                                                left: 1,
+                                                right: 1,
+                                                top: 1,
+                                                bottom: 1
+                                            }
+                                        }
+                                    }
+                                });
+
+                                chart1.onclick = function(evt){
+                                    var activePoints = chart1var.getElementsAtEvent(evt);
+                                    var selectedIndex = activePoints[0]._index;
+                                    var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Open&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c1labels[selectedIndex] + "&setfilter=Set";
+                                    window.open(url);
+                                };
+                            </script>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if Use_Mixed %}
+                    {% if Use_Open and not Use_Closed %}
+                    <div class="dashboard_small_outer_div_right">
+                    {% elif not Use_Open and Use_Closed %}
+                    <div class="dashboard_small_outer_div_left">
+                    {% else %}
+                    <div class="dashboard_small_outer_div">
+                    {% endif %}
+                    <div class="dashboard_small_div"><p class="dashboard_p">Overview of Findings Under Inspection or Review</p><canvas id="chart2"></canvas>
+                        <script>
+                            var c2data = {{mixed_set[0] | safe}};
+                            var c2labels = {{mixed_set[1] | safe}};
+                            var c2colors = {{mixed_set[2] | safe}};
+                            var dataset = {
+                                "labels": c2labels,
+                                "datasets":[
+                                    {
+                                        "label":"Mixed Results",
+                                        "data": c2data,
+                                        "backgroundColor": c2colors
+                                    }
+                                ]
+                            };
+
+                            var chart2var = new Chart(document.getElementById("chart2"), {
+                                type: 'doughnut',
+                                data: dataset,
+                                options: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    layout: {
+                                        padding: {
+                                            left: 1,
+                                            right: 1,
+                                            top: 1,
+                                            bottom: 1
+                                        }
+                                    }
+                                }
+                            });
+
+                            chart2.onclick = function(evt){
+                                var activePoints = chart2var.getElementsAtEvent(evt);
+                                var selectedIndex = activePoints[0]._index;
+                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Mixed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c2labels[selectedIndex] + "&setfilter=Set";
+                                window.open(url);
+                            };
+                        </script></div>
+                    </div>
+                    {% endif %}
+                    {% if Use_Closed %}
+                    {% if not Use_Open and not Use_Mixed %}
+                    <div class="dashboard_small_outer_div">
+                    {% else %}
+                    <div class="dashboard_small_outer_div_right">
+                    {% endif %}
+                    <div class="dashboard_small_div"><p class="dashboard_p">Overview of Closed Findings</p><canvas id="chart3"></canvas>
+                        <script>
+                            var c3data = {{closed_set[0] | safe}};
+                            var c3labels = {{closed_set[1] | safe}};
+                            var c3colors = {{closed_set[2] | safe}};
+                            var dataset = {
+                                "labels": c3labels,
+                                "datasets":[
+                                    {
+                                        "label":"Closed Results",
+                                        "data": c3data,
+                                        "backgroundColor": c3colors
+                                    }
+                                ]
+                            };
+
+                            var chart3var = new Chart(document.getElementById("chart3"), {
+                                type: 'doughnut',
+                                data: dataset,
+                                options: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    layout: {
+                                        padding: {
+                                            left: 1,
+                                            right: 1,
+                                            top: 1,
+                                            bottom: 1
+                                        }
+                                    }
+                                }
+                            });
+
+                            chart3.onclick = function(evt){
+                                var activePoints = chart3var.getElementsAtEvent(evt);
+                                var selectedIndex = activePoints[0]._index;
+                                var url = "/results/filtered?Result+ID=&Task+ID=&Title=&Plugin=&Status=Closed&Domain=&Link=&Created+At=&Updated+At=&Result+Type=" + c3labels[selectedIndex] + "&setfilter=Set";
+                                window.open(url);
+                            };
+                        </script></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            </section>
+            <section>
+            <div class="dashboard_large_outer_bottom_div">
+                {% if bar_set %}
+                <div class="dashboard_small_bottom_left_div"><p class="dashboard_p">Most Common Task Types</p><canvas id="chart4" style="width: 80%; height: 325px"></canvas>
+                <script>
+                    var barlabels = {{bar_set[0] | safe}};
+                    var bardata = {{bar_set[1] | safe}};
+                    var barcolors = {{bar_set[2] | safe}}
+                    var chart4var = new Chart(document.getElementById("chart4"),{
+                        "type":"bar",
+                        "data": {
+                            "labels": barlabels,
+                            "datasets": [
+                                {
+                                    "data": bardata,
+                                    "fill": false,
+                                    "backgroundColor": barcolors,
+                                    "borderColor": barcolors,
+                                    "borderWidth": 0
+                                }
+                            ]
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks": {
+                                            "display": false //this will remove only the label
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+
+                    chart4.onclick = function(evt){
+                        var activePoints = chart4var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/tasks/filtered?Task+ID=&Query=&Plugin=" + barlabels[selectedIndex] + "&Description=&Frequency=&Task+Limit=&Status=&Created+At=&Updated+At=&setfilter=Set";
+                        window.open(url);
+                    };
+                </script></div>
+                <div class="dashboard_med_bottom_div">{% else %}<div class="dashboard_med_bottom_left_div">{% endif %}<p class="dashboard_p">Successful Logins in the Last 5 Days</p><canvas id="chart5" style="width: 80%; height: 325px"></canvas>
+                <script>
+                    var linelabels = {{successful_line_set[0] | safe}};
+                    var linedatasets = JSON.parse('{{successful_line_set[1] | safe}}');
+                    var chart5var = new Chart(document.getElementById("chart5"),{
+                        "type":"line",
+                        "data":{
+                            "labels": linelabels,
+                            "datasets": linedatasets
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+
+                    chart5.onclick = function(evt){
+                        var activePoints = chart5var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/events/filtered?Event+ID=&Description=Successful+login+from&Created+At=" + unlinelabels[selectedIndex] + "&setfilter=Set";
+                        window.open(url);
+                    };
+                </script></div>
+                {% if bar_set %}
+                <div class="dashboard_small_bottom_right_div">{% else %}<div class="dashboard_med_bottom_right_div">{% endif %}<p class="dashboard_p">Failed Login Attempts in the Last 5 Days</p><canvas id="chart6" style="width: 80%; height: 325px"></canvas>
+                <script>
+                    var unlinelabels = {{unsuccessful_line_set[0] | safe}};
+                    var unlinedatasets = JSON.parse('{{unsuccessful_line_set[1] | safe}}');
+                    var chart6var = new Chart(document.getElementById("chart6"),{
+                        "type":"line",
+                        "data":{
+                            "labels": unlinelabels,
+                            "datasets": unlinedatasets
+                        },
+                        "options": {
+                            "legend": {
+                                "display": false
+                            },
+                            "scales": {
+                                "yAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white",
+                                            "beginAtZero": true
+                                        }
+                                    }
+                                ],
+                                "xAxes": [
+                                    {
+                                        "gridLines": {
+                                            "display": false
+                                        },
+                                        "ticks":{
+                                            "fontColor": "white"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+
+                    chart6.onclick = function(evt){
+                        var activePoints = chart6var.getElementsAtEvent(evt);
+                        var selectedIndex = activePoints[0]._index;
+                        var url = "/events/filtered?Event+ID=&Description=Failed+login+attempt+for+user&Created+At=" + unlinelabels[selectedIndex] + "&setfilter=Set";
+                        window.open(url);
+                    };
+                </script></div>
+            </div>
+            </section>
+            <footer><p class="aboutinfo"><a href="https://github.com/matamorphosis/Scrummage" id="version">Scrummage v{{version}}</a></p></footer>
+        </div>
+    </main>
+    {% endblock %}
+    </body>
+</html>

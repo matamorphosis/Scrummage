@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Scrummage Restricted.">
+      <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <title>Scrummage Restricted</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}
+      <main>
+         <div class="unpredicted_page">
+            <td style="padding-bottom: 5px;"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" />
+              <path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" />
+            </svg></td>
+         </div>
+         {% if html_risk_level %}
+         <p id="logintitle">Sorry</p>
+         <p class="error">The risk level is set to 0, preventing the application from displaying the selected page as it contains references to external resources.</p>
+         <p class="error">To view this page please alter the risk level.</p>
+         {% else %}
+         <p id="logintitle">Sorry this page is restricted</p>
+         {% endif %}
+      </main>
+      {% endblock %}
+   </body>
+</html>

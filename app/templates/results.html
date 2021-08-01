@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Scrummage Results">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        <title>Scrummage Results</title>
+    </head>
+    {% if form_step == 0 and not details %}
+    <body onload="pageLoad()" style="margin:0;">
+    {% else %}
+    <body onload="setDocuments()">
+    {% endif %}
+    {% extends "template.html" %}
+    {% block content %}
+    {% if form_step == 0 %}
+        {% if details %}
+        <main>
+            {% if is_admin %}
+			{% if ss_req_message %}
+			<div id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{ ss_req_message }}</p></div></div></div>
+            <script type="text/javascript">
+                autoClose();
+                function autoClose() {
+                    setTimeout(closeWindow, 10000);
+                }
+                function closeWindow() {
+                    var close_item = document.getElementById("api_window");
+                    close_item.style.display = "none";
+                }
+            </script>
+			{% endif %}
+            <div id="outerleftpop" class="left_pop_out_outer"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Manage Result</p><br />
+                    <a id="bottom_delete_button" class="left_button" onclick="return confirm('Are you sure you want to delete this result?') && sendRequest('delete', '{{results[0]}}');">Delete Result</a>
+                    <a id="bottom_open_button" class="left_button" onclick="return confirm('Are you sure you want to open this result?') && sendRequest('open', '{{results[0]}}');">Open Result</a>
+                    <a id="bottom_inspect_button" class="left_button" onclick="return confirm('Are you sure you want to change the status of this result to under inspection?') && sendRequest('inspect', '{{results[0]}}');">Inspect Result</a>
+                    <a id="bottom_review_button" class="left_button" onclick="return confirm('Are you sure you want to change the status of this result to under review?') && sendRequest('review', '{{results[0]}}');">Review Result</a>
+                    <a id="bottom_close_button" class="left_button" onclick="return confirm('Are you sure you want to close this result?') && sendRequest('close', '{{results[0]}}');">Close Result</a>
+
+                </div>
+            </div></div></div>
+            <script type="text/javascript">
+                function change_expand_size() {
+                    var buttons = document.getElementsByClassName("left_button");
+                    var titles = document.getElementsByClassName("left_title");
+                    var item = document.getElementById("expand");
+                    if (item.innerHTML === "&gt;") {
+                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
+                        document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
+                        document.getElementById("arrow").style.textAlign = "right";
+                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
+                        item.innerHTML = "&lt;";
+                        document.getElementById("innerleftpop").style.display = null;
+                    } else if (item.innerHTML === "&lt;") {
+                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
+                        document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
+                        document.getElementById("arrow").style.textAlign = "center";
+                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
+                        item.innerHTML = "&gt;";
+                        document.getElementById("innerleftpop").style.display = "none";
+                    }
+                }
+
+                function loadResults() {
+                    window.location.assign("{{ url_for('results') }}");
+                }
+                
+                function sendRequest(extension, id) {
+                    var xhr = new XMLHttpRequest();
+                    var sendtoresults = false;
+
+                    if (extension == "delete") {
+                        var uri = "{{ url_for('results') }}" + "/" + extension + "/" + id;
+                        sendtoresults = true;
+
+                    } else {
+                        var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + id;
+                    }
+
+                    xhr.open("POST", uri, true);
+                    xhr.send();
+                    if (sendtoresults == true) {
+                        setTimeout(loadResults, 500);
+                    } else {
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                location.reload();
+                            }
+                        }
+                    }
+                }
+            </script>
+            <div id="fc" class="field-container-settings">
+            {% else %}
+            <div class="field-container">
+            {% endif %}
+                {% if error %}
+                    <p class="message"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
+                <p id="resultdetailedtitle">Details for Result ID {{results[0]}} - {{results[2]}}</p>
+                <p class="message"><strong>Created At:</strong> {{results[7]}} | <strong>Last Updated At:</strong> {{results[8]}}</p>
+                <br />
+                <table style="position: relative; z-index: 10000;">
+                    <thead>
+                        <tr>
+                            <th id="screenshot_td">Screenshots</th>
+                            <th style="width: 130px;">Output Files</th>
+                            <th style="width: 130px;">Report Files</th>
+                            <th id="result_task_mob">Plugin</th>
+                            <th>Result Type</th>
+                            <th>Status</th>
+                            <th>Domain</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% if Screenshot_Files %}
+                                <td id="screenshot_td" style="padding: 4px;">
+                                {% for SFile in Screenshot_Files %}
+                                    <a href="{{ url_for('index') }}static/protected/screenshots/{{SFile}}"><div class="screenshot"><span class="large-screenshot"><img src="{{ url_for('index') }}static/protected/screenshots/{{SFile}}" class="large-image" alt="screenshot"/></span></div></a>
+                                {% endfor %}
+                                {% if is_admin %}
+                                    {% if not results[12] %}
+                                        {% if Screenshot_Permitted %}
+                                            <form class="result_details_buttons" action="{{ url_for('screenshot', resultid=results[0]) }}" method=post autocomplete="off">
+                                                <input class="button" type=submit value="Update">
+                                            </form>
+                                        {% endif %}
+                                    {% else %}
+                                        <button class="button-running">
+                                            &nbsp;<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                </td>
+                            {% else %}
+                                {% if is_admin %}
+                                    {% if not results[12] %}
+                                        {% if '.onion' not in results[6] and 'general-insurance.coles.com.au' not in results[6] and 'magnet:?xt=urn:btih:' not in results[6] %}
+                                            {% if Screenshot_Permitted %}
+                                            <td id="screenshot_td">
+                                                <form class="result_details_buttons" action="{{ url_for('screenshot', resultid=results[0]) }}" method=post autocomplete="off">
+                                                    <input class="button" type=submit value="Generate">
+                                                </form>
+                                            </td>
+                                            {% else %}
+                                            <td id="screenshot_td" class="nonscreenshottab">Functionality Not Configured</td>
+                                            {% endif %}
+                                        {% else %}
+                                            <td id="screenshot_td" class="nonscreenshottab">Screenshot Disabled</td>
+                                        {% endif %}
+                                    {% else %}
+                                    <td id="screenshot_td">
+                                        <button class="button-running">
+                                            &nbsp;<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;
+                                        </button>
+                                    </td>
+                                    {% endif %}
+                                {% else %}
+                                    <td id="screenshot_td" class="nonscreenshottab">Insufficient Rights to Request</td>
+                                {% endif %}
+                            {% endif %}
+                            {% if Output_Files %}
+                                <td style="padding-left: 10px;">
+                                {% for Output_File in Output_Files %}
+                                <a id="documenta" href="{{Output_File}}"><div id="document"></div></a>
+                                {% endfor %}
+                                </td>
+                            {% else %}
+                                <td class="nonscreenshottab">N/A</td>
+                            {% endif %}
+                            {% if Report_Files %}
+                                <td style="padding-left: 10px;">
+                                {% for Report_File in Report_Files %}
+                                <a id="documenta" href="{{Report_File}}"><div id="document"></div></a>
+                                {% endfor %}
+                                </td>
+                            {% else %}
+                                <td class="nonscreenshottab">N/A</td>
+                            {% endif %}
+                            <td class="nonscreenshottab" id="resultid2">{{results[3]}}</td>
+                            <td class="nonscreenshottab">{{results[11]}}</td>
+                            <td class="nonscreenshottab">{{results[4]}}</td>
+                            <td class="nonscreenshottab" id="link"><a href="https://{{results[5]}}">{{results[5]}}</a></td>
+                            <td class="nonscreenshottab"><a href="{{results[6]}}">Link</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br />
+                {% if task_results %}
+                <p class="message">The table below shows the task that generated the result. If the task has been altered since the result was created, the query may no longer match the result. Refer to events for more information.</p>
+                <br />
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="non_paginated" style="min-width: 54px; width: 54px;">Task ID</th>
+                            <th class="non_paginated">Query</th>
+                            <th class="non_paginated">Plugin</th>
+                            <th class="non_paginated" id="result_task_mob">Description</th>
+                            <th class="non_paginated" id="result_task_mob">Frequency</th>
+                            <th class="non_paginated" id="result_task_mob">Limit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="nonscreenshottab">{{task_results[0]}}</td>
+                            <td class="nonscreenshottab" style="max-width: 200px; word-wrap: break-word">{{task_results[1]}}</td>
+                            <td class="nonscreenshottab" style="max-width: 200px; word-wrap: break-word">{{task_results[2]}}</td>
+                            <td class="nonscreenshottab" id="result_task_mob">{{task_results[3]}}</td>
+                            <td class="nonscreenshottab" id="result_task_mob">{{task_results[4]}}</td>
+                            <td class="nonscreenshottab" id="result_task_mob">{{task_results[5]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="message">The task associated with this result no longer exists.</p>
+                {% endif %}
+                <script type="text/javascript">
+                function setDocuments() {
+                    document.querySelectorAll('#documenta').forEach(e => {
+                        if (e.getAttribute("href").includes(".docx") == true) {
+                            e.getElementsByTagName("div")[0].className="docx";
+                        } else if (e.getAttribute("href").includes(".json") == true) {
+                            e.getElementsByTagName("div")[0].className="json";
+                        } else if (e.getAttribute("href").includes(".csv") == true) {
+                            e.getElementsByTagName("div")[0].className="csv";
+                        } else if (e.getAttribute("href").includes(".html") == true) {
+                            e.getElementsByTagName("div")[0].className="html";
+                        }
+                   });
+                }
+                </script>
+            </div>
+        </main>
+        {% else %}
+        <main>
+            <div id="loader">&nbsp;</div>
+            <noscript>
+                <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+            </noscript>
+            <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
+            <p id="loader-message" class="loaderabout">Loading Scrummage Results...</p>
+            {% if is_admin %}
+            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Result Management</p><br />
+                    <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create New Result</a>
+                    <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete</a>
+                    <a id="bottom_open_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to open the selected result items: ' + getSelectValues() + '?') && sendRequest('open');" disabled="true">Open</a>
+                    <a id="bottom_inspect_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to inspect the selected result items: ' + getSelectValues() + '?') && sendRequest('inspect');" disabled="true">Inspect</a>
+                    <a id="bottom_review_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to review the selected result items: ' + getSelectValues() + '?') && sendRequest('review');" disabled="true">Review</a>
+                    <a id="bottom_close_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to close the selected result items: ' + getSelectValues() + '?') && sendRequest('close');" disabled="true">Close</a>
+
+                </div>
+            </div></div></div>
+            <script type="text/javascript">
+                function change_expand_size() {
+                    var buttons = document.getElementsByClassName("left_button");
+                    var buttons_disabled = document.getElementsByClassName("left_button-disabled");
+                    var titles = document.getElementsByClassName("left_title");
+                    var item = document.getElementById("expand");
+                    if (item.innerHTML === "&gt;") {
+                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
+                        document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
+                        document.getElementById("arrow").style.textAlign = "right";
+                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
+                        item.innerHTML = "&lt;";
+                        document.getElementById("innerleftpop").style.display = null;
+                    } else if (item.innerHTML === "&lt;") {
+                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
+                        document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
+                        document.getElementById("arrow").style.textAlign = "center";
+                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
+                        item.innerHTML = "&gt;";
+                        document.getElementById("innerleftpop").style.display = "none";
+                    }
+                }
+            </script>
+            <div style="display: none;" id="fc" class="field-container-settings">
+            {% else %}
+            <div style="display: none;" id="fc" class="field-container">
+            {% endif %}
+                {% if error %}
+                    <p class="message"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
+                <table style="width: 100%" id="paginate">
+                    <thead>
+                        <tr>
+                            <th id="table_id">ID</th>
+                            {% if is_admin %}
+                            <th id="checkboxtd"><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
+                            {% endif %}
+                            <th style="width: 150px;">Title</th>
+                            <th style="width: 60px;" id="table_status">Status</th>
+                            <th style="width: 40px;" id="table_link">Link</th>
+                            <th style="width: 130px;" id="updated_at">Created At</th>
+                            <th style="width: 130px;" id="updated_at">Updated At</th>
+                            <th style="width: 130px;" id="detail_button">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td class="nonscreenshottab" id="resultid" style="min-width: 40px;">{{result[0]}}</td>
+                            {% if is_admin %}
+                            <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="resultchkbox" value="{{result[0]}}"></td>
+                            {% endif %}
+                            <td class="nonscreenshottab" id="resultplugin">{{result[2]}}</td>
+                            <td class="nonscreenshottab" style="min-width: 60px;">{{result[4]}}</td>
+                            <td class="nonscreenshottab"><a href="{{result[6]}}">Link</a></td>
+                            <td class="nonscreenshottab" id="timestamp_hide">{{result[7]}}</td>
+                            <td class="nonscreenshottab" id="timestamp_hide">{{result[8]}}</td>
+                            <td style="text-align: center" id="resultsbuttons">
+                                <form class="result_buttons" action="{{url_for('result_details', resultid=result[0])}}" method=get autocomplete="off">
+                                    <input id="show_detailed_button" class="button" type=submit value="Show Details">
+                                </form>
+                                <form class="mobile_result_buttons" action="{{url_for('result_details', resultid=result[0])}}" method=get autocomplete="off">
+                                    <input id="show_detailed_button" class="button" type=submit value="Show">
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+				{% if is_admin %}
+                <script type="text/javascript">
+                $(document).ready(function(){
+                  $('#paginate').DataTable({
+                    columns: [
+                      null,
+                      { orderable: false },
+                      null,
+                      null,
+                      null,
+                      null,
+                      null,
+                      { orderable: false }
+                    ]
+                  });
+                  $('.dataTables_length').addClass('bs-select');
+                });
+                </script>
+                {% else %}
+                <script type="text/javascript">
+                $(document).ready(function () {
+                  $('#paginate').DataTable({
+                    "paging": "simple_numbers" // false to disable pagination (or any other option)
+                  });
+                  $('.dataTables_length').addClass('bs-select');
+                });
+                </script>
+                {% endif %}
+                <div id="filter_box">
+                    <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
+                    <div class="collapsible_filter_content">
+                        <form id="collapsible_filter_form" action="{{ url_for ('results_filtered') }}" method=get autocomplete="off">
+                            <dl>
+                                {% for Item in Result_Filter_Iterator %}
+                                {% if Item == 0 %}
+                                <dd id="first_dd">
+                                {% else %}
+                                <dd>
+                                {% endif %}
+                                    {% if Result_Filter_Values %}
+                                    <input id="field_textarea" class="field_textarea_short" name="{{Result_Filters[Item]}}" placeholder="{{Result_Filters[Item]}}" value="{{Result_Filter_Values[Item]}}">
+                                    {% else %}
+                                    <input id="field_textarea" class="field_textarea_short" name="{{Result_Filters[Item]}}" placeholder="{{Result_Filters[Item]}}">
+                                    {% endif %}
+                                </dd>
+                                {% endfor %}
+                                <dd id="fin_input">
+                                    <input class="button-run" name="setfilter" type=submit value="Set Filter">
+                                </dd>
+                            </dl>
+                        </form>
+                    </div>
+                    <script type="text/javascript">
+                        var coll = document.getElementsByClassName("collapsible_filter");
+                        var i;
+
+                        for (i = 0; i < coll.length; i++) {
+                            coll[i].addEventListener("click", function() {
+                                this.classList.toggle("active");
+                                var content = this.nextElementSibling;
+                                if (content.style.display === "block") {
+                                    content.style.display = "none";
+                                    document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
+                                    document.getElementById("collapsible_filter_button").style.width = null;
+                                } else {
+                                    content.style.display = "block";
+                                    document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
+                                    document.getElementById("collapsible_filter_button").style.width = "100%";
+                                }
+                            });
+                        }
+                    </script>
+                </div>
+                {% if is_admin %}
+                <script type="text/javascript">
+                var myVar;
+                var ButtonArr = [['bottom_delete_button', 'Delete'], ['bottom_open_button', 'Open'], ['bottom_inspect_button', 'Inspect'], ['bottom_review_button', 'Review'], ['bottom_close_button', 'Close']];
+
+                function pageLoad() {
+                  myVar = setTimeout(showPage, 1000);
+                }
+
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("outerleftpop").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                }
+
+                function getSelectValues() {
+                   var checkedArray = []
+                   document.querySelectorAll('#select:checked').forEach(e => {
+                       checkedArray.push(e.value);
+                   });
+                   checkedArrayStr = checkedArray.toString();
+                   return checkedArrayStr
+                }
+
+                function terms_changed(termsCheckBox){
+                    //If the checkbox has been checked
+                    if (termsCheckBox.checked) {
+                        //Set the disabled property to FALSE and enable the button.
+                        ButtonArr.forEach(button => {
+                            document.getElementById(button[0]).className = "left_button";
+                            document.getElementById(button[0]).disabled = false;
+                        });
+                        document.getElementById("mainselect").checked = true;
+                    } else{
+                        if($('#select:checked').length === 0) {
+                            ButtonArr.forEach(button => {
+                                document.getElementById(button[0]).disabled = true;
+                                document.getElementById(button[0]).className = "left_button-disabled";
+                            });
+                            document.getElementById("mainselect").checked = false;
+                        }
+                    }
+                }
+
+                function sendRequest(extension) {
+                    var xhr = new XMLHttpRequest();
+                    var selectedValArray = getSelectValues();
+                    var use_xhr = true;
+
+                    if (extension == "delete") {
+                        var uri = "{{ url_for('results') }}" + "/" + extension + "/" + selectedValArray;
+                    } else if (extension == "Create") {
+                        var uri = "{{ url_for('new_result') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else {
+                        var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + selectedValArray;
+                    }
+                    if (use_xhr === true) {
+                        xhr.open("POST", uri, true);
+                        xhr.send();
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                location.reload();
+                            }
+                        }
+                    }
+                }
+
+                function checkAny(type) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (type == "Checked") {
+                        var ischecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == true) {
+                                    ischecked = true;
+                                }
+                            }
+                        }
+                        return ischecked;
+                    } else if (type == "Unchecked") {
+                        var unchecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == false) {
+                                    unchecked = true;
+                                }
+                            }
+                        }
+                        return unchecked;
+                    }
+                }
+
+                function checkAll(ele) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (ele.checked == true) {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = true;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = false;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    }
+                }
+                </script>
+                {% else %}
+                <script type="text/javascript">
+                var myVar;
+
+                function pageLoad() {
+                  myVar = setTimeout(showPage, 1000);
+                }
+
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                }
+                </script>
+                {% endif %}
+            </div>
+            {% endif %}
+        </main>
+    {% elif form_step == 1 %}
+        {% if is_admin %}
+        <main>
+            <div class="field-container">
+                <div id="outer_form_div">
+                    <div class="form_div" style="padding: 0px;">
+                        <p class="form_title">Create Result</p>
+                        <div id="form_loader">&nbsp;</div>
+                        <noscript>
+                           <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                        </noscript>
+                        <div class="inner_form_div">
+                            <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
+                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return">
+                            </form>
+                            <form class="form" action="{{url_for('new_result')}}" method=post autocomplete="off">
+                                <dl>
+                                    <dd>
+                                        <input class="field_textarea" type=text name=name placeholder="Name(s) - Comma Separated Values Allowed">
+                                    </dd>
+                                    <dd>
+                                        <input class="field_textarea" type=text name=url placeholder="URL(s) - Comma Separated Values Allowed">
+                                    </dd>
+                                    <dd>
+                                        <input class="field_textarea" list="browsers" name=type onkeypress="return false;" placeholder="Result(s) Type">
+                                        <datalist id="browsers">
+                                            {% for Finding_Type in Finding_Types %}
+                                            <option value="{{Finding_Type}}">
+                                            {% endfor %}
+                                        </datalist>
+                                    </dd>
+                                    <dd id="fin_input">
+                                        <input style="display: inline-block;" class="button_next" name="newresult" onclick="ShowLoader()" type=submit value="Create Result">
+                                    </dd>
+                                </dl>
+                            </form>
+                            <script type="text/javascript">
+                                function ShowLoader() {
+                                   document.getElementById("form_loader").style.display = "block";
+                                   setTimeout(HideLoader, 3000);
+                                }
+                                function HideLoader() {
+                                   document.getElementById("form_loader").style.display = "none";
+                                }
+                            </script>
+                        </div>
+                        {% if error %}
+                            <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                        {% elif message %}
+                            <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+        {% endif %}
+    {% endif %}
+    {% endblock %}
+    </body>
+</html>

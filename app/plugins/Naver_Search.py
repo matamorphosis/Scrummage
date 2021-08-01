@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+import logging, os, urllib.parse, plugins.common.General as General, plugins.common.Common as Common
+
+class Plugin_Search:
+
+    def __init__(self, Query_List, Task_ID, Limit=10):
+        self.Plugin_Name = "Naver"
+        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+        self.Task_ID = Task_ID
+        self.Query_List = General.Convert_to_List(Query_List)
+        self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
+        self.Domain = "naver.com"
+        self.Result_Type = "Search Result"
+        self.Limit = General.Get_Limit(Limit)
+
+    def Load_Configuration(self):
+        logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Loading configuration data.")
+        Result = Common.Configuration(Input=True).Load_Configuration(Object=self.Plugin_Name.lower(), Details_to_Load=["client_id", "client_secret"])
+
+        if Result:
+            return Result
+
+        else:
+            return None
+
+    def Search(self):
+
+        try:
+            Data_to_Cache = []
+            Directory = General.Make_Directory(self.Plugin_Name.lower())
+            print(Directory)
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
+            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter("%(levelname)s - %(message)s")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            Naver_Details = self.Load_Configuration()
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
+            Cached_Data = Cached_Data_Object.Get_Cache()
+
+            if int(self.Limit) > 100:
+                logging.fatal(f"{Common.Date()} - {self.Logging_Plugin_Name} - This plugin does not support limits over 100.")
+                return None
+
+            for Query in self.Query_List:
+                URL_Query = urllib.parse.quote(Query)
+                URL = f"https://openapi.{self.Domain}/v1/search/webkr.json?query={URL_Query}&display={str(self.Limit)}&sort=sim"
+                Headers = {"X-Naver-Client-Id": Naver_Details[0], "X-Naver-Client-Secret": Naver_Details[1]}
+                Naver_Response = Common.Request_Handler(URL, Optional_Headers=Headers)
+                JSON_Object = Common.JSON_Handler(Naver_Response)
+                JSON_Response = JSON_Object.To_JSON_Loads()
+                JSON_Output_Response = JSON_Object.Dump_JSON()
+                Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
+                Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
+
+                if JSON_Response.get('items'):
+
+                    for Naver_Item_Link in JSON_Response['items']:
+
+                        try:
+
+                            if 'title' in Naver_Item_Link and 'link' in Naver_Item_Link:
+                                Naver_URL = Naver_Item_Link['link']
+                                Title = Naver_Item_Link['title']
+                                Title = f"Naver | {Title}"
+
+                                if Naver_URL not in Cached_Data and Naver_URL not in Data_to_Cache:
+                                    Naver_Item_Responses = Common.Request_Handler(Naver_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                    Naver_Item_Response = Naver_Item_Responses["Filtered"]
+                                    Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Naver_Item_Response, Naver_URL, self.The_File_Extensions["Query"])
+
+                                    if Output_file:
+                                        Output_Connections.Output([Main_File, Output_file], Naver_URL, Title, self.Plugin_Name.lower())
+                                        Data_to_Cache.append(Naver_URL)
+
+                                    else:
+                                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                        except Exception as e:
+                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
+
+                else:
+                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - No results found.")
+
+            Cached_Data_Object.Write_Cache(Data_to_Cache)
+
+        except Exception as e:
+            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")

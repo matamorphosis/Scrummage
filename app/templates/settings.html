@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Scrummage Settings">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        <title>Scrummage Account Settings</title>
+    </head>
+    <body onload="pageLoad()">
+        {% extends "template.html" %}
+        {% block content %}
+        {% if Configure and is_admin %}
+            {% if form_step == 0 %}
+                <main>
+                    <div class="field-container">
+                        <div id="outer_form_div">
+                            <div class="form_div" style="padding: 0px;">
+                                <p class="form_title">Configure Item</p>
+                                <div id="form_loader">&nbsp;</div>
+                                <noscript>
+                                   <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                                </noscript>
+                                <div class="inner_form_div">
+                                    <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                        <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                    </form>
+                                    <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
+                                        <dl>
+                                            <dd>
+                                                <input onchange="setLimit(this)" id="textarea" class="field_textarea" list="browsers" name=item onkeypress="return false;" placeholder="* Item to Configure">
+                                                <datalist id="browsers">
+                                                    {% for Input in List_of_Inputs %}
+                                                    <option value="{{Input}}"></option>
+                                                    {% endfor %}
+                                                </datalist>
+                                            </dd>
+                                            <dd id="fin_input">
+                                                <input class="button" name="set_input" onclick="ShowLoader()" type=submit value="Continue">
+                                            </dd>
+                                        </dl>
+                                    </form>
+                                    <script type="text/javascript">
+                                        function ShowLoader() {
+                                           document.getElementById("form_loader").style.display = "block";
+                                           setTimeout(HideLoader, 3000);
+                                        }
+                                        function HideLoader() {
+                                           document.getElementById("form_loader").style.display = "none";
+                                        }
+                                    </script>
+                                </div>
+                                {% if error %}
+                                    <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                                {% elif message %}
+                                    <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                                {% endif %}
+                                {% if requirement_error %}
+                                <div class="req_message_div">
+                                {% for error in requirement_error %}
+                                    <p class="req_message">{{error}}</p>
+                                {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            {% elif form_step == 1 %}
+                <main>
+                    <div class="field-container">
+                        <div id="outer_form_div">
+                            <div class="form_div" style="padding: 0px;">
+                                <p class="form_title">Configure Item</p>
+                                <div id="form_loader">&nbsp;</div>
+                                <noscript>
+                                   <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                                </noscript>
+                                <div class="inner_form_div">
+                                    <form class="form_prv" action="{{ url_for('configure', configtype=Config_Type) }}" method=get autocomplete="off">
+                                        <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to {{Config_Type_Upper}} Configuration Options">
+                                    </form>
+                                    <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
+                                        <dl>
+                                            {% for Key, Value in List_of_Item_Values %}
+                                            <dd>
+                                                <input class="field_textarea" type=text name={{Key}} placeholder="{{Key}}" value="{{Value}}">
+                                            </dd>
+                                            {% endfor %}
+                                            <dd id="fin_input">
+                                                <input class="button" name="set_input" onclick="ShowLoader()" type=submit value="Update">
+                                            </dd>
+                                        </dl>
+                                    </form>
+                                    <script type="text/javascript">
+                                        function ShowLoader() {
+                                           document.getElementById("form_loader").style.display = "block";
+                                           setTimeout(HideLoader, 3000);
+                                        }
+                                        function HideLoader() {
+                                           document.getElementById("form_loader").style.display = "none";
+                                        }
+                                    </script>
+                                </div>
+                                {% if error %}
+                                    <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                                {% elif message %}
+                                    <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                                {% endif %}
+                                {% if requirement_error %}
+                                <div class="req_message_div">
+                                {% for error in requirement_error %}
+                                    <p class="req_message">{{error}}</p>
+                                {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            {% endif %}
+        {% else %}
+            {% if is_admin %}
+            {% if form_step == 0 %}
+            <main>
+                <div id="loader">&nbsp;</div>
+                <noscript>
+                    <p class="message">Please enable JavaScript to render this page. Otherwise it won't completely load.</p>
+                </noscript>
+                <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
+                <p id="loader-message" class="loaderabout">Loading Scrummage Settings...</p>
+                {% if error %}
+                <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">{{error}}</p></div></div></div>
+                <script type="text/javascript">
+                    autoClose();
+                    function autoClose() {
+                        setTimeout(closeWindow, 10000);
+                    }
+                    function closeWindow() {
+                        var close_item = document.getElementById("api_window");
+                        close_item.style.display = "none";
+                    }
+                </script>
+                {% elif message %}
+                <div style="display: none;" id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{message}}</p></div></div></div>
+                <script type="text/javascript">
+                    autoClose();
+                    function autoClose() {
+                        setTimeout(closeWindow, 10000);
+                    }
+                    function closeWindow() {
+                        var close_item = document.getElementById("api_window");
+                        close_item.style.display = "none";
+                    }
+                </script>
+                {% endif %}
+                <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">User Management</p><br />
+                        <a id="createuser" onclick="sendRequest('Create')" class="left_button">Create New User</a>
+                        <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected users: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</a>
+                        <a id="bottom_block_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to block the selected users: ' + getSelectValues() + '?') && sendRequest('Block');" disabled="true">Block</a>
+                        <a id="bottom_unblock_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to unblock the selected users: ' + getSelectValues() + '?') && sendRequest('Unblock');" disabled="true">Unblock</a>
+                        <a id="bottom_demote_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to demote the selected users: ' + getSelectValues() + '?') && sendRequest('Demote');" disabled="true">Demote</a>
+                        <a id="bottom_promote_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to promote the selected users: ' + getSelectValues() + '?') && sendRequest('Promote');" disabled="true">Promote</a>
+                    </div>
+                    <br />
+                    <div><p class="left_title">API Key Management</p><br />
+                        <a id="copy" onclick="copyTextFunc()" class="left_button">Copy API Key</a>
+                        <a onclick="sendRequest('Reload')" class="left_button">Reload API Key</a>
+                        <script type="text/javascript">
+                        function copyTextFunc() {
+                            var dummy = document.createElement("input");
+                            document.body.appendChild(dummy);
+                            dummy.value = "{{api_key}}";
+                            dummy.select();
+                            dummy.setSelectionRange(0, 99999); /*For mobile devices*/
+                            document.execCommand("copy");
+                            document.body.removeChild(dummy);
+                        }
+                        </script>
+                    </div>
+                    <br />
+                    <div><p class="left_title">Configuration Management</p><br />
+                        <a id="createuser" onclick="sendRequest('editinput')" class="left_button">Edit Inputs</a>
+                        <a id="createuser" onclick="sendRequest('checkinput')" class="left_button">Check Inputs</a>
+                        <a id="createuser" onclick="sendRequest('editoutput')" class="left_button">Edit Outputs</a>
+                        <a id="createuser" onclick="sendRequest('checkoutput')" class="left_button">Check Outputs</a>
+                        <a id="createuser" onclick="sendRequest('editcore')" class="left_button">Edit Core</a>
+                    </div>
+                </div></div></div>
+                <script type="text/javascript">
+                    function change_expand_size() {
+                        var buttons = document.getElementsByClassName("left_button");
+                        var buttons_disabled = document.getElementsByClassName("left_button-disabled");
+                        var titles = document.getElementsByClassName("left_title");
+                        var item = document.getElementById("expand");
+                        if (item.innerHTML === "&gt;") {
+                            document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
+                            document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
+                            document.getElementById("arrow").style.textAlign = "right";
+                            document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
+                            item.innerHTML = "&lt;";
+                            document.getElementById("innerleftpop").style.display = null;
+                        } else if (item.innerHTML === "&lt;") {
+                            document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
+                            document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
+                            document.getElementById("arrow").style.textAlign = "center";
+                            document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
+                            item.innerHTML = "&gt;";
+                            document.getElementById("innerleftpop").style.display = "none";
+                        }
+                    }
+                </script>
+                <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
+                    <table id="paginate">
+                        <thead>
+                            <tr>
+                                <th id="table_id">ID</th>
+                                <th id="checkboxtd""><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
+                                <th style="min-width: 40px; width: 40px">User</th>
+                                <th class="remove_from_mob_ui" style="min-width: 80px; width: 80px;">Blocked</th>
+                                <th style="min-width: 65px; ; width: 65px;">Admin</th>
+                                <th style="max-width: 100px; width: 100px; min-width: 100px;">Password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td class="nonscreenshottab">{{result[0]}}</td>
+                                <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="taskchkbox" value="{{result[0]}}"></td>
+                                <td class="nonscreenshottab">{{result[1]}}</td>
+                                <td class="remove_from_mob_ui">{{result[3]}}</td>
+                                <td class="nonscreenshottab">{{result[4]}}</td>
+                                <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
+                                    <form class="settings_buttons" action="{{ url_for('change_account_password', account=result[0]) }}" method=post autocomplete="off">
+                                        <input class="button" type=submit value="Change">
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+					<script type="text/javascript">
+					$(document).ready(function(){
+					  $('#paginate').DataTable({
+						columns: [
+						  null,
+						  { orderable: false },
+						  null,
+						  null,
+						  null,
+						  { orderable: false }
+						]
+					  });
+					  $('.dataTables_length').addClass('bs-select');
+					});
+					</script>
+                    <div id="filter_box">
+                        <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
+                        <div class="collapsible_filter_content">
+                            <form id="collapsible_filter_form" action="{{ url_for ('account_filtered') }}" method=get autocomplete="off">
+                                <dl>
+                                    {% for Item in Account_Filter_Iterator %}
+                                    {% if Item == 0 %}
+                                    <dd id="first_dd">
+                                    {% else %}
+                                    <dd>
+                                    {% endif %}
+                                        {% if Account_Filter_Values %}
+                                        <input id="field_textarea" class="field_textarea_short" name="{{Account_Filters[Item]}}" placeholder="{{Account_Filters[Item]}}" value="{{Account_Filter_Values[Item]}}">
+                                        {% else %}
+                                        <input id="field_textarea" class="field_textarea_short" name="{{Account_Filters[Item]}}" placeholder="{{Account_Filters[Item]}}">
+                                        {% endif %}
+                                    </dd>
+                                    {% endfor %}
+                                    <dd id="fin_input">
+                                        <input class="button-run" name="setfilter" type=submit value="Set Filter">
+                                    </dd>
+                                </dl>
+                            </form>
+                        </div>
+                        <script type="text/javascript">
+                            var coll = document.getElementsByClassName("collapsible_filter");
+                            var i;
+
+                            for (i = 0; i < coll.length; i++) {
+                                coll[i].addEventListener("click", function() {
+                                    this.classList.toggle("active");
+                                    var content = this.nextElementSibling;
+                                    if (content.style.display === "block") {
+                                        content.style.display = "none";
+                                        document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
+                                        document.getElementById("collapsible_filter_button").style.width = null;
+                                    } else {
+                                        content.style.display = "block";
+                                        document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
+                                        document.getElementById("collapsible_filter_button").style.width = "100%";
+                                    }
+                                });
+                            }
+                        </script>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                function getSelectValues() {
+                   var checkedArray = []
+                   document.querySelectorAll('#select:checked').forEach(e => {
+                       checkedArray.push(e.value);
+                   });
+                   checkedArrayStr = checkedArray.toString();
+                   return checkedArrayStr
+                }
+
+                function terms_changed(termsCheckBox){
+                    var buttons = [["bottom_delete_button", "Delete"], ["bottom_block_button", "Block"], ["bottom_unblock_button", "Unblock"], ["bottom_demote_button", "Demote"], ["bottom_promote_button", "Promote"]]
+                    if(termsCheckBox.checked){
+                        //Set the disabled property to FALSE and enable the button.
+                        buttons.forEach(button => {
+                            document.getElementById(button[0]).className = "left_button";
+                            document.getElementById(button[0]).disabled = false;
+                        });
+                        document.getElementById("mainselect").checked = true;
+                    } else{
+                        if($('#select:checked').length === 0) {
+                            buttons.forEach(button => {
+                                document.getElementById(button[0]).disabled = true;
+                                document.getElementById(button[0]).className = "left_button-disabled";
+                            });
+                            document.getElementById("mainselect").checked = false;
+                        }
+                    }
+                }
+
+                function sendRequest(typeOfRequest) {
+                    var xhr = new XMLHttpRequest();
+                    var selectedValArray = getSelectValues()
+                    var use_xhr = true;
+
+                    if (arguments[0] === 'Delete') {
+                        var uri = "{{ url_for('account') }}" + "/delete/" + selectedValArray;
+                    } else if (arguments[0] === 'Block') {
+                        var uri = "{{ url_for('account') }}" + "/disable/" + selectedValArray;
+                    } else if (arguments[0] === 'Unblock') {
+                        var uri = "{{ url_for('account') }}" + "/enable/" + selectedValArray;
+                    } else if (arguments[0] === 'Demote') {
+                        var uri = "{{ url_for('account') }}" + "/demote/" + selectedValArray;
+                    } else if (arguments[0] === 'Promote') {
+                        var uri = "{{ url_for('account') }}" + "/promote/" + selectedValArray;
+                    } else if (arguments[0] === "Reload") {
+                        var uri = "{{ url_for('get_account_apikey') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "Create") {
+                        var uri = "{{ url_for('new_account') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "editinput") {
+                        var uri = "{{ url_for('configure', configtype='inputs') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "editoutput") {
+                        var uri = "{{ url_for('configure', configtype='outputs') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "editcore") {
+                        var uri = "{{ url_for('configure', configtype='core') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "checkoutput") {
+                        var uri = "{{ url_for('check_output') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "checkinput") {
+                        var uri = "{{ url_for('check_input') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    }
+                    if (use_xhr === true) {
+                        xhr.open("POST", uri, true);
+                        xhr.send();
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                var uri = "{{ url_for('account') }}";
+                                window.location.assign(uri);
+                            }
+                        }
+                    }
+                }
+
+                function checkAny(type) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (type == "Checked") {
+                        var ischecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == true) {
+                                    ischecked = true;
+                                }
+                            }
+                        }
+                        return ischecked;
+                    } else if (type == "Unchecked") {
+                        var unchecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == false) {
+                                    unchecked = true;
+                                }
+                            }
+                        }
+                        return unchecked;
+                    }
+                }
+
+                function checkAll(ele) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (ele.checked == true) {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = true;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = false;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    }
+                }
+                </script>
+                {% if error %}
+                <section id="msg" style="display: none;"><p class="message" style="padding-top: 30px;"><strong>Error:</strong> {{error}}</p></section>
+                {% elif message %}
+                <section id="msg" style="display: none;"><p class="message" style="padding-top: 30px;"><strong>Message:</strong> {{message}}</p></section>
+                {% endif %}
+                <script type="text/javascript">
+                var myVar;
+
+                function pageLoad() {
+                  myVar = setTimeout(showPage, 1000);
+                }
+
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    {% if error or message %}
+                    document.getElementById("api_window").style.display = null;
+                    {% endif %}
+                    document.getElementById("outerleftpop").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                }
+                </script>
+            </main>
+            {% elif form_step == 1 %}
+                {% if form_type == "ChangePassword" %}
+                    <main>
+                        <div class="field-container">
+                            <div id="outer_form_div">
+                                <div class="form_div" style="padding: 0px;">
+                                    <p class="form_title">Change Password</p>
+                                    <div id="form_loader">&nbsp;</div>
+                                    <noscript>
+                                       <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                                    </noscript>
+                                    <div class="inner_form_div">
+                                        <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                            <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                        </form>
+                                        <form class="form" action="{{ url_for('change_account_password', account=current_user_id) }}" method=post autocomplete="off">
+                                            <dl>
+                                                <dd>
+                                                    <input class="field_textarea" type=password name=New_Password placeholder="New Password">
+                                                </dd>
+                                                <dd>
+                                                    <input class="field_textarea" type=password name=New_Password_Retype placeholder="Retype Password">
+                                                </dd>
+                                                <dd id="fin_input">
+                                                    <input class="button" name="change_password" onclick="ShowLoader()" type=submit value="Change Password">
+                                                </dd>
+                                            </dl>
+                                        </form>
+                                        <script type="text/javascript">
+                                            function ShowLoader() {
+                                               document.getElementById("form_loader").style.display = "block";
+                                               setTimeout(HideLoader, 3000);
+                                            }
+                                            function HideLoader() {
+                                               document.getElementById("form_loader").style.display = "none";
+                                            }
+                                        </script>
+                                    </div>
+                                    {% if error %}
+                                        <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                                    {% elif message %}
+                                        <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                                    {% endif %}
+                                    {% if requirement_error %}
+                                    <div class="req_message_div">
+                                    {% for error in requirement_error %}
+                                        <p class="req_message">{{error}}</p>
+                                    {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                {% elif form_type == "CreateUser" %}
+                    <main>
+                        <div class="field-container">
+                            <div id="outer_form_div">
+                                <div class="form_div" style="padding: 0px;">
+                                    <p class="form_title">Create User</p>
+                                    <div id="form_loader">&nbsp;</div>
+                                    <noscript>
+                                       <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                                    </noscript>
+                                    <div class="inner_form_div">
+                                        <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                            <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                        </form>
+                                        <form class="form" action="{{ url_for('new_account') }}" method=post autocomplete="off">
+                                            <dl>
+                                                <dd>
+                                                    <input class="field_textarea" type=text name=Username placeholder="Username">
+                                                </dd>
+                                                <dd>
+                                                    <input class="field_textarea" type=password name=New_Password placeholder="New Password">
+                                                </dd>
+                                                <dd>
+                                                    <input class="field_textarea" type=password name=New_Password_Retype placeholder="Retype Password">
+                                                </dd>
+                                                <dd>
+                                                    <label id="acc-label" for="admin-box">Grant Administrator Rights:&nbsp;&nbsp;</label>
+                                                    <input type=checkbox id="admin-box" name=is_new_user_admin>
+                                                </dd>
+                                                <dd id="fin_input">
+                                                    <input class="button" name="createuser" onclick="ShowLoader()" type=submit value="Create User">
+                                                </dd>
+                                            </dl>
+                                        </form>
+                                        <script type="text/javascript">
+                                            function ShowLoader() {
+                                               document.getElementById("form_loader").style.display = "block";
+                                               setTimeout(HideLoader, 3000);
+                                            }
+                                            function HideLoader() {
+                                               document.getElementById("form_loader").style.display = "none";
+                                            }
+                                        </script>
+                                    </div>
+                                    {% if error %}
+                                        <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                                    {% elif message %}
+                                        <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                                    {% endif %}
+                                    {% if requirement_error %}
+                                    <div class="req_message_div">
+                                    {% for error in requirement_error %}
+                                        <p class="req_message">{{error}}</p>
+                                    {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                {% else %}
+                {% endif %}
+            {% endif %}
+            {% else %}
+				<div id="api_bar_outer">
+					<div id="api_bar">
+						<p class="api_key_message">&nbsp;API Key Management:&nbsp;</p>
+						<button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
+						<form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey') }}" method="post" autocomplete="off">
+							<input class="button" name="getapikey" type="submit" value="Reload Key">
+						</form>
+						<script type="text/javascript">
+						function copyTextFunc() {
+							var dummy = document.createElement("input");
+							document.body.appendChild(dummy);
+							dummy.value = "{{api_key}}";
+							dummy.select();
+							dummy.setSelectionRange(0, 99999); /*For mobile devices*/
+							document.execCommand("copy");
+							document.body.removeChild(dummy);
+						}
+						</script>
+					</div>
+				</div>
+                <section>
+					{% if error %}
+					<div id="api_window_centre"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">{{error}}</p></div></div></div>
+					<script type="text/javascript">
+						autoClose();
+						function autoClose() {
+							setTimeout(closeWindow, 10000);
+						}
+						function closeWindow() {
+							var close_item = document.getElementById("api_window_centre");
+							close_item.style.display = "none";
+						}
+					</script>
+					{% elif message %}
+					<div id="api_window_centre"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{message}}</p></div></div></div>
+					<script type="text/javascript">
+						autoClose();
+						function autoClose() {
+							setTimeout(closeWindow, 10000);
+						}
+						function closeWindow() {
+							var close_item = document.getElementById("api_window_centre");
+							close_item.style.display = "none";
+						}
+					</script>
+					{% endif %}
+                    <div class="field-container" style="text-align: center; padding-top: 0px;">
+                        <div id="outer_form_div_cp_na">
+                            <div class="form_div" style="padding: 0px;">
+                                <p class="form_title">Change Password</p>
+                                <div id="form_loader">&nbsp;</div>
+                                <noscript>
+                                   <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                                </noscript>
+                                <div class="inner_form_div">
+                                    <form class="form" action="{{ url_for('change_account_password', account='mine') }}" method=post autocomplete="off">
+                                        <dl>
+                                            <dd style="padding-top: 30px;">
+                                                <input class="field_textarea" type=password name=Current_Password placeholder="Current Password">
+                                            </dd>
+                                            <dd>
+                                                <input class="field_textarea" type=password name=New_Password placeholder="New Password">
+                                            </dd>
+                                            <dd>
+                                                <input class="field_textarea" type=password name=New_Password_Retype placeholder="Retype Password">
+                                            </dd>
+                                            <dd id="fin_input">
+                                                <input class="button" name="change_password" onclick="ShowLoader()" type=submit value="Change Password">
+                                            </dd>
+                                        </dl>
+                                    </form>
+                                    <script type="text/javascript">
+                                        function ShowLoader() {
+                                           document.getElementById("form_loader").style.display = "block";
+                                           setTimeout(HideLoader, 3000);
+                                        }
+                                        function HideLoader() {
+                                           document.getElementById("form_loader").style.display = "none";
+                                        }
+                                    </script>
+                                </div>
+								{% if form_error %}
+                                    <p class="message_form"><strong>Error:</strong> {{ form_error }}</p>
+                                {% elif form_message %}
+                                    <p class="message_form"><strong>Message:</strong> {{ form_message }}</p>
+                                {% endif %}
+                                {% if requirement_error %}
+                                <div class="req_message_div">
+                                {% for error in requirement_error %}
+                                    <p class="req_message">{{error}}</p>
+                                {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+    </body>
+</html>

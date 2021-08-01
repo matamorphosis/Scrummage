@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Scrummage Events">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <title>Scrummage Events</title>
+    </head>
+    <body onload="pageLoad()" style="margin:0;">
+        {% extends "template.html" %}
+        {% block content %}
+        <main>
+            <section>
+                <div id="loader">&nbsp;</div>
+                <noscript>
+                    <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                </noscript>
+                <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
+                <p id="loader-message" class="loaderabout">Loading Scrummage Events...</p>
+                <div style="display: none;" id="fc" class="field-container">
+                    <table style="display:none;" id="paginate">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 30px; width: 30px; max-width: 30px;" id="table_id">ID</th>
+                                <th style="min-width: 150px; width: 150px;">Description</th>
+                                <th style="min-width: 150px; width: 150px;" id="timestamp">Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td class="nonscreenshottab">{{event[0]}}</td>
+                                    <td class="nonscreenshottab">{{event[1]}}</td>
+                                    <td class="nonscreenshottab">{{event[2]}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div id="filter_box">
+                        <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
+                        <div class="collapsible_filter_content">
+                            <form id="collapsible_filter_form" action="{{ url_for ('events_filtered') }}" method=get autocomplete="off">
+                                <dl>
+                                    {% for Item in Event_Filter_Iterator %}
+                                    {% if Item == 0 %}
+                                    <dd id="first_dd">
+                                    {% else %}
+                                    <dd>
+                                    {% endif %}
+                                        {% if Event_Filter_Values %}
+                                        <input id="field_textarea" class="field_textarea_short" name="{{Event_Filters[Item]}}" placeholder="{{Event_Filters[Item]}}" value="{{Event_Filter_Values[Item]}}">
+                                        {% else %}
+                                        <input id="field_textarea" class="field_textarea_short" name="{{Event_Filters[Item]}}" placeholder="{{Event_Filters[Item]}}">
+                                        {% endif %}
+                                    </dd>
+                                    {% endfor %}
+                                    <dd id="fin_input">
+                                        <input class="button-run" name="setfilter" type=submit value="Set Filter">
+                                    </dd>
+                                </dl>
+                            </form>
+                        </div>
+                        <script type="text/javascript">
+                            var coll = document.getElementsByClassName("collapsible_filter");
+                            var i;
+
+                            for (i = 0; i < coll.length; i++) {
+                                coll[i].addEventListener("click", function() {
+                                    this.classList.toggle("active");
+                                    var content = this.nextElementSibling;
+                                    if (content.style.display === "block") {
+                                        content.style.display = "none";
+                                        document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
+                                        document.getElementById("collapsible_filter_button").style.width = null;
+                                    } else {
+                                        content.style.display = "block";
+                                        document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
+                                        document.getElementById("collapsible_filter_button").style.width = "100%";
+                                    }
+                                });
+                            }
+                        </script>
+                    </div>
+                </div>
+                <script>
+                var myVar;
+
+                function pageLoad() {
+                  myVar = setTimeout(showPage, 1000);
+                }
+
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                }
+                </script>
+            </section>
+        </main>
+        {% endblock %}
+    </body>
+</html>

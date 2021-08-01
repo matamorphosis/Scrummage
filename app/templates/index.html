@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Scrummage Index.">
+      <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <title>Scrummage Welcome</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}
+      <main>
+         {% if loggedout %}
+         <p id="logintitle" class="loginscreentitle">Successfully logged out. Please log in to continue</p>
+         {% else %}
+         <p id="logintitle" class="loginscreentitle">Welcome to Scrummage! Please log in to continue</p>
+         {% endif %}
+         <div class="login_outer_div">
+            <div class="login_inner_div">
+               <div id="login_loader">&nbsp;</div>
+               <noscript>
+                  <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+               </noscript>
+               <div class="login_div">
+                  <div style="padding-bottom: 10px;"><div id="login_logo"><div id="loader_circular_logo_login"></div></div></div>
+                  <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
+                     <dl>
+                        <dt>
+                           <dd>
+                              <input class="textarea" type=text name=username placeholder="Username">
+                           </dd>
+                           <dd id="password_box_area">
+                              <input class="textarea_lock" id="passwordbox" type=password name=password placeholder="Password">
+                              <div id="make_visible_outer" onclick="ChangeVisibility()"><div id="make_visible">&nbsp;</div></div>
+                           </dd>
+                        </dt>
+                     </dl>
+                     <p style="padding-top: 10px;"><input class="button-run" onclick="ShowLoader()" type=submit value=Login></p>
+                  </form>
+                  <script type="text/javascript">
+                     function ShowLoader() {
+                        document.getElementById("login_loader").style.display = "block";
+                        document.getElementById("loader_circular_logo_login").style.background = "linear-gradient(#303030 0%, #DC143C 50%, #303030 100%)";
+                        setTimeout(HideLoader, 3000);
+                     }
+                     function HideLoader() {
+                        document.getElementById("login_loader").style.display = "none";
+                        document.getElementById("loader_circular_logo_login").style.background = "unset";
+                     }
+                     function ChangeVisibility() {
+                        var status = document.getElementById("passwordbox").type;
+                        if (status == "password") {
+                           document.getElementById("passwordbox").type = "text";
+                        } else {
+                           document.getElementById("passwordbox").type = "password";
+                        }
+                     }
+                  </script>
+                  {% if error %}
+                     <p class="message"><strong>Error:</strong> {{ error }}</p>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+      </main>
+      {% endblock %}
+   </body>
+</html>
