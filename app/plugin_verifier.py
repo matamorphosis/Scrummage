@@ -77,6 +77,7 @@ class Plugin_Verifier:
             "Email Reputation Search": {"Module": "plugins.Email_Reputation_Search"},
             "Ebay Search": {"Module": "plugins.Ebay_Search", "Limit": True},
             "Domain Fuzzer - Regular Domain Suffixes": {"Module": "plugins.Domain_Fuzzer", "Custom_Search": "Regular_Extensions"},
+            "Domain Fuzzer - Expired Global Domain Suffixes": {"Module": "plugins.Domain_Fuzzer", "Custom_Search": "Expired_Global_Extensions"},
             "Domain Fuzzer - Global Domain Suffixes": {"Module": "plugins.Domain_Fuzzer", "Custom_Search": "Global_Extensions"},
             "Domain Fuzzer - Punycode (Latin Comprehensive)": {"Module": "plugins.Domain_Fuzzer", "Custom_Search": "Character_Switch", "Alphabets": "Latin", "Comprehensive": True},
             "Domain Fuzzer - Punycode (Latin Condensed)": {"Module": "plugins.Domain_Fuzzer", "Custom_Search": "Character_Switch", "Alphabets": "Latin"},

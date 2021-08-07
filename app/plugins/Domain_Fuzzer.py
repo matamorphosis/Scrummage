@@ -12,30 +12,8 @@ class Plugin_Search:
         self.Valid_Results = ["Domain,IP Address"]
         self.Valid_Hosts = []
         self.Generic_Extensions = [".com", ".edu", ".gov", ".net", ".info"]
-        self.Global_Domain_Suffixes = [".ac", ".ad", ".ae", ".af", ".ag", ".ai", ".al", ".am", ".as", ".at", ".az", ".ba",
-                                  ".be", ".bf", ".bg", ".bi", ".bj", ".bo", ".bs", ".bt", ".by", ".ca", ".cc", ".cd", ".cf",
-                                  ".cg", ".ch", ".ci", ".cl", ".cm", ".cn", ".co", ".cv", ".cz", ".de", ".dj", ".dk", ".dm",
-                                  ".dz", ".ec", ".ee", ".es", ".eu", ".fi", ".fm", ".fr", ".ga", ".ge", ".gf", ".gg", ".gl",
-                                  ".gm", ".gp", ".gr", ".gy", ".hk", ".hn", ".hr", ".ht", ".hu", ".id", ".ie", ".im", ".in",
-                                  ".io", ".iq", ".is", ".it", ".je", ".jo", ".jp", ".kg", ".ki", ".kz", ".la", ".li", ".lk",
-                                  ".lt", ".lu", ".lv", ".ma", ".md", ".me", ".mg", ".mk", ".ml", ".mn", ".ms", ".mu", ".mv",
-                                  ".mw", ".mx", ".ne", ".ng", ".nl", ".no", ".nr", ".nu", ".pf", ".pk", ".pl", ".pn", ".ps",
-                                  ".pt", ".qa", ".re", ".ro", ".rs", ".ru", ".rw", ".sc", ".se", ".sh", ".si", ".sk", ".sl",
-                                  ".sm", ".sn", ".so", ".sr", ".st", ".sy", ".td", ".tg", ".tk", ".tl", ".tm", ".tn", ".to",
-                                  ".tt", ".ua", ".us", ".uz", ".vg", ".vn", ".vu", ".ws", ".co", ".co.am", ".co.ao", ".co.bw",
-                                  ".co.ck", ".co.cr", ".co.gy", ".co.hu", ".co.id", ".co.il", ".co.im", ".co.in", ".co.je",
-                                  ".co.jp", ".co.ke", ".co.kr", ".co.lc", ".co.ls", ".co.ma", ".co.mz", ".co.nz", ".co.pe",
-                                  ".co.rs", ".co.th", ".co.tz", ".co.ug", ".co.uk", ".co.uz", ".co.ve", ".co.vi", ".co.za",
-                                  ".co.zm", ".co.zw", ".com", ".com.af", ".com.ag", ".com.ai", ".com.aq", ".com.ar", ".com.au",
-                                  ".com.bd", ".com.bh", ".com.bi", ".com.bn", ".com.bo", ".com.br", ".com.by", ".com.bz",
-                                  ".com.cn", ".com.co", ".com.cu", ".com.cy", ".com.do", ".com.ec", ".com.eg", ".com.et",
-                                  ".com.fj", ".com.ge", ".com.gh", ".com.gi", ".com.gp", ".com.gr", ".com.gt", ".com.gy",
-                                  ".com.hk", ".com.ht", ".com.iq", ".com.jm", ".com.jo", ".com.kh", ".com.kw", ".com.kz",
-                                  ".com.lb", ".com.ly", ".com.mm", ".com.mt", ".com.mx", ".com.my", ".com.na", ".com.nf",
-                                  ".com.ng", ".com.ni", ".com.np", ".com.nr", ".com.om", ".com.pa", ".com.pe", ".com.pg",
-                                  ".com.ph", ".com.pk", ".com.pl", ".com.pr", ".com.ps", ".com.py", ".com.qa", ".com.ru",
-                                  ".com.sa", ".com.sb", ".com.sg", ".com.sl", ".com.sv", ".com.tj", ".com.ua", ".com.uy",
-                                  ".com.vc", ".com.ve"]
+        self.Expired_Global_Domain_Suffixes = sorted([".cs", ".dd", ".gb", ".su", ".yu", ".zr"])
+        self.Global_Domain_Suffixes = sorted(['.ac', '.ad', '.ae', '.af', '.ag', '.ai', '.al', '.am', '.an', '.aq', '.as', '.at', '.aw', '.ax', '.az', '.ba', '.bb', '.be', '.bf', '.bg', '.bi', '.bj', '.bm', '.bo', '.bs', '.bt', '.bv', '.by', '.ca', '.cat', '.cc', '.cd', '.cf', '.cg', '.ch', '.ci', '.cl', '.cm', '.cn', '.cv', '.cw', '.cx', '.cz', '.de', '.dj', '.dk', '.dm', '.dz', '.ec', '.ee', '.er', '.es', '.eu', '.eus', '.fi', '.fk', '.fm', '.fo', '.fr', '.ga', '.gal', '.gb', '.gd', '.ge', '.gf', '.gg', '.gl', '.gm', '.gn', '.gp', '.gq', '.gr', '.gs', '.gu', '.gw', '.gy', '.hk', '.hm', '.hn', '.hr', '.ht', '.hu', '.id', '.ie', '.im', '.in', '.io', '.iq', '.ir', '.is', '.it', '.je', '.jo', '.jp', '.kg', '.ki', '.km', '.kn', '.kp', '.ky', '.kz', '.la', '.li', '.lk', '.lr', '.lt', '.lu', '.lv', '.ma', '.mc', '.md', '.me', '.mg', '.mh', '.mk', '.ml', '.mn', '.mo', '.mp', '.mq', '.mr', '.ms', '.mu', '.mv', '.mw', '.mx', '.nc', '.ne', '.ng', '.nl', '.no', '.nr', '.nu', '.pf', '.pk', '.pl', '.pm', '.pn', '.ps', '.pt', '.pw', '.qa', '.re', '.ro', '.rs', '.ru', '.rw', '.sc', '.sd', '.se', '.sh', '.si', '.sj', '.sk', '.sl', '.sm', '.sn', '.so', '.sr', '.ss', '.st', '.sy', '.sz', '.tc', '.td', '.tf', '.tg', '.tk', '.tl', '.tm', '.tn', '.to', '.tp', '.tr', '.tt', '.tv', '.tw', '.ua', '.us', '.uz', '.va', '.vg', '.vn', '.vu', '.wf', '.ws', '.ye', '.yt', '.co', '.co.ao', '.co.bw', '.co.ck', '.co.cr', '.co.gy', '.co.hu', '.co.id', '.co.il', '.co.im', '.co.in', '.co.je', '.co.jp', '.co.ke', '.co.kr', '.co.lc', '.co.ls', '.co.ma', '.co.mz', '.co.nz', '.co.pe', '.co.rs', '.co.th', '.co.tz', '.co.ug', '.co.uk', '.co.uz', '.co.ve', '.co.vi', '.co.za', '.co.zm', '.co.zw', '.com', '.com.af', '.com.ag', '.com.ai', '.com.aq', '.com.ar', '.com.au', '.com.bd', '.com.bh', '.com.bi', '.com.bn', '.com.bo', '.com.br', '.com.by', '.com.bz', '.com.cn', '.com.co', '.com.cu', '.com.cy', '.com.do', '.com.ec', '.com.eg', '.com.et', '.com.fj', '.com.ge', '.com.gh', '.com.gi', '.com.gp', '.com.gr', '.com.gt', '.com.gy', '.com.hk', '.com.ht', '.com.iq', '.com.jm', '.com.jo', '.com.kh', '.com.kw', '.com.kz', '.com.lb', '.com.ly', '.com.mm', '.com.mt', '.com.mx', '.com.my', '.com.na', '.com.nf', '.com.ng', '.com.ni', '.com.np', '.com.nr', '.com.om', '.com.pa', '.com.pe', '.com.pg', '.com.ph', '.com.pk', '.com.pl', '.com.pr', '.com.ps', '.com.py', '.com.qa', '.com.ru', '.com.sa', '.com.sb', '.com.sg', '.com.sl', '.com.sv', '.com.tj', '.com.ua', '.com.uy', '.com.vc', '.com.ve'])
         self.Plugin_Name = "Domain Fuzzer"
         self.Concat_Plugin_Name = "domainfuzzer"
         self.The_File_Extensions = {"Main": ".csv", "Main_Alternative": ".json", "Query": ".html"}
@@ -345,6 +323,75 @@ class Plugin_Search:
             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
 
 
+    def Expired_Global_Extensions(self):
+
+        try:
+            Local_Plugin_Name = self.Plugin_Name + " Expired Global Suffixes"
+            Directory = General.Make_Directory(self.Concat_Plugin_Name)
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+            Log_File = General.Logging(Directory, Local_Plugin_Name)
+            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter("%(levelname)s - %(message)s")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            self.Cached_Data = Cached_Data_Object.Get_Cache()
+            logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Expired Global Suffixes Selected.")
+
+            for Query in self.Query_List:
+                URL_Components = Common.Regex_Handler(Query, Type="URL", Get_URL_Components=True)
+
+                if URL_Components:
+                    self.URL_Prefix = URL_Components["Prefix"]
+                    self.URL_Body = URL_Components["Body"]
+                    self.URL_Extension = URL_Components["Extension"]
+
+                else:
+                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid query, please provide a valid URL.")
+
+                Pool = mpool.ThreadPool(int(multiprocessing.cpu_count()) * int(multiprocessing.cpu_count()))
+                Pool_Threads = []
+
+                for suffix in self.Expired_Global_Domain_Suffixes:
+
+                    if not self.URL_Extension == suffix:
+                        Thread = Pool.apply_async(self.Query_URL, args=(self.URL_Body, suffix,))
+                        Pool_Threads.append(Thread)
+
+                [Pool_Thread.wait() for Pool_Thread in Pool_Threads]
+                URL_Domain = self.URL_Body + self.URL_Extension
+                Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, "\n".join(self.Valid_Results), self.URL_Body, self.The_File_Extensions["Main"])
+                Main_File_JSON_Data = General.CSV_to_JSON(Query, self.Valid_Results)
+                Main_File_HTML_Data = General.CSV_to_HTML(self.Valid_Results, f"Domain Spoof Results for Query {Query}")
+                Main_File_JSON = General.Main_File_Create(Directory, Local_Plugin_Name, Main_File_JSON_Data, self.URL_Body, self.The_File_Extensions["Main_Alternative"])
+                Main_File_HTML = General.Main_File_Create(Directory, Local_Plugin_Name, Main_File_HTML_Data, self.URL_Body, self.The_File_Extensions["Query"])
+
+                if Main_File and Main_File_HTML and Main_File_JSON:
+
+                    for Host in self.Valid_Hosts:
+                        Current_Domain = Host[0].strip('https://').strip('http://')
+                        Current_Responses = Common.Request_Handler(Host[0], Filter=True, Host=Host[0], Risky_Plugin=True, Certificate_Verification=False)
+                        Current_Response = Current_Responses["Filtered"]
+                        Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
+
+                        if Output_File:
+                            Output_File_List = [Main_File, Main_File_HTML, Main_File_JSON, Output_File]
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
+
+                        else:
+                            Output_File_List = [Main_File, Main_File_HTML, Main_File_JSON]
+                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
+                            Output_Connections.Output(Output_File_List, Host[0], f"Domain Spoof for {URL_Domain} - {Current_Domain} : {Host[1]}", Directory_Plugin_Name=self.Concat_Plugin_Name)
+
+            Cached_Data_Object.Write_Cache(self.Data_to_Cache)
+
+        except Exception as e:
+            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
+
+
     def All_Extensions(self):
 
         try:
@@ -377,8 +424,11 @@ class Plugin_Search:
                 Pool_Threads = []
 
                 for Extension in self.Generic_Extensions:
+                    All_Domain_Suffixes = []
+                    All_Domain_Suffixes.extend(self.Global_Domain_Suffixes)
+                    All_Domain_Suffixes.extend(self.Expired_Global_Domain_Suffixes)
 
-                    for suffix in self.Global_Domain_Suffixes:
+                    for suffix in All_Domain_Suffixes:
                         suffix = suffix.replace(".com", "")
                         suffix = suffix.replace(".co", "")
 

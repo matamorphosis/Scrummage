@@ -34,7 +34,7 @@ if __name__ == '__main__':
                          "Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Latin Condensed)",
                          "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Middle Eastern)",
                          "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)",
-                         "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes",
+                         "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Expired Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes",
                          "DuckDuckGo Search", "Ebay Search", "Email Reputation Search", "Email Verification Search", "Flickr Search", "Google Search", "Greynoise IP Search",
                          "Have I Been Pwned - Password Search", "Have I Been Pwned - Email Search",
                          "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search",
