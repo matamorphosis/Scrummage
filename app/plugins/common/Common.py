@@ -724,7 +724,7 @@ def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Compon
     try:
 
         if Type != "":
-            Predefined_Regex_Patterns = {"Phone": r"\+\d{11}", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"[\d\/\*\-]{1,6}\s[\d\/\*\-]{1,6}\s[\d\/\*\-]{1,6}\s[\d\/\*\-]{1,6}\s[\d\/\*\-]{1,6}", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*"}
+            Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?$", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*"}
 
             for Key, Value in Predefined_Regex_Patterns.items():
 
@@ -774,5 +774,84 @@ def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Compon
         else:
             return None
 
-    except:
-        logging.warning(f"{Date()} - Common Library - Failed to get check against a regex pattern.")
+    except Exception as e:
+        logging.warning(f"{Date()} - Common Library - Failed to get check against a regex pattern. {str(e)}.")
+
+def Filter(Segment_List, Start_Number, End_Number):
+
+    try:
+
+        def Dash_to_Numbers(Segment):
+            List_of_Numbers = []
+            Segments = Segment.split("-")
+            Iterator = int(Segments[0])
+
+            while Iterator <= int(Segments[1]):
+                List_of_Numbers.append(str(Iterator))
+                Iterator += 1
+
+            return List_of_Numbers
+
+        Segment_List_Filtered = []
+
+        for Segment_Item in Segment_List:
+
+            if "-" in Segment_Item:
+                Segment_Item = Dash_to_Numbers(Segment_Item)
+                Segment_List_Filtered.extend(Segment_Item)
+
+            else:
+                Segment_List_Filtered.append(Segment_Item)
+
+        Non_Hardcoded_Segment_List = []
+        Updated_Segment_List = []
+        Iterator = 0
+        Range_End = End_Number + 1
+        Approved_Hours = list(range(Start_Number, Range_End))
+
+        while Iterator < len(Segment_List_Filtered):
+            Segment_Item = Segment_List_Filtered[Iterator]
+
+            if Segment_Item != Segment_List_Filtered[-1] and "/" not in Segment_Item:
+                Seg_Iter = 1
+                First_Segment = Segment_Item
+                Current_Segment = Segment_Item
+
+                if (Iterator + Seg_Iter) < len(Segment_List_Filtered):
+                    Current_Next_Value = Segment_List_Filtered[Iterator + Seg_Iter]
+                    
+                    while all(Seg.isnumeric() for Seg in [Current_Next_Value, Current_Segment]) and int(Current_Next_Value) in Approved_Hours and ((int(Current_Next_Value) - int(Current_Segment)) == 1):
+                        Current_Segment = Current_Next_Value
+                        Seg_Iter += 1
+                        Curr_Iter = Iterator + Seg_Iter
+
+                        if (Iterator + Seg_Iter) < len(Segment_List_Filtered):
+                            Current_Next_Value = Segment_List_Filtered[Curr_Iter]
+
+                        else:
+                            break
+
+                    if int(First_Segment) == End_Number:
+                        Updated_Segment_List.append(First_Segment)
+
+                    else:
+                        Updated_Segment_List.append(First_Segment + "-" + Current_Segment)
+
+                    Iterator += Seg_Iter
+
+            elif "/" in Segment_Item:
+                Non_Hardcoded_Segment_List.append(Segment_Item)
+                Iterator += 1
+            
+            else:
+                Iterator += 1
+
+        if f"{str(Start_Number)}-{str(End_Number)}" in Updated_Segment_List:
+            return ["*"]
+
+        else:
+            Updated_Segment_List.extend(Non_Hardcoded_Segment_List)
+            return Updated_Segment_List
+
+    except Exception as e:
+        logging.warning(f"{Date()} - Common Library - Failed to verify and filter provided cron schedule. {str(e)}.")

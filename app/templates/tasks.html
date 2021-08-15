@@ -34,12 +34,21 @@
                                     <form class="form" action="{{ url_for('edit_task', taskid=results[0]) }}" method=post autocomplete="off">
                                         <dl>
                                             <dd>
-                                                <input onchange="setLimit(this)" id="textarea" class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{results[2]}}">
+                                                <input onchange="advise(this)" id="textarea" class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{results[2]}}">
                                                 <datalist id="browsers">
                                                     {% for plugin in Valid_Plugins %}
                                                     <option value="{{plugin}}"></option>
                                                     {% endfor %}
                                                 </datalist>
+                                            </dd>
+                                            <dd style="display: none;" id="suggestion_dd">
+                                                <div id="suggestion_div">
+                                                    <p id="suggestion"></p>
+                                                    <div id="suggestion_confirm">
+                                                        <button class="button-run" type="button" onclick="acceptsuggestion()">Accept</button>
+                                                        <button class="button-red" type="button" onclick="declinesuggestion()">Decline</button>
+                                                    </div>
+                                                </div>
                                             </dd>
                                             <dd>
                                                 <input class="field_textarea" id="queryfield" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
@@ -85,36 +94,66 @@
                     </div>
                 </main>
                 <script type="text/javascript">
-                    var Valid_Plugins = {{Valid_Plugins | safe}};
                     var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
+                    var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
 
-                    function setLimit(element) {
+                    function advise(element) {
+                        document.getElementById("queryfield").readOnly = false;
                         if (Plugins_without_Limit.includes(element.value) == false) {
-                            if (Valid_Plugins.includes(element.value) == true) {
-                                document.getElementById("limitfield").style.display = null;
-                                document.getElementById("limitdd").style.display = null;
-                            }
+                            document.getElementById("limitfield").style.display = null;
+                            document.getElementById("limitdd").style.display = null;
                         } else {
-                            if (Valid_Plugins.includes(element.value) == true) {
-                                document.getElementById("limitfield").style.display = "none";
-                                document.getElementById("limitdd").style.display = "none";
+                            document.getElementById("limitfield").style.display = "none";
+                            document.getElementById("limitdd").style.display = "none";
+                        }
+                        var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
+                        if (orgPresets) {
+                            if (orgPresets == "name") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                            } else if (orgPresets == "website") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                            } else if (orgPresets == "domain") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                            } else if (orgPresets.includes("identity")) {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                            }
+                            document.getElementById("suggestion_dd").style.display = null;
+                        } else {
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        }
+                    }
+
+                    function acceptsuggestion() {
+                        var currenttask = document.getElementById("textarea").value;
+                        var orgPresets = Valid_Plugins_Full[currenttask]["Organisation_Presets"];
+                        if (orgPresets) {
+                            if (orgPresets == "name") {
+                                document.getElementById("queryfield").value = "{{suggestion[0]}}";
+                                document.getElementById("suggestion_dd").style.display = "none";
+                            } else if (orgPresets == "website") {
+                                document.getElementById("queryfield").value = "{{suggestion[1]}}";
+                                document.getElementById("suggestion_dd").style.display = "none";
+                            } else if (orgPresets == "domain") {
+                                document.getElementById("queryfield").value = "{{suggestion[2]}}";
+                                var SubDomains = {{suggestion[3] | safe}};
+                                if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
+                                    document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
+                                    document.getElementById("suggestion_dd").style.display = "none";
+                                } else if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length == 0) {
+                                    document.getElementById("suggestion_dd").style.display = "none";
+                                } else {
+                                    document.getElementById("suggestion").innerHTML = "Suggestion: Would you also like to include the provided subdomains for your organisation?";
+                                }
+                            } else if (orgPresets.includes("identity")) {
+                                document.getElementById("queryfield").value = "[IDENTITIES_DATABASE]";
+                                document.getElementById("queryfield").readOnly = true;
+                                document.getElementById("suggestion_dd").style.display = "none";
                             }
                         }
                     }
 
-                    function checkLimitField() {
-                        var element = document.getElementById("textarea");
-                        if (Plugins_without_Limit.includes(element.value) == false) {
-                            if (Valid_Plugins.includes(element.value) == true) {
-                                document.getElementById("limitfield").style.display = null;
-                                document.getElementById("limitdd").style.display = null;
-                            }
-                        } else {
-                            if (Valid_Plugins.includes(element.value) == true) {
-                                document.getElementById("limitfield").style.display = "none";
-                                document.getElementById("limitdd").style.display = "none";
-                            }
-                        }
+                    function declinesuggestion() {
+                        document.getElementById("suggestion_dd").style.display = "none";
                     }
                 </script>
                 {% else %}
@@ -339,7 +378,7 @@
             var myVar;
 
             function pageLoad() {
-              myVar = setTimeout(showPage, 1000);
+                myVar = setTimeout(showPage, 1000);
             }
 
             function showPage() {
@@ -468,7 +507,7 @@
             var myVar;
 
             function pageLoad() {
-              myVar = setTimeout(showPage, 1000);
+                myVar = setTimeout(showPage, 1000);
             }
 
             function showPage() {
@@ -505,15 +544,24 @@
                                 <dl>
                                     <dd>
                                         {% if task_type_field %}
-                                        <input onchange="setLimit(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">
+                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">
                                         {% else %}
-                                        <input onchange="setLimit(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type">
+                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type">
                                         {% endif %}
                                         <datalist id="browsers">
                                             {% for plugin in Valid_Plugins%}
                                             <option value="{{plugin}}"></option>
                                             {% endfor %}
                                         </datalist>
+                                    </dd>
+                                    <dd style="display: none;" id="suggestion_dd">
+                                        <div id="suggestion_div">
+                                            <p id="suggestion"></p>
+                                            <div id="suggestion_confirm">
+                                                <button class="button-run" type="button" onclick="acceptsuggestion()">Accept</button>
+                                                <button class="button-red" type="button" onclick="declinesuggestion()">Decline</button>
+                                            </div>
+                                        </div>
                                     </dd>
                                     <dd>
                                         <input class="field_textarea" id="queryfield" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries.">
@@ -571,21 +619,66 @@
             {% endif %}
         </main>
         <script type="text/javascript">
-            function setLimit(element) {
-                var Valid_Plugins = {{Valid_Plugins | safe}};
-                var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
+            var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
+            var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
 
+            function advise(element) {
+                document.getElementById("queryfield").readOnly = false;
                 if (Plugins_without_Limit.includes(element.value) == false) {
-                    if (Valid_Plugins.includes(element.value) == true) {
-                        document.getElementById("limitfield").style.display = null;
-                        document.getElementById("limitdd").style.display = null;
-                    }
+                    document.getElementById("limitfield").style.display = null;
+                    document.getElementById("limitdd").style.display = null;
                 } else {
-                    if (Valid_Plugins.includes(element.value) == true) {
-                        document.getElementById("limitfield").style.display = "none";
-                        document.getElementById("limitdd").style.display = "none";
+                    document.getElementById("limitfield").style.display = "none";
+                    document.getElementById("limitdd").style.display = "none";
+                }
+                var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
+                if (orgPresets) {
+                    if (orgPresets == "name") {
+                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                    } else if (orgPresets == "website") {
+                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                    } else if (orgPresets == "domain") {
+                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                    } else if (orgPresets.includes("identity")) {
+                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                    }
+                    document.getElementById("suggestion_dd").style.display = null;
+                } else {
+                    document.getElementById("suggestion_dd").style.display = "none";
+                }
+            }
+
+            function acceptsuggestion() {
+                var currenttask = document.getElementById("textarea").value;
+                var orgPresets = Valid_Plugins_Full[currenttask]["Organisation_Presets"];
+                if (orgPresets) {
+                    if (orgPresets == "name") {
+                        document.getElementById("queryfield").value = "{{suggestion[0]}}";
+                        document.getElementById("suggestion_dd").style.display = "none";
+                    } else if (orgPresets == "website") {
+                        document.getElementById("queryfield").value = "{{suggestion[1]}}";
+                        document.getElementById("suggestion_dd").style.display = "none";
+                    } else if (orgPresets == "domain") {
+                        document.getElementById("queryfield").value = "{{suggestion[2]}}";
+                        var SubDomains = {{suggestion[3] | safe}};
+                        if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
+                            document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        } else if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length == 0) {
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        } else {
+                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you also like to include the provided subdomains for your organisation?";
+                        }
+                    } else if (orgPresets.includes("identity")) {
+                        document.getElementById("queryfield").value = "[IDENTITIES_DATABASE]";
+                        document.getElementById("queryfield").readOnly = true;
+                        document.getElementById("suggestion_dd").style.display = "none";
                     }
                 }
+            }
+
+            function declinesuggestion() {
+                document.getElementById("suggestion_dd").style.display = "none";
             }
         </script>
         {% endif %}

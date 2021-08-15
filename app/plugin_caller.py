@@ -2,11 +2,12 @@ import plugin_verifier, plugins.common.General as General, plugins.common.Common
 
 class Plugin_Caller:
 
-    def __init__(self, Result, Task_ID):
+    def __init__(self, Result, Task_ID, Custom_Query=None):
     
         try:
             self.plugin_name = Result[2]
             self.query = Result[1]
+            self.custom_query = Custom_Query
             self.limit = Result[5]
             self.task_id = Task_ID
         
@@ -42,7 +43,7 @@ class Plugin_Caller:
         try:
             Object = Common.Configuration(Output=True)
             self.Starter(Object)
-            Plugin = plugin_verifier.Plugin_Verifier(self.plugin_name, self.task_id, self.query, self.limit).Verify_Plugin()
+            Plugin = plugin_verifier.Plugin_Verifier(self.plugin_name, self.task_id, self.query, self.limit, Custom_Query=self.custom_query).Verify_Plugin()
 
             if Plugin and all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
                 getattr(Plugin["Object"], Plugin["Search Option"])(**Plugin["Function Kwargs"])

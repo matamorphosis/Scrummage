@@ -18,84 +18,127 @@ if __name__ == '__main__':
         from ratelimiter import RateLimiter
         import os, plugin_caller, plugin_verifier, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, importlib, plugins.common.General as General, plugins.common.Common as Common
 
-        Valid_Plugins = sorted(["Ahmia Tor Darkweb Search", "Ahmia I2P Darkweb Search", "Apple Store Search", "Blockchain - Bitcoin Address Search",
-                         "Blockchain - Bitcoin Cash Address Search", "Blockchain - Ethereum Address Search",
-                         "Blockchain - Bitcoin Transaction Search", "Blockchain - Bitcoin Cash Transaction Search",
-                         "Blockchain - Ethereum Transaction Search", "Blockchain - Monero Transaction Search",
-                         "Builtwith Search", "BSB Search", "Business Search - American Central Index Key",
-                         "Business Search - American Company Name", "Business Search - Australian Business Number",
-                         "Business Search - Australian Company Name", "Business Search - Canadian Business Number",
-                         "Business Search - Canadian Company Name", "Business Search - New Zealand Business Number",
-                         "Business Search - New Zealand Company Name",
-                         "Business Search - United Kingdom Business Number",
-                         "Business Search - United Kingdom Company Name", "Certificate Transparency - SSLMate",
-                         "Certificate Transparency - CRT.sh", "Craigslist Search", "Default Password Search",
-                         "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions",
-                         "Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Latin Condensed)",
-                         "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Middle Eastern)",
-                         "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)",
-                         "Domain Fuzzer - Global Domain Suffixes", "Domain Fuzzer - Expired Global Domain Suffixes", "Domain Fuzzer - Regular Domain Suffixes",
-                         "DuckDuckGo Search", "Ebay Search", "Email Reputation Search", "Email Verification Search", "Flickr Search", "Google Search", "Greynoise IP Search",
-                         "Have I Been Pwned - Password Search", "Have I Been Pwned - Email Search",
-                         "Have I Been Pwned - Breach Search", "Have I Been Pwned - Account Search",
-                         "Hunter Search - Domain", "Hunter Search - Email", "IP Stack Search",
-                         "Instagram - Post Search", "Instagram - Tag Search",
-                         "Instagram - User Search", "IntelligenceX Search", "Kik Search", "Library Genesis Search", "Naver Search", "OK Search - User", "OK Search - Group",
-                         "Phishstats Search", "Google Play Store Search", "Pinterest - Board Search",
-                         "Pinterest - Pin Search", "Phone Search - SIM Number", "Phone Search - ISPC Number", "Phone Search - IMSI Number", "Phone Search - IMEI Number",
-                         "Phone Search - Cellular Number", "Reddit Search", "RSS Feed Search", "Shodan Search - IP Address",
-                         "Shodan Search - Query", "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
-                         "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
-                         "Threat Crowd - Virus Report Search", "Torrent Search", "Tumblr Search", "Twitter Search", "Username Search",
-                         "Vehicle Registration Search", "Vkontakte - User Search", "Vkontakte - Group Search",
-                         "Virus Total Search - Domain", "Virus Total Search - URL", "Virus Total Search - IP Address", "Virus Total Search - File Hash",
-                         "Vulners Search", "Windows Store Search", "Yandex Search", "YouTube Search"])
-        Plugins_without_Limit = sorted(["BSB Search", "Blockchain - Monero Transaction Search",
-                                 "Business Search - American Central Index Key",
-                                 "Business Search - Australian Business Number",
-                                 "Business Search - Canadian Business Number",
-                                 "Business Search - New Zealand Business Number",
-                                 "Business Search - United Kingdom Business Number", "Builtwith Search",
-                                 "Certificate Transparency - SSLMate", "Certificate Transparency - CRT.sh",
-                                 "DNS Reconnaissance Search", "Doing Business Search", "Domain Fuzzer - All Extensions",
-                                 "Domain Fuzzer - Punycode (Latin Comprehensive)",
-                                 "Domain Fuzzer - Punycode (Latin Condensed)", "Domain Fuzzer - Punycode (Asian)",
-                                 "Domain Fuzzer - Punycode (Middle Eastern)",
-                                 "Domain Fuzzer - Punycode (Native American)",
-                                 "Domain Fuzzer - Punycode (North African)", "Domain Fuzzer - Global Domain Suffixes",
-                                 "Email Reputation Search", "Email Verification Search", "Greynoise IP Search",
-                                 "Domain Fuzzer - Regular Domain Suffixes", "Have I Been Pwned - Email Search",
-                                 "Have I Been Pwned - Breach Search", "Have I Been Pwned - Password Search",
-                                 "IP Stack Search", "Instagram - Post Search", "Kik Search", "OK Search - User", "OK Search - Group", "Pinterest - Pin Search", "Shodan Search - IP Address",
-                                 "Phone Search - SIM Number", "Phone Search - ISPC Number", "Phone Search - IMSI Number",
-                                 "Phone Search - IMEI Number", "Phone Search - Cellular Number",
-                                 "Threat Crowd - Antivirus Search", "Threat Crowd - Domain Search",
-                                 "Threat Crowd - Email Search", "Threat Crowd - IP Address Search",
-                                 "Threat Crowd - Virus Report Search", "Tumblr Search", "Vehicle Registration Search", "Virus Total Search - Domain",
-                                 "Virus Total Search - URL", "Virus Total Search - IP Address", "Virus Total Search - File Hash"])
-        Configuration_Dependant_Plugins = {"Apple Store Search": "plugins.Apple_Store_Search","Business Search - United Kingdom Business Number": "plugins.UK_Business_Search",
-                       "Business Search - United Kingdom Company Name": "plugins.UK_Business_Search", "Certificate Transparency - SSLMate": "plugins.Certificate_Transparency_SSLMate",
-                       "Craigslist Search": "plugins.Craigslist_Search", "Ebay Search": "plugins.Ebay_Search", "Email Reputation Search": "plugins.Email_Reputation_Search", "Flickr Search": "plugins.Flickr_Search",
-                       "Google Search": "plugins.Google_Search", "Have I Been Pwned - Password Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Email Search": "plugins.Have_I_Been_Pwned",
-                         "Have I Been Pwned - Breach Search": "plugins.Have_I_Been_Pwned", "Have I Been Pwned - Account Search": "plugins.Have_I_Been_Pwned", "Hunter Search - Domain": "plugins.Hunter_Search", "Hunter Search - Email": "plugins.Hunter_Search", "Naver Search": "plugins.Naver_Search", "OK Search - User": "plugins.OK_Search", "OK Search - Group": "plugins.OK_Search",
-                       "Pinterest - Board Search": "plugins.Pinterest_Search", "Pinterest - Pin Search": "plugins.Pinterest_Search", "IntelligenceX Search": "plugins.IntelligenceX_Search",
-                       "Reddit Search": "plugins.Reddit_Search", "Shodan Search - IP Address": "plugins.Shodan_Search", "Shodan Search - Query": "plugins.Shodan_Search",
-                       "Twitter Search": "plugins.Twitter_Search", "Virus Total Search - Domain": "plugins.Virus_Total_Search", "Virus Total Search - URL": "plugins.Virus_Total_Search", "Virus Total Search - IP Address": "plugins.Virus_Total_Search", "Virus Total Search - File Hash": "plugins.Virus_Total_Search",
-                       "Vulners Search": "plugins.Vulners_Search", "Windows Store Search": "plugins.Windows_Store_Search", "Yandex Search": "plugins.Yandex_Search", "YouTube Search": "plugins.YouTube_Search", "IP Stack Search": "plugins.IPStack_Search", "Tumblr Search": "plugins.Tumblr_Search"}
+        Valid_Plugins = {'Ahmia I2P Darkweb Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Ahmia_Darkweb_Search'},
+        'Ahmia Tor Darkweb Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Ahmia_Darkweb_Search'},
+        'Apple Store Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Apple_Store_Search'},
+        'BSB Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.BSB_Search'},
+        'Blockchain - Bitcoin Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Bitcoin Cash Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Bitcoin Cash Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Bitcoin Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Ethereum Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Ethereum Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
+        'Blockchain - Monero Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Blockchain_Search'},
+        'Builtwith Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.BuiltWith_Search', 'Organisation_Presets': "website"},
+        'Business Search - American Central Index Key': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.American_Business_Search'},
+        'Business Search - American Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.American_Business_Search', 'Organisation_Presets': "name"},
+        'Business Search - Australian Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Australian_Business_Search'},
+        'Business Search - Australian Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Australian_Business_Search', 'Organisation_Presets': "name"},
+        'Business Search - Canadian Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Canadian_Business_Search'},
+        'Business Search - Canadian Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Canadian_Business_Search', 'Organisation_Presets': "name"},
+        'Business Search - New Zealand Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.NZ_Business_Search'},
+        'Business Search - New Zealand Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.NZ_Business_Search', 'Organisation_Presets': "name"},
+        'Business Search - United Kingdom Business Number': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.UK_Business_Search'},
+        'Business Search - United Kingdom Company Name': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.UK_Business_Search', 'Organisation_Presets': "name"},
+        'Certificate Transparency - CRT.sh': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_CRT', 'Organisation_Presets': "domain"},
+        'Certificate Transparency - SSLMate': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_SSLMate', 'Organisation_Presets': "domain"},
+        'Craigslist Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Craigslist_Search'},
+        'DNS Reconnaissance Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.DNS_Recon_Search', 'Organisation_Presets': "domain"},
+        'Default Password Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Default_Password_Search'},
+        'Doing Business Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Doing_Business_Search'},
+        'Domain Fuzzer - All Extensions': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Expired Global Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Global Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (Asian)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (Latin Comprehensive)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (Latin Condensed)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (Middle Eastern)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (Native American)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Punycode (North African)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'Domain Fuzzer - Regular Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
+        'DuckDuckGo Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.DuckDuckGo_Search'},
+        'Ebay Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Ebay_Search'},
+        'Email Reputation Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Email_Reputation_Search', 'Organisation_Presets': "identity_emails"},
+        'Email Verification Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Email_Verification_Search', 'Organisation_Presets': "identity_emails"},
+        'Flickr Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Flickr_Search'},
+        'GitHub Repository Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.GitHub_Search'},
+        'Google Play Store Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Google_Play_Store_Search'},
+        'Google Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Google_Search'},
+        'Greynoise IP Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Greynoise_IP_Search'},
+        'Have I Been Pwned - Account Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Have_I_Been_Pwned'},
+        'Have I Been Pwned - Breach Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned'},
+        'Have I Been Pwned - Email Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned', 'Organisation_Presets': "identity_emails"},
+        'Have I Been Pwned - Password Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned'},
+        'Hunter Search - Domain': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Hunter_Search', 'Organisation_Presets': "domain"},
+        'Hunter Search - Email': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Hunter_Search', 'Organisation_Presets': "identity_emails"},
+        'IP Stack Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.IPStack_Search'},
+        'Instagram - Post Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Instagram_Search'},
+        'Instagram - Tag Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Instagram_Search'},
+        'Instagram - User Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Instagram_Search'},
+        'IntelligenceX Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.IntelligenceX_Search', 'Organisation_Presets': "domain"},
+        'Kik Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Kik_Search'},
+        'Library Genesis Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Library_Genesis_Search'},
+        'Naver Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Naver_Search'},
+        'OK Search - Group': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.OK_Search'},
+        'OK Search - User': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.OK_Search'},
+        'Phishstats Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Phishstats_Search', 'Organisation_Presets': "domain"},
+        'Phone Search - Cellular Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search', 'Organisation_Presets': "identity_phones"},
+        'Phone Search - IMEI Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
+        'Phone Search - IMSI Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
+        'Phone Search - ISPC Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
+        'Phone Search - SIM Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
+        'Pinterest - Board Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Pinterest_Search'},
+        'Pinterest - Pin Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Pinterest_Search'},
+        'RSS Feed Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.RSS_Feed_Search', 'Organisation_Presets': "name"},
+        'Reddit Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Reddit_Search'},
+        'Shodan Search - IP Address': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Shodan_Search'},
+        'Shodan Search - Query': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Shodan_Search'},
+        'Threat Crowd - Antivirus Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
+        'Threat Crowd - Domain Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Organisation_Presets': "domain"},
+        'Threat Crowd - Email Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Organisation_Presets': "identity_emails"},
+        'Threat Crowd - IP Address Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
+        'Threat Crowd - Virus Report Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
+        'Torrent Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Torrent_Search'},
+        'Tumblr Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Tumblr_Search'},
+        'Twitter Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Twitter_Search'},
+        'Username Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Username_Search', 'Organisation_Presets': "identity_usernames"},
+        'Vehicle Registration Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Vehicle_Registration_Search'},
+        'Virus Total Search - Domain': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search', 'Organisation_Presets': "domain"},
+        'Virus Total Search - File Hash': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search'},
+        'Virus Total Search - IP Address': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search'},
+        'Virus Total Search - URL': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search', 'Organisation_Presets': "website"},
+        'Vkontakte - Group Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Vkontakte_Search'},
+        'Vkontakte - User Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Vkontakte_Search'},
+        'Vulners Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Vulners_Search'},
+        'Windows Store Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Windows_Store_Search'},
+        'Yandex Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Yandex_Search'},
+        'YouTube Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.YouTube_Search'}}
+
+        def No_Limit_Plugins():
+            Plugin_Names = []
+
+            for Key, Value in Valid_Plugins.items():
+
+                if not Value["Requires_Limit"]:
+                    Plugin_Names.append(Key)
+
+            return Plugin_Names
+
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
                          "BSB Details", "Certificate", "Search Result", "Credentials", "Domain Information", "Email Information",
                          "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group",
                          "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing", "Phone Details"
-                         "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Data Leakage", "Exploit",
+                         "Repository", "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Data Leakage", "Exploit",
                          "Economic Details", "Virus", "Virus Report", "Web Application Architecture", "IP Address Information"])
         Result_Filters = ["Result ID", "Task ID", "Title", "Plugin", "Status", "Domain", "Link", "Created At", "Updated At", "Result Type"]
         Task_Filters = ["Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At"]
         Event_Filters = ["Event ID", "Description", "Created At"]
         Account_Filters = ["User ID", "Username", "Blocked", "Is Admin"]
+        Identity_Filters = ["Identity ID", "Firstname", "Middlename", "Surname", "Fullname", "Username", "Email", "Phone"]
         Thread_In_Use = None
         SS_Thread_In_Use = None
-        Version = "3.5"
+        Version = "3.6"
 
         try:
             Scrummage_Working_Directory = pathlib.Path(__file__).parent.absolute()
@@ -291,7 +334,7 @@ if __name__ == '__main__':
                         return {"Token": True, "Admin": User_Details[4], "Username": User_Details[1], "Message": "Token verification successful."}
 
                     else:
-                        return {"Token": False, "Admin": False, "Message": "Token blocked."}
+                        return {"Token": False, "Admin": False, "Username": User_Details[1], "Message": "Token blocked."}
 
                 else:
                     return {"Token": False, "Admin": False, "Message": "Invalid token."}
@@ -305,14 +348,16 @@ if __name__ == '__main__':
             except jwt.InvalidTokenError:
                 return {"Token": False, "Admin": False, "Message": "Invalid token."}
 
-        def Output_API_Checker(Get_Full_List=True):
+        def Output_API_Checker():
 
             try:
                 Full_List = {}
 
-                for API_Key, API_Value in Configuration_Dependant_Plugins.items():
-                    Result = plugin_verifier.Plugin_Verifier(API_Key, 0, "", 0).Verify_Plugin(Load_Config_Only=True)
-                    Full_List[API_Key] = Result
+                for API_Key, API_Value in Valid_Plugins.items():
+
+                    if API_Value["Requires_Configuration"]:
+                        Result = plugin_verifier.Plugin_Verifier(API_Key, 0, "", 0).Verify_Plugin(Load_Config_Only=True)
+                        Full_List[API_Key] = Result
 
                 if len(Full_List) > 0:
                     return Full_List
@@ -1425,12 +1470,12 @@ if __name__ == '__main__':
                         session['task_form_step'] = 1
 
                         if tasktype == "new":
-                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=Valid_Plugins, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
+                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=list(Valid_Plugins.keys()), Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                         elif tasktype == "edit":
                             Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (session.get('task_id'),))
                             result = Cursor.fetchone()
-                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=Valid_Plugins, results=result, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
+                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=list(Valid_Plugins.keys()), results=result, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                         else:
                             return redirect(url_for('tasks'))
@@ -1607,6 +1652,31 @@ if __name__ == '__main__':
                     session["task_error"] = "Task is already running."
                     return redirect(url_for('tasks'))
 
+                if result[1] == "[IDENTITIES_DATABASE]":
+                    ID_DB_Search_Type = Valid_Plugins[result[2]]["Organisation_Presets"]
+
+                    if ID_DB_Search_Type == "identity_usernames":
+                        Cursor.execute("SELECT username FROM org_identities;")
+                        ID_DB_Results = Cursor.fetchall()
+
+                    elif ID_DB_Search_Type == "identity_emails":
+                        Cursor.execute("SELECT email FROM org_identities;")
+                        ID_DB_Results = Cursor.fetchall()
+
+                    elif ID_DB_Search_Type == "identity_phones":
+                        Cursor.execute("SELECT phone FROM org_identities;")
+                        ID_DB_Results = Cursor.fetchall()
+
+                    Filtered_Data = []
+
+                    for Row in ID_DB_Results:
+                        Filtered_Data.append(Row[0])
+
+                    Query = ", ".join(Filtered_Data)
+
+                else:
+                    Query = None
+
                 Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin()
 
                 if not Plugin or not all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
@@ -1615,15 +1685,15 @@ if __name__ == '__main__':
 
                 else:
 
-                    def Task_Runner(Result_Inner, Plugin_ID_Inner):
-                        plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner).Call_Plugin()
+                    def Task_Runner(Result_Inner, Plugin_ID_Inner, Inner_Query):
+                        plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner, Custom_Query=Inner_Query).Call_Plugin()
 
                     def Threaded_Task_Runner():
                         global Thread_In_Use
                         
                         if Thread_In_Use and Thread_In_Use.is_alive():
                             Previous_Thread = Thread_In_Use
-                            Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID))
+                            Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID, Query))
                             Thread_In_Use.start()
                             Previous_Thread.join()
                             Thread_In_Use.join()
@@ -1632,7 +1702,7 @@ if __name__ == '__main__':
                         threading.Thread(target=Threaded_Task_Runner).start()
                             
                     else:
-                        Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID))
+                        Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID, Query))
                         Thread_In_Use.start()
                     
                     session["task_api_check"] = "Passed"
@@ -1661,25 +1731,38 @@ if __name__ == '__main__':
                             Description = ""
                             Limit = 0
                             
-                            if Content['Task Type'] not in Valid_Plugins:
+                            if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
 
-                            if any(char in Content['Query'] for char in Bad_Characters):
+                            if (any(char in Content['Query'] for char in Bad_Characters) and session.get('task_query') != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if 'Frequency' in Content:
-                                Frequency_Regex = Common.Regex_Handler(Content["Frequency"], Type="Cron")
+                                task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
 
-                                if not Frequency_Regex and not Content["Frequency"] == "":
-                                    return jsonify({"Error": "The task type is not a valid option."}), 500
+                                if task_frequency_regex:
+                                    Updated_Cron = []
 
+                                    for Group in range(1, 6):
+                                        Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                        Regex_Group = task_frequency_regex.group(Group)
+                                        
+                                        if "," in Regex_Group:
+                                            Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
+                                            Updated_Cron.append(",".join(Item))
+
+                                        else:
+                                            Updated_Cron.append(Regex_Group)
+
+                                    Frequency = " ".join(Updated_Cron)
+                                        
                                 else:
-                                    Frequency = Content["Frequency"]
+                                    return jsonify({"Error": "Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\""}), 500
 
                             if 'Description' in Content:
                                 Description = html.escape(Content['Description'])
 
-                            if 'Limit' in Content and Content['Task Type'] not in Plugins_without_Limit:
+                            if 'Limit' in Content and Valid_Plugins[Content['Task Type']]["Requires_Limit"]:
                                 
                                 try:
                                     Limit = int(Content['Limit'])
@@ -1736,37 +1819,54 @@ if __name__ == '__main__':
 
             try:
                 Task_Bad_Characters = Bad_Characters
+                Suggestion = Common.Configuration(Core=True).Load_Configuration(Object="organisation", Details_to_Load=["name", "website", "domain", "subdomains"])
 
                 if session.get('task_form_step') == 0 or request.method == "GET":
                     session['task_form_step'] = 1
                     return render_template('tasks.html', username=session.get('user'),
-                                           form_type=session.get('task_form_type'),
-                                           is_admin=session.get('is_admin'), form_step=session.get('task_form_step'),
-                                           new_task=True,
-                                           Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit)
+                                            form_type=session.get('task_form_type'),
+                                            is_admin=session.get('is_admin'), form_step=session.get('task_form_step'),
+                                            new_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins())
 
                 elif session.get('task_form_step') == 1:
                     time.sleep(1)
 
-                    if request.form.get('tasktype') not in Valid_Plugins:
+                    if request.form.get('tasktype') not in Valid_Plugins.keys():
                         return render_template('tasks.html', username=session.get('user'),
-                                               form_type=session.get('task_form_type'),
-                                               new_task=True, Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                               is_admin=session.get('is_admin'),
-                                               form_step=session.get('task_form_step'),
-                                               error="Please choose a valid task from the provided list for the Task Type field.")
+                                                form_type=session.get('task_form_type'),
+                                                new_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                form_step=session.get('task_form_step'),
+                                                error="Please choose a valid task from the provided list for the Task Type field.")
 
                     if 'frequency' in request.form:
                         session['task_frequency'] = request.form['frequency']
                         task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
-                        if not task_frequency_regex and not session.get('task_frequency') == "":
+                        if task_frequency_regex:
+                            Updated_Cron = []
+
+                            for Group in range(1, 6):
+                                Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                Regex_Group = task_frequency_regex.group(Group)
+                                
+                                if "," in Regex_Group:
+                                    Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
+                                    Updated_Cron.append(",".join(Item))
+
+                                else:
+                                    Updated_Cron.append(Regex_Group)
+
+                            session['task_frequency'] = " ".join(Updated_Cron)
+                                
+                        else:
                             return render_template('tasks.html', username=session.get('user'),
-                                                   form_step=session.get('task_form_step'),
-                                                   form_type=session.get('task_form_type'),
-                                                   is_admin=session.get('is_admin'), new_task=True,
-                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                   error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
+                                                    form_step=session.get('task_form_step'),
+                                                    form_type=session.get('task_form_type'),
+                                                    is_admin=session.get('is_admin'), new_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                    error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
 
                     if 'description' in request.form:
                         session['task_description'] = html.escape(request.form['description'])
@@ -1774,7 +1874,7 @@ if __name__ == '__main__':
                     if request.form.get('tasktype') == "Phone Search - Cellular Number":
                         Task_Bad_Characters.remove("+")
 
-                    session['task_form_type'] = request.form['tasktype']                        
+                    session['task_form_type'] = request.form['tasktype']                     
 
                     if 'query' in request.form:
 
@@ -1782,22 +1882,24 @@ if __name__ == '__main__':
                             Frequency_Error = ""
                             session['task_query'] = request.form['query']
 
-                            if request.form.get('limit') and session.get('task_form_type') not in Plugins_without_Limit:
+                            if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
-                                if any(char in session.get('task_query') for char in Bad_Characters):
+                                if (any(char in session.get('task_query') for char in Bad_Characters) and session.get('task_query') != "[IDENTITIES_DATABASE]"):
                                     return render_template('tasks.html', username=session.get('user'),
-                                                               form_type=session.get('task_form_type'),
-                                                               form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                               is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                form_type=session.get('task_form_type'),
+                                                                form_step=session.get('task_form_step'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 try:
                                     session['task_limit'] = int(request.form['limit'])
 
                                 except:
                                     return render_template('tasks.html', username=session.get('user'),
-                                                           form_type=session.get('task_form_type'),
-                                                           form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                           is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
+                                                            form_type=session.get('task_form_type'),
+                                                            form_step=session.get('task_form_step'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                            is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                             else:
                                 Current_Query_List = General.Convert_to_List(session['task_query'])
@@ -1806,30 +1908,30 @@ if __name__ == '__main__':
 
                                     if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), new_task=True,
-                                                               form_type=session.get('task_form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                               is_admin=session.get('is_admin'),
-                                                               error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+                                                                form_step=session.get('task_form_step'), new_task=True,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                is_admin=session.get('is_admin'),
+                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
 
                                     elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
                                         sess_form_type = session["task_form_type"]
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), new_task=True,
-                                                               form_type=session.get('task_form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                               is_admin=session.get('is_admin'),
-                                                               error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+                                                                form_step=session.get('task_form_step'), new_task=True,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                is_admin=session.get('is_admin'),
+                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
                                     if any(char in Current_Query for char in Bad_Characters):
                                         return render_template('tasks.html', username=session.get('user'),
-                                                                   form_type=session.get('task_form_type'),
-                                                                   form_step=session.get('task_form_step'), new_task=True,
-                                                                   is_admin=session.get('is_admin'),
-                                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                                   error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                    form_type=session.get('task_form_type'),
+                                                                    form_step=session.get('task_form_step'), new_task=True,
+                                                                    is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
 
-                            Current_Timestamp = Common.Date()  # Variable set as it is needed for two different functions and needs to be consistent.
+                            Current_Timestamp = Common.Date()
                             Cursor.execute('INSERT INTO tasks (query, plugin, description, frequency, task_limit, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (
                             session.get('task_query'), session.get('task_form_type'), session.get('task_description'),
                             session.get('task_frequency'), session.get('task_limit'), "Stopped",
@@ -1863,26 +1965,26 @@ if __name__ == '__main__':
 
                             if Frequency_Error:
                                 return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'),
-                                                       form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                       new_task=True, is_admin=session.get('is_admin'),
-                                                       results=results, error=Frequency_Error)
+                                                        form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        results=results, error=Frequency_Error)
 
                             else:
                                 return redirect(url_for('tasks'))
 
                         else:
                             return render_template('tasks.html', username=session.get('user'),
-                                                       form_type=session.get('task_form_type'),
-                                                       new_task=True, is_admin=session.get('is_admin'),
-                                                       form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                       error="Please provide a valid query to search for.")
+                                                        form_type=session.get('task_form_type'),
+                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                        error="Please provide a valid query to search for.")
 
                     else:
                         return render_template('tasks.html', username=session.get('user'),
-                                                   form_type=session.get('task_form_type'),
-                                                   new_task=True, is_admin=session.get('is_admin'),
-                                                   form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                   error="Please provide a valid query to search for.")
+                                                    form_type=session.get('task_form_type'),
+                                                    new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                    form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                    error="Please provide a valid query to search for.")
                     
                 else:
                     return redirect(url_for('tasks'))
@@ -1915,37 +2017,47 @@ if __name__ == '__main__':
                             Description = ""
                             Limit = 0
                             
-                            if Content['Task Type'] not in Valid_Plugins:
+                            if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
 
                             if any(char in Content['Query'] for char in Bad_Characters):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if 'Frequency' in Content:
-                                Common.Regex_Handler(Content["Frequency"], Type="Cron")
+                                task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
 
-                                if not Frequency_Regex and Content["Frequency"] != "":
-                                    return jsonify({"Error": "The task type is not a valid option."}), 500
+                                if task_frequency_regex:
+                                    Updated_Cron = []
 
-                                else:
+                                    for Group in range(1, 6):
+                                        Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                        Regex_Group = task_frequency_regex.group(Group)
+                                        
+                                        if "," in Regex_Group:
+                                            Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
+                                            Updated_Cron.append(",".join(Item))
+
+                                        else:
+                                            Updated_Cron.append(Regex_Group)
+
+                                    Frequency = " ".join(Updated_Cron)
                                     Update_Cron = False
                                     Cursor.execute("SELECT frequency FROM tasks WHERE task_id = %s;", (session.get('task_id'),))
                                     result = Cursor.fetchone()
                                     Original_Frequency = result[0]
-                                    Frequency = Content['Frequency']
                                     Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {current_task_id}'
 
-                                    if Content['Frequency'] != "" and Content['Frequency'] != Original_Frequency:
+                                    if Frequency != "" and Frequency != Original_Frequency:
                                         Update_Cron = True
 
-                                    elif Content['Frequency'] != "" and Content['Frequency'] == Original_Frequency:
+                                    elif Frequency != "" and Frequency == Original_Frequency:
                                         Update_Cron = False
 
-                                    elif Content['Frequency'] == "" and Original_Frequency == "":
+                                    elif Frequency == "" and Original_Frequency == "":
                                         Remove_Cron = True
 
-                                    elif Content['Frequency'] != "" and Original_Frequency == "":
-                                        Creat_Cron = True
+                                    elif Frequency != "" and Original_Frequency == "":
+                                        Create_Cron = True
 
                                     if Remove_Cron:
 
@@ -1992,12 +2104,14 @@ if __name__ == '__main__':
 
                                         except:
                                             return jsonify({"Error": f"Failed to create new cronjob. No changes made to task.", "Attempted Cronjob": Cron_Command}), 500
-                                    
+                                        
+                                else:
+                                    return jsonify({"Error": "Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\""}), 500                                  
 
                             if 'Description' in Content:
                                 Description = html.escape(Content['Description'])
 
-                            if 'Limit' in Content and Content['Task Type'] not in Plugins_without_Limit:
+                            if 'Limit' in Content and Valid_Plugins[Content['Task Type']]["Requires_Limit"]:
                                 
                                 try:
                                     Limit = int(Content['Limit'])
@@ -2029,6 +2143,8 @@ if __name__ == '__main__':
         def edit_task(taskid):
 
             try:
+                Task_Bad_Characters = Bad_Characters
+                Suggestion = Common.Configuration(Core=True).Load_Configuration(Object="organisation", Details_to_Load=["name", "website", "domain", "subdomains"])
 
                 if session.get('task_form_step') == 0 or request.method == "GET":
 
@@ -2038,37 +2154,64 @@ if __name__ == '__main__':
 
                     if results:
                         session['task_form_step'] = 1
-                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=Valid_Plugins, is_admin=session.get('is_admin'), results=results, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit))
+                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion, Valid_Plugins=list(Valid_Plugins.keys()), is_admin=session.get('is_admin'), results=results, Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), Valid_Plugins_Full=Valid_Plugins,)
 
                     else:
+                        # FIX ME
                         Cursor.execute("SELECT * FROM tasks;", (session.get('task_id'),))
                         results = Cursor.fetchall()
-                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results, is_admin=session.get('is_admin'), error="Invalid value provided. Failed to edit object.")
+                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, is_admin=session.get('is_admin'), error="Invalid value provided. Failed to edit object.")
 
                 elif session.get('task_form_step') == 1:
                     time.sleep(1)
                     Cursor.execute("SELECT * FROM tasks WHERE task_id = %s;", (session.get('task_id'),))
                     results = Cursor.fetchone()
 
-                    if request.form.get('tasktype') and request.form.get('tasktype') in Valid_Plugins:
+                    if request.form.get('tasktype') and request.form.get('tasktype') in Valid_Plugins.keys():
 
                         if 'frequency' in request.form:
-                            session['task_frequency'] = request.form['frequency']
-                            task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
-                            if not task_frequency_regex and not session.get('task_frequency') == "":
-                                return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results, is_admin=session.get('is_admin'), error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* /5 * * *\"")
+                            if 'frequency' in request.form:
+                                session['task_frequency'] = request.form['frequency']
+                                task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
+
+                                if task_frequency_regex:
+                                    Updated_Cron = []
+
+                                    for Group in range(1, 6):
+                                        Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                        Regex_Group = task_frequency_regex.group(Group)
+                                        
+                                        if "," in Regex_Group:
+                                            Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
+                                            Updated_Cron.append(",".join(Item))
+
+                                        else:
+                                            Updated_Cron.append(Regex_Group)
+
+                                    session['task_frequency'] = " ".join(Updated_Cron)
+                                        
+                                else:
+                                    return render_template('tasks.html', username=session.get('user'),
+                                                            form_step=session.get('task_form_step'),
+                                                            form_type=session.get('task_form_type'), results=results, Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), 
+                                                            is_admin=session.get('is_admin'), edit_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                            error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
 
                         if 'description' in request.form:
                             session['task_description'] = html.escape(request.form['description'])
+
+                        if request.form.get('tasktype') == "Phone Search - Cellular Number":
+                            Task_Bad_Characters.remove("+")
 
                         session['task_form_type'] = request.form['tasktype']
 
                     else:
                         return render_template('tasks.html', username=session.get('user'),
                                                form_step=session.get('task_form_step'),
-                                               edit_task=True, Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit),
-                                               is_admin=session.get('is_admin'), results=results,
+                                               edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
+                                               is_admin=session.get('is_admin'), results=results, Valid_Plugins_Full=Valid_Plugins, suggestion=Suggestion,
                                                error="Invalid task type, please select an option from the provided list for the Task Type field.")
 
                     if 'query' in request.form:
@@ -2077,13 +2220,13 @@ if __name__ == '__main__':
                             Frequency_Error = ""
                             session['task_query'] = request.form['query']
 
-                            if request.form.get('limit') and session.get('task_form_type') not in Plugins_without_Limit:
+                            if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
                                 if any(char in session.get('task_query') for char in Bad_Characters):
                                     return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit),
-                                                               results=results, is_admin=session.get('is_admin'),
-                                                               form_type=session.get('task_form_type'),
+                                                               form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
+                                                               results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
+                                                               form_type=session.get('task_form_type'), Valid_Plugins_Full=Valid_Plugins,
                                                                error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 try:
@@ -2092,9 +2235,9 @@ if __name__ == '__main__':
                                 except:
                                     return render_template('tasks.html', username=session.get('user'),
                                                            form_step=session.get('task_form_step'), edit_task=True,
-                                                           form_type=session.get('task_form_type'),
-                                                           Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results,
-                                                           is_admin=session.get('is_admin'),
+                                                           form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                           Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                           is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
                                                            error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                             else:
@@ -2105,26 +2248,26 @@ if __name__ == '__main__':
                                     if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
                                         return render_template('tasks.html', username=session.get('user'),
                                                                form_step=session.get('task_form_step'), edit_task=True,
-                                                               form_type=session.get('task_form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results,
-                                                               is_admin=session.get('is_admin'),
+                                                               form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                               Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                               is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
 
                                     elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
                                         sess_form_type = session["task_form_type"]
                                         return render_template('tasks.html', username=session.get('user'),
                                                                form_step=session.get('task_form_step'), edit_task=True,
-                                                               form_type=session.get('task_form_type'),
-                                                               Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results,
-                                                               is_admin=session.get('is_admin'),
+                                                               form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                               Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                               is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
                                     if any(char in Current_Query for char in Bad_Characters):
                                         return render_template('tasks.html', username=session.get('user'),
-                                                                   form_type=session.get('task_form_type'),
+                                                                   form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                    form_step=session.get('task_form_step'), edit_task=True,
-                                                                   is_admin=session.get('is_admin'),
-                                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, Without_Limit=(results[2] in Plugins_without_Limit), results=results,
+                                                                   is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
+                                                                   Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
 
                             Update_Cron = False
@@ -2152,9 +2295,9 @@ if __name__ == '__main__':
 
                                     except:
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_type=session.get('task_form_type'),
-                                                               form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                               Without_Limit=(results[2] in Plugins_without_Limit), is_admin=session.get('is_admin'), edit_task=True,
+                                                               form_type=session.get('task_form_type'), Valid_Plugins_Full=Valid_Plugins, suggestion=Suggestion,
+                                                               form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                               Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), is_admin=session.get('is_admin'), edit_task=True,
                                                                error="Failed to update cron job.")
 
                             Cursor.execute('UPDATE tasks SET query = %s, plugin = %s, description = %s, frequency = %s, task_limit = %s, updated_at = %s WHERE task_id = %s', (
@@ -2194,31 +2337,32 @@ if __name__ == '__main__':
 
                             if Frequency_Error:
                                 return render_template('tasks.html', username=session.get('user'),
-                                                       form_step=session.get('task_form_step'), Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit,
-                                                       Without_Limit=(results[2] in Plugins_without_Limit), edit_task=True, is_admin=session.get('is_admin'),
-                                                       results=results, error=Frequency_Error)
+                                                       form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                       Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), edit_task=True, is_admin=session.get('is_admin'),
+                                                       results=results, error=Frequency_Error, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins)
 
                             else:
                                 return redirect(url_for('tasks'))
 
                         else:
                             return render_template('tasks.html', username=session.get('user'),
-                                                       form_step=session.get('task_form_step'), edit_task=True,
-                                                       Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, is_admin=session.get('is_admin'),
-                                                       Without_Limit=(results[2] in Plugins_without_Limit), results=results,
+                                                       form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion,
+                                                       Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), is_admin=session.get('is_admin'),
+                                                       Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, Valid_Plugins_Full=Valid_Plugins,
                                                        error="Please provide a valid query to search for.")
 
                     else:
                         return render_template('tasks.html', username=session.get('user'),
-                                                   form_step=session.get('task_form_step'), edit_task=True,
-                                                   Valid_Plugins=Valid_Plugins, Plugins_without_Limit=Plugins_without_Limit, is_admin=session.get('is_admin'),
-                                                   Without_Limit=(results[2] in Plugins_without_Limit), results=results,
+                                                   form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion,
+                                                   Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), is_admin=session.get('is_admin'),
+                                                   Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, Valid_Plugins_Full=Valid_Plugins,
                                                    error="Please provide a valid query to search for.")
 
                 else:
                     return redirect(url_for('tasks'))
 
             except Exception as e:
+                raise e
                 app.logger.error(e)
                 return redirect(url_for('tasks'))
 
@@ -2307,6 +2451,86 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown Exception Occurred."}), 500
 
+        @app.route('/results/upload', methods=['POST', 'GET'])
+        @login_requirement
+        @admin_requirement
+        def bulk_result_upload():
+
+            try:
+
+                if session.get('results_form_step') == 0 or request.method == "GET":
+                    session['results_form_step'] = 1
+                    session['results_form_type'] = "bulk"
+                    return render_template('results.html', username=session.get('user'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), is_admin=session.get('is_admin'), Finding_Types=Finding_Types)
+
+                elif session.get('results_form_step') == 1:
+                    time.sleep(1)
+
+                    if request.form.get("bulk_results"):
+                        Iterator = 1
+                        Records_to_Insert = []
+
+                        for Result_Row in request.form["bulk_results"].split("\r\n"):
+                            Attributes = Result_Row.split(",")
+                            Final_List = []
+
+                            if len(Attributes) == 3:
+                                Attr_Iterator = 0
+
+                                for Attribute in Attributes:
+
+                                    if Attr_Iterator not in [1, 2] and any(Attribute.startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                        return render_template('results.html', username=session.get('user'), is_admin=session.get('is_admin'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), error=f"Please ensure the fields do not contain any bad characters. The offending line is line {str(Iterator)}.")
+                                
+                                    elif Attr_Iterator == 1:
+                                        URL_Regex = Common.Regex_Handler(Attribute, Type="URL")
+
+                                        if URL_Regex:
+                                            Final_List.append(URL_Regex.group(3))
+                                            Final_List.append(Attribute)
+
+                                        else:
+                                            return render_template('results.html', username=session.get('user'), is_admin=session.get('is_admin'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), error=f"Please ensure the provided URL is in the correct format. The offending line is line {str(Iterator)}.")
+                                
+                                    elif Attr_Iterator == 2 and Attribute not in Finding_Types:
+                                        return render_template('results.html', username=session.get('user'), is_admin=session.get('is_admin'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), error=f"Please ensure the provided finding type is in the approved list. The offending line is line {str(Iterator)}.")
+
+                                    else:
+
+                                        if Attr_Iterator == 0:
+                                            Final_List.append(Attribute.capitalize())
+
+                                        elif Attr_Iterator != 1:
+                                            Final_List.append(Attribute)
+
+                                    Attr_Iterator += 1
+
+                                Records_to_Insert.append(Final_List)
+
+                            else:
+                                return render_template('results.html', username=session.get('user'), is_admin=session.get('is_admin'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), error=f"Please ensure none of the lines have missing fields. The offending line is line {str(Iterator)}.")
+
+                            Iterator += 1
+
+                        if len(Records_to_Insert) > 0:
+
+                            for Record in Records_to_Insert:
+                                Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0, str(Record[0]), "Open", "Manual Entry", str(Record[1]), str(Record[2]), Common.Date(), Common.Date(), Record[3],))
+                        
+                        Connection.commit()
+                        Message = f"Bulk results uploaded by {session.get('user')}."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+                        time.sleep(1)
+                        return redirect(url_for('results'))
+
+                else:
+                    return redirect(url_for('results'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('results'))
+
         @app.route('/results/new', methods=['POST', 'GET'])
         @login_requirement
         @admin_requirement
@@ -2316,67 +2540,34 @@ if __name__ == '__main__':
 
                 if session.get('results_form_step') == 0 or request.method == "GET":
                     session['results_form_step'] = 1
-                    return render_template('results.html', username=session.get('user'),
-                                           form_step=session.get('results_form_step'),
-                                           is_admin=session.get('is_admin'), Finding_Types=Finding_Types)
+                    session['results_form_type'] = "new"
+                    return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types)
 
                 elif session.get('results_form_step') == 1:
                     time.sleep(1)
-                    name = request.form['name']
-                    URL = request.form['url']
-                    Type = request.form['type']
 
-                    if name and URL and Type:
+                    if all(Item in request.form for Item in ['Name', 'URL', 'Type']):
 
-                        if any(char in name for char in Bad_Characters):
-                            return render_template('results.html', username=session.get('user'),
-                                                       form_step=session.get('results_form_step'),
-                                                       is_admin=session.get('is_admin'), Finding_Types=Finding_Types,
-                                                       error="Bad characters identified in the name field, please remove special characters from the name field.")
+                        if any(char in request.form['Name'] for char in Bad_Characters):
+                            return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types, error="Bad characters identified in the name field, please remove special characters from the name field.")
 
-                        if not Type in Finding_Types:
-                            return render_template('results.html', username=session.get('user'),
-                                                   form_step=session.get('results_form_step'),
-                                                   is_admin=session.get('is_admin'), Finding_Types=Finding_Types,
-                                                   error="Result type is not valid.")
+                        if not request.form['Type'] in Finding_Types:
+                            return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types, error="Result type is invalid.")
 
-                        Query_List = General.Convert_to_List(name)
-                        Hosts_List = General.Convert_to_List(URL)
-                        Iterator_List = []
-                        i = 0
+                        URL_Regex = Common.Regex_Handler(request.form['URL'], Type="URL")
 
-                        while i < len(Hosts_List) and len(Query_List):
-                            URL_Regex = Common.Regex_Handler(Hosts_List[i], Type="URL")
+                        if not URL_Regex:
+                            return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types, error="URL is invalid.")
 
-                            if URL_Regex:
-                                Iterator_List.append(i)
-                                i += 1
-
-                            else:
-                                return render_template('results.html', username=session.get('user'),
-                                                       form_step=session.get('results_form_step'),
-                                                       is_admin=session.get('is_admin'), Finding_Types=Finding_Types,
-                                                       error="Invalid URL(s).")
-
-                        for Iterator in Iterator_List:
-                            URL_Regex = Common.Regex_Handler(Hosts_List[Iterator], Type="URL")
-
-                            try:
-                                Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (
-                                0, str(Query_List[Iterator]), "Open", "Manual Entry", str(URL_Regex.group(3)),
-                                str(Hosts_List[Iterator]), Common.Date(), Common.Date(), Type,))
-                                Connection.commit()
-
-                            except Exception as e:
-                                app.logger.error(e)
-
+                        Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0, str(request.form['Name']), "Open", "Manual Entry", str(URL_Regex.group(3)), str(request.form['URL']), Common.Date(), Common.Date(), request.form['Type'],))
+                        Connection.commit()
+                        Message = f"New result created by {session.get('user')}."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
                         return redirect(url_for('results'))
 
                     else:
-                        return render_template('results.html', username=session.get('user'),
-                                               form_step=session.get('results_form_step'),
-                                               is_admin=session.get('is_admin'), Finding_Types=Finding_Types,
-                                               error="Invalid entry/entries, please fill out all necessary fields.")
+                        return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types, error="Invalid entry/entries, please fill out all necessary fields.")
 
                 else:
                     return redirect(url_for('results'))
@@ -2442,8 +2633,7 @@ if __name__ == '__main__':
                                 URL_Regex = Common.Regex_Handler(Hosts_List[Iterator], Type="URL")
 
                                 try:
-                                    Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (
-                                    0, str(Query_List[Iterator]), "Open", "Manual Entry", str(URL_Regex.group(3)), str(Hosts_List[Iterator]), Common.Date(), Common.Date(), Type,))
+                                    Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0, str(Query_List[Iterator]), "Open", "Manual Entry", str(URL_Regex.group(3)), str(Hosts_List[Iterator]), Common.Date(), Common.Date(), Type,))
                                     Connection.commit()
 
                                 except Exception as e:
@@ -3959,6 +4149,338 @@ if __name__ == '__main__':
 
             except Exception as e:
                 app.logger.error(e)
+
+        @app.route('/identities', methods=['GET'])
+        @login_requirement
+        @admin_requirement
+        def identities():
+
+            try:
+                Identity_Message = session.get('identities_message')
+                Identity_Error = session.get('identities_error')
+                session['identities_message'] = ""
+                session['identities_error'] = ""
+                session['identities_form_step'] = 0
+                session['identities_form_type'] = ""
+                Cursor.execute("SELECT * FROM org_identities ORDER BY identity_id DESC LIMIT 1000")
+                return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Identity_Filters=Identity_Filters, Identity_Filter_Values=[], Identity_Filter_Iterator=list(range(0, len(Identity_Filters))), message=Identity_Message, error=Identity_Error)
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('identities'))
+
+        @app.route('/identities/filtered', methods=['GET', 'POST'])
+        @login_requirement
+        @admin_requirement
+        def identities_filtered():
+
+            try:
+                session['identities_form_step'] = 0
+                session['identities_form_type'] = ""
+                SQL_Query_Start = "SELECT * FROM org_identities WHERE "
+                SQL_Query_End = " ORDER BY identity_id DESC LIMIT 1000"
+                SQL_Query_Args = []
+                Identity_Filter_Values = []
+        
+                for Identity_Filter in Identity_Filters:
+                    Current_Filter_Value = str(request.args.get(Identity_Filter))
+
+                    if Current_Filter_Value and Current_Filter_Value != '':
+
+                        if "ID" in Identity_Filter:
+                            Current_Filter_Value = int(Current_Filter_Value)
+
+                        Converted_Filter = Identity_Filter.lower().replace(" ", "_")
+                    
+                        if type(Current_Filter_Value) == int:
+                            SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
+                        
+                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                            SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
+                        
+                        Identity_Filter_Values.append(Current_Filter_Value)
+
+                    else:
+                        Identity_Filter_Values.append("")
+
+                if len(SQL_Query_Args) > 0:
+                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                    SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
+                    Cursor.execute(SQL_Statement)
+                    return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Identity_Filters=Identity_Filters, Identity_Filter_Values=Identity_Filter_Values, Identity_Filter_Iterator=list(range(0, len(Identity_Filters))))
+
+                else:
+                    return redirect(url_for('identities'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('identities'))
+
+        @app.route('/identities/delete/<identity_id>', methods=['POST'])
+        @login_requirement
+        @admin_requirement
+        def delete_identity(identity_id):
+
+            try:
+
+                def del_account(identity_id):
+                    user_id = int(identity_id)
+                    Cursor.execute("DELETE FROM org_identities WHERE identity_id = %s;", (identity_id,))
+                    Connection.commit()
+                    Message = f"Identity ID {str(user_id)} deleted by {session.get('user')}."
+                    app.logger.warning(Message)
+                    Create_Event(Message)
+
+                if "," in identity_id:
+
+                    for userid in identity_id.split(","):
+                        del_account(userid)
+
+                else:
+                    del_account(identity_id)
+
+                return redirect(url_for('account'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('account'))
+
+        @app.route('/identities/new', methods=['POST', 'GET'])
+        @login_requirement
+        @admin_requirement
+        def new_identity():
+
+            try:
+
+                if session.get('identities_form_step') == 0 or request.method == "GET":
+                    session['identities_form_step'] = 1
+                    session['identities_form_type'] = "new"
+                    return render_template('identities.html', username=session.get('user'),
+                                            form_type=session.get('identities_form_type'),
+                                            is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'))
+
+                elif session.get('identities_form_step') == 1:
+                    time.sleep(1)
+                    Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
+                    Required_Fields = ["First", "Surname", "Email", "Phone"]
+                    Final_List = []
+
+                    if not all(Field in request.form for Field in Required_Fields):
+                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please fill out all required fields, marked with (*).")
+
+                    for Field in Full_Fields:
+
+                        if Field != "Fullname":
+
+                            if Field != "Phone" and any(str(request.form.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.")
+                        
+                            elif Field == "Phone" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Phone_Multi"):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces.")
+                            
+                            elif Field == "Email" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Email"):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided email address is in the correct format.")
+                        
+                            elif Field not in ["Email", "Phone"] and any(Char in str(request.form.get(Field)) for Char in Bad_Characters):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.")
+
+                            if Field in ["First", "Middle", "Surname"]:
+                                Final_List.append(str(request.form.get(Field)).capitalize())
+                            
+                            else:
+                                Final_List.append(str(request.form.get(Field)))
+
+                        else:
+
+                            if request.form.get("Middle"):
+                                Full_Name = request.form.get("First").capitalize() + " " + request.form.get("Middle").capitalize() + " " + request.form.get("Surname").capitalize()
+
+                            else:
+                                Full_Name = request.form.get("First").capitalize() + " " + request.form.get("Surname").capitalize()
+
+                            Final_List.append(Full_Name)
+
+                    Cursor.execute('INSERT INTO org_identities (firstname, middlename, surname, fullname, username, email, phone) VALUES (%s,%s,%s,%s,%s,%s,%s)', tuple(Final_List))
+                    Connection.commit()
+                    Message = f"New identity created by {session.get('user')}."
+                    app.logger.warning(Message)
+                    Create_Event(Message)
+                    time.sleep(1)
+                    return redirect(url_for('identities'))
+                    
+                else:
+                    return redirect(url_for('identities'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('identities'))
+
+        @app.route('/identities/upload', methods=['POST', 'GET'])
+        @login_requirement
+        @admin_requirement
+        def bulk_identity_upload():
+
+            try:
+
+                if session.get('identities_form_step') == 0 or request.method == "GET":
+                    session['identities_form_step'] = 1
+                    session['identities_form_type'] = "bulk"
+                    return render_template('identities.html', username=session.get('user'),
+                                            form_type=session.get('identities_form_type'),
+                                            is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'))
+
+                elif session.get('identities_form_step') == 1:
+                    time.sleep(1)
+
+                    if request.form.get("bulk_identities"):
+                        Iterator = 1
+                        Records_to_Insert = []
+
+                        for Identity_Row in request.form["bulk_identities"].split("\r\n"):
+                            Attributes = Identity_Row.split(",")
+                            Final_List = []
+
+                            if len(Attributes) == 6:
+                                Required_Attributes = [Attributes[0], Attributes[2], Attributes[3], Attributes[5]]
+                                Attr_Iterator = 0
+
+                                for Attribute in Attributes:
+
+                                    if Attribute in Required_Attributes and Attribute == "":
+                                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure all required fields (marked with *) have a value provided. The offending line is line {str(Iterator)}.")
+
+                                    elif Attribute != Attributes[5] and any(Attribute.startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the fields do not contain any bad characters. The offending line is line {str(Iterator)}.")
+                                
+                                    elif Attribute == Attributes[5] and not Common.Regex_Handler(Attribute, Type="Phone_Multi"):
+                                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces. The offending line is line {str(Iterator)}.")
+                                    
+                                    elif Attribute == Attributes[4] and not Common.Regex_Handler(Attribute, Type="Email"):
+                                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the provided email address is in the correct format. The offending line is line {str(Iterator)}.")
+                                
+                                    elif Attribute not in Attributes[-2:] and any(Char in Attribute for Char in Bad_Characters):
+                                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the fields do not contain any bad characters. The offending line is line {str(Iterator)}.")
+
+                                    if Attribute in Attributes[:3]:
+                                        Final_List.append(Attribute.capitalize())
+                                    
+                                    else:
+                                        Final_List.append(Attribute)
+
+                                    if Attr_Iterator == 2:
+
+                                        if Attributes[1] != "":
+                                            Full_Name = Attributes[0].capitalize() + " " + Attributes[1].capitalize() + " " + Attributes[2].capitalize()
+
+                                        else:
+                                            Full_Name = Attributes[0].capitalize() + " " + Attributes[2].capitalize()
+
+                                        Final_List.append(Full_Name)
+
+                                    Attr_Iterator += 1
+
+                                Records_to_Insert.append(tuple(Final_List))
+
+                            else:
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure none of the lines have missing fields. The offending line is line {str(Iterator)}.")
+                        
+                            Iterator += 1
+
+                        if len(Records_to_Insert) > 0:
+
+                            for Record in Records_to_Insert:
+                                Cursor.execute('INSERT INTO org_identities (firstname, middlename, surname, fullname, username, email, phone) VALUES (%s,%s,%s,%s,%s,%s,%s)', Record)
+                        
+                        Connection.commit()
+                        Message = f"Bulk identities uploaded by {session.get('user')}."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+                        time.sleep(1)
+                        return redirect(url_for('identities'))
+                    
+                else:
+                    return redirect(url_for('identities'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('identities'))
+
+        @app.route('/identities/edit/<identity_id>', methods=['POST', 'GET'])
+        @login_requirement
+        @admin_requirement
+        def edit_identity(identity_id):
+
+            try:
+                   
+                if session.get('identities_form_step') == 0 or request.method == "GET":
+                    session['identity_id'] = int(identity_id)
+                    Cursor.execute("SELECT * FROM org_identities WHERE identity_id = %s;", (session.get('identity_id'),))
+                    results = Cursor.fetchone()
+
+                    if results:
+                        session['identities_form_step'] = 1
+                        session['identities_form_type'] = "edit"
+                        return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), form_type=session.get("identities_form_type"), is_admin=session.get('is_admin'), results=results)
+
+                    else:
+                        session['identities_message'] = "Invalid value provided. Failed to edit object."
+                        return redirect(url_for("identities"))
+
+                elif session.get('identities_form_step') == 1:
+                    time.sleep(1)
+                    Cursor.execute("SELECT * FROM org_identities WHERE identity_id = %s;", (session.get('identity_id'),))
+                    results = Cursor.fetchone()
+                    Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
+                    Required_Fields = ["First", "Surname", "Email", "Phone"]
+                    Final_List = []
+
+                    if not all(Field in request.form for Field in Required_Fields):
+                        return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please fill out all required fields, marked with (*).", results=results)
+
+                    for Field in Full_Fields:
+
+                        if Field != "Fullname":
+
+                            if Field != "Phone" and any(str(request.form.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.", results=results)
+                        
+                            elif Field == "Phone" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Phone_Multi"):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces.", results=results)
+                            
+                            elif Field == "Email" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Email"):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided email address is in the correct format.", results=results)
+                        
+                            elif Field not in ["Email", "Phone"] and any(Char in str(request.form.get(Field)) for Char in Bad_Characters):
+                                return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.", results=results)
+
+                            if Field in ["First", "Middle", "Surname"]:
+                                Final_List.append(str(request.form.get(Field)).capitalize())
+                            
+                            else:
+                                Final_List.append(str(request.form.get(Field)))
+
+                        else:
+
+                            if request.form.get("Middle"):
+                                Full_Name = request.form.get("First").capitalize() + " " + request.form.get("Middle").capitalize() + " " + request.form.get("Surname").capitalize()
+
+                            else:
+                                Full_Name = request.form.get("First").capitalize() + " " + request.form.get("Surname").capitalize()
+
+                            Final_List.append(Full_Name)
+
+                    Final_List.append(session.get('identity_id'))
+                    Cursor.execute('UPDATE org_identities SET firstname = %s, middlename = %s, surname = %s, fullname = %s, username = %s, email = %s, phone = %s WHERE identity_id = %s', tuple(Final_List))
+                    Connection.commit()
+                    time.sleep(1)
+                    return redirect(url_for('identities'))
+                    
+                else:
+                    return redirect(url_for('identities'))
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('identities'))
 
         Permit_Screenshots = General.Screenshot(File_Path, False).Screenshot_Checker()
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)

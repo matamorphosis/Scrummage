@@ -6,7 +6,7 @@ class Plugin_Search:
     def __init__(self, Query_List, Task_ID, Limit=10):
         self.Plugin_Name = "Username-Search"
         self.Concat_Plugin_Name = "usernamesearch"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name).replace("-Search", "")
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extension = ".html"

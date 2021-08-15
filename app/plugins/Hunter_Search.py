@@ -37,8 +37,8 @@ class Plugin_Search:
             formatter = logging.Formatter("%(levelname)s - %(message)s")
             handler.setFormatter(formatter)
             logger.addHandler(handler)
-            Shodan_API_Key = self.Load_Configuration()
-            API_Session = PyHunter(Shodan_API_Key)
+            Hunter_API_Key = self.Load_Configuration()
+            API_Session = PyHunter(Hunter_API_Key)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 

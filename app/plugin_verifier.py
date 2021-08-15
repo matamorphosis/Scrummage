@@ -2,8 +2,9 @@ import importlib, plugins.common.General as General, plugins.common.Common as Co
 
 class Plugin_Verifier:
 
-    def __init__(self, Plugin_Name, Task_ID, Query, Limit):
+    def __init__(self, Plugin_Name, Task_ID, Query, Limit, Custom_Query=None):
         self.plugin_name = Plugin_Name
+        self.custom_query = Custom_Query
         self.query = Query
         self.limit = Limit
         self.task_id = Task_ID
@@ -11,7 +12,6 @@ class Plugin_Verifier:
     def Verify_Plugin(self, Load_Config_Only=False):
     
         try:
-            Object = Common.Configuration(Output=True)
             Configuration_Dependant_Plugins = {"Apple Store Search": "plugins.Apple_Store_Search","Business Search - United Kingdom Business Number": "plugins.UK_Business_Search",
                            "Business Search - United Kingdom Company Name": "plugins.UK_Business_Search", "Certificate Transparency - SSLMate": "plugins.Certificate_Transparency_SSLMate",
                            "Craigslist Search": "plugins.Craigslist_Search", "Ebay Search": "plugins.Ebay_Search", "Email Reputation Search": "plugins.Email_Reputation_Search", "Flickr Search": "plugins.Flickr_Search",
@@ -72,6 +72,7 @@ class Plugin_Verifier:
             "Greynoise IP Search": {"Module": "plugins.Greynoise_IP_Search"},
             "Google Search": {"Module": "plugins.Google_Search", "Limit": True},
             "Google Play Store Search": {"Module": "plugins.Google_Play_Store_Search", "Limit": True},
+            "GitHub Repository Search": {"Module": "plugins.GitHub_Search", "Limit": True},
             "Flickr Search": {"Module": "plugins.Flickr_Search", "Limit": True},
             "Email Verification Search": {"Module": "plugins.Email_Verification_Search"},
             "Email Reputation Search": {"Module": "plugins.Email_Reputation_Search"},
@@ -161,7 +162,13 @@ class Plugin_Verifier:
                             Search_Option = "Search"
 
                         Class = importlib.import_module(Dict_Item["Module"])
-                        Plugin_Object = Class.Plugin_Search(self.query, self.task_id, **Kwargs)
+
+                        if self.custom_query:
+                            Plugin_Object = Class.Plugin_Search(self.custom_query, self.task_id, **Kwargs)
+
+                        else:
+                            Plugin_Object = Class.Plugin_Search(self.query, self.task_id, **Kwargs)
+
                         Result = Output_API_Checker(Plugin_Object, self.plugin_name)
 
                         if Result:
@@ -198,7 +205,13 @@ class Plugin_Verifier:
                             Search_Option = "Search"
 
                         Class = importlib.import_module(Dict_Item["Module"])
-                        Plugin_Object = Class.Plugin_Search(self.query, self.task_id, **Kwargs)
+
+                        if self.custom_query:
+                            Plugin_Object = Class.Plugin_Search(self.custom_query, self.task_id, **Kwargs)
+
+                        else:
+                            Plugin_Object = Class.Plugin_Search(self.query, self.task_id, **Kwargs)
+
                         Result = Output_API_Checker(Plugin_Object, self.plugin_name)
 
                         if Result:

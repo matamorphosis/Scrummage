@@ -4,6 +4,7 @@ import psycopg2, sys, json, datetime
 def Load_Main_Database():
 
     try:
+        
         with open('db.json') as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DB_Info = Configuration_Data['postgresql']
@@ -70,24 +71,36 @@ try:
           status TEXT NOT NULL,
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL);'''
+
+    create_org_query = '''CREATE TABLE IF NOT EXISTS org_identities
+          (identity_id SERIAL PRIMARY KEY NOT NULL,
+          firstname TEXT NOT NULL,
+          middlename TEXT,
+          surname TEXT NOT NULL,
+          fullname TEXT NOT NULL,
+          username TEXT,
+          email TEXT NOT NULL,
+          phone TEXT NOT NULL);'''
     
     cursor.execute(create_users_query)
-    print("[+] Users table created successfully in PostgreSQL.")
+    print(str(datetime.datetime.now()) + " Users table created successfully in PostgreSQL.")
     cursor.execute(create_tasks_query)
-    print("[+] Tasks table created successfully in PostgreSQL.")
+    print(str(datetime.datetime.now()) + " Tasks table created successfully in PostgreSQL.")
     cursor.execute(create_results_query)
-    print("[+] Results table created successfully in PostgreSQL.")
+    print(str(datetime.datetime.now()) + " Results table created successfully in PostgreSQL.")
     cursor.execute(create_events_query)
-    print("[+] Events table created successfully in PostgreSQL.")
+    print(str(datetime.datetime.now()) + " Events table created successfully in PostgreSQL.")
+    cursor.execute(create_org_query)
+    print(str(datetime.datetime.now()) + " Organisation Identities table created successfully in PostgreSQL.")
     connection.commit()
-    print("Table created successfully in PostgreSQL ")
+    print(str(datetime.datetime.now()) + " Table created successfully in PostgreSQL.")
 
-except (Exception, psycopg2.DatabaseError) as error :
-    print ("Error while creating PostgreSQL table. ", error)
+except (Exception, psycopg2.DatabaseError) as error:
+    print (str(datetime.datetime.now()) + " Error while creating PostgreSQL table. ", error)
 
 finally:
     
     if(connection):
         cursor.close()
         connection.close()
-        print("PostgreSQL connection closed.")
+        print(str(datetime.datetime.now()) + " PostgreSQL connection closed.")

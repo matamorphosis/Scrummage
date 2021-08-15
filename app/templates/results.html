@@ -248,7 +248,8 @@
             <p id="loader-message" class="loaderabout">Loading Scrummage Results...</p>
             {% if is_admin %}
             <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Result Management</p><br />
-                    <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create New Result</a>
+                    <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create Result</a>
+                    <a id="uploadtask" onclick="sendRequest('Bulk')" class="left_button">Bulk Upload Results</a>
                     <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete</a>
                     <a id="bottom_open_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to open the selected result items: ' + getSelectValues() + '?') && sendRequest('open');" disabled="true">Open</a>
                     <a id="bottom_inspect_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to inspect the selected result items: ' + getSelectValues() + '?') && sendRequest('inspect');" disabled="true">Inspect</a>
@@ -459,6 +460,10 @@
                         var uri = "{{ url_for('new_result') }}";
                         window.location.assign(uri);
                         use_xhr = false;
+                    } else if (extension == "Bulk") {
+                        var uri = "{{ url_for('bulk_result_upload') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
                     } else {
                         var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + selectedValArray;
                     }
@@ -541,6 +546,50 @@
         </main>
     {% elif form_step == 1 %}
         {% if is_admin %}
+        {% if form_type == "bulk" %}
+        <main>
+            <div class="field-container">
+                <div id="outer_form_div">
+                    <div class="form_div" style="padding: 0px;">
+                        <p class="form_title">Bulk Upload Results</p>
+                        <div id="form_loader">&nbsp;</div>
+                        <noscript>
+                           <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                        </noscript>
+                        <div class="inner_form_div">
+                            <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
+                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return">
+                            </form>
+                            <form class="form" action="{{url_for('bulk_result_upload')}}" method=post autocomplete="off">
+                                <dl>
+                                    <dd>
+                                        <textarea name="bulk_results" rows="10" cols="30" name=Data placeholder="* Name,* URL,* Result Type"></textarea>
+                                    </dd>
+                                    <dd id="fin_input">
+                                        <input style="display: inline-block;" class="button_next" name="newresult" onclick="ShowLoader()" type=submit value="Upload Results">
+                                    </dd>
+                                </dl>
+                            </form>
+                            <script type="text/javascript">
+                                function ShowLoader() {
+                                   document.getElementById("form_loader").style.display = "block";
+                                   setTimeout(HideLoader, 3000);
+                                }
+                                function HideLoader() {
+                                   document.getElementById("form_loader").style.display = "none";
+                                }
+                            </script>
+                        </div>
+                        {% if error %}
+                            <p class="message_form"><strong>Error:</strong> {{ error }}</p>
+                        {% elif message %}
+                            <p class="message_form"><strong>Message:</strong> {{ message }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+        {% elif form_type == "new" %}
         <main>
             <div class="field-container">
                 <div id="outer_form_div">
@@ -557,13 +606,13 @@
                             <form class="form" action="{{url_for('new_result')}}" method=post autocomplete="off">
                                 <dl>
                                     <dd>
-                                        <input class="field_textarea" type=text name=name placeholder="Name(s) - Comma Separated Values Allowed">
+                                        <input class="field_textarea" type=text name=Name placeholder="* Name">
                                     </dd>
                                     <dd>
-                                        <input class="field_textarea" type=text name=url placeholder="URL(s) - Comma Separated Values Allowed">
+                                        <input class="field_textarea" type=text name=URL placeholder="* URL">
                                     </dd>
                                     <dd>
-                                        <input class="field_textarea" list="browsers" name=type onkeypress="return false;" placeholder="Result(s) Type">
+                                        <input class="field_textarea" list="browsers" name=Type onkeypress="return false;" placeholder="* Result Type">
                                         <datalist id="browsers">
                                             {% for Finding_Type in Finding_Types %}
                                             <option value="{{Finding_Type}}">
@@ -594,6 +643,7 @@
                 </div>
             </div>
         </main>
+        {% endif %}
         {% endif %}
     {% endif %}
     {% endblock %}

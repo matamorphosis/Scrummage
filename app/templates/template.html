@@ -35,7 +35,7 @@
                     <li id="firstli"><a href="{{ url_for('login') }}">LOGIN</a></li>
                 {% else %}
                     {% if session.get('user') == username %}
-                    <li id="firstli"><a href="{{ url_for('dashboard') }}">DASHBOARD</a></li><li><a href="{{ url_for('tasks') }}">TASKS</a></li><li><a href="{{ url_for('results') }}">RESULTS</a></li><li><a href="{{ url_for('events') }}">EVENTS</a></li><li><a href="{{ url_for('account') }}">SETTINGS</a></li><li><a href="{{ url_for('logout') }}">LOGOUT</a></li>
+                    <li id="firstli"><a href="{{ url_for('dashboard') }}">DASHBOARD</a></li><li><a href="{{ url_for('tasks') }}">TASKS</a></li><li><a href="{{ url_for('results') }}">RESULTS</a></li><li><a href="{{ url_for('events') }}">EVENTS</a></li><li><a href="{{ url_for('account') }}">SETTINGS</a></li>{% if is_admin %}<li><a href="{{ url_for('identities') }}">IDENTITIES</a></li>{% endif %}<li><a href="{{ url_for('logout') }}">LOGOUT</a></li>
                     {% endif %}
                 {% endif %}
                 </ul>

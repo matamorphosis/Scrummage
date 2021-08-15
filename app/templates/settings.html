@@ -189,6 +189,10 @@
                         <a id="createuser" onclick="sendRequest('checkoutput')" class="left_button">Check Outputs</a>
                         <a id="createuser" onclick="sendRequest('editcore')" class="left_button">Edit Core</a>
                     </div>
+                    <br />
+                    <div><p class="left_title">Organisation Management</p><br />
+                        <a id="createuser" onclick="sendRequest('identitiessettings')" class="left_button">Identity Settings</a>
+                    </div>
                 </div></div></div>
                 <script type="text/javascript">
                     function change_expand_size() {
@@ -218,7 +222,7 @@
                         <thead>
                             <tr>
                                 <th id="table_id">ID</th>
-                                <th id="checkboxtd""><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
+                                <th id="checkboxtd"><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
                                 <th style="min-width: 40px; width: 40px">User</th>
                                 <th class="remove_from_mob_ui" style="min-width: 80px; width: 80px;">Blocked</th>
                                 <th style="min-width: 65px; ; width: 65px;">Admin</th>
@@ -373,6 +377,14 @@
                         window.location.assign(uri);
                         use_xhr = false;
                     } else if (arguments[0] === "checkinput") {
+                        var uri = "{{ url_for('check_input') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "identitiessettings") {
+                        var uri = "{{ url_for('identities') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "identitiesconfig") {
                         var uri = "{{ url_for('check_input') }}";
                         window.location.assign(uri);
                         use_xhr = false;
