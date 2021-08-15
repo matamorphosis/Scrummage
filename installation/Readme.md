@@ -69,7 +69,17 @@ If you are facing ongoing issues with the screenshot functionality, please refer
 },
 ```
 
-9. Lastly, navigate to the parent directory and then to the bin directory and start the server. You should be able to access it on https://[HOST]:[PORT], [HOST] and [PORT] should match the JSON attributes above. You can authenticate using the username and password printed out from running the install.sh bash script. The username is `admin` unless in the script prior to being run.
+9. If you would like to add organisation-specific information, you can do so by providing the following fields with values in the "organisation" section:
+```json
+"organisation": {
+  "name": "",
+  "website": "",
+  "domain": "",
+  "subdomains": []
+},
+```
+
+10. Lastly, navigate to the parent directory and then to the bin directory and start the server. You should be able to access it on https://[HOST]:[PORT], [HOST] and [PORT] should match the JSON attributes above. You can authenticate using the username and password printed out from running the install.sh bash script. The username is `admin` unless in the script prior to being run.
 ```console
 user@linux:~$ cd /<PATH-TO-SCRUMMAGE>/app
 user@linux:/<PATH-TO-SCRUMMAGE>/app$ python3 Scrummage.py

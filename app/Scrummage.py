@@ -3980,6 +3980,11 @@ if __name__ == '__main__':
                                     Item_Value = bool(distutils.util.strtobool(Item_Value))
                                     New_Config[Item_Key] = Item_Value
 
+                                elif session.get('item') == "organisation" and Item_Key == "subdomains":
+                                    Item_Value = Item_Value.replace("\'", "\"")
+                                    Item_Value = Common.JSON_Handler(Item_Value).To_JSON_Loads()
+                                    New_Config[Item_Key] = Item_Value
+
                                 else:
                                     Item_Value = str(Item_Value)
                                     New_Config[Item_Key] = Item_Value
