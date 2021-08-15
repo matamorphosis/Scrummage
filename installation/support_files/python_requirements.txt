@@ -28,4 +28,3 @@ pytumblr
 emailrep
 bs4
 timeout_decorator
-PyGithub
