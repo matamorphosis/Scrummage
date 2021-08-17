@@ -16,103 +16,9 @@ if __name__ == '__main__':
         from crontab import CronTab
         from logging.handlers import RotatingFileHandler
         from ratelimiter import RateLimiter
-        import os, plugin_caller, plugin_verifier, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, importlib, plugins.common.General as General, plugins.common.Common as Common
+        import os, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, importlib, plugins.common.General as General, plugins.common.Common as Common
 
-        Valid_Plugins = {'Ahmia I2P Darkweb Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Ahmia_Darkweb_Search'},
-        'Ahmia Tor Darkweb Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Ahmia_Darkweb_Search'},
-        'Apple Store Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Apple_Store_Search'},
-        'BSB Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.BSB_Search'},
-        'Blockchain - Bitcoin Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Bitcoin Cash Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Bitcoin Cash Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Bitcoin Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Ethereum Address Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Ethereum Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Blockchain_Search'},
-        'Blockchain - Monero Transaction Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Blockchain_Search'},
-        'Builtwith Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.BuiltWith_Search', 'Organisation_Presets': "website"},
-        'Business Search - American Central Index Key': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.American_Business_Search'},
-        'Business Search - American Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.American_Business_Search', 'Organisation_Presets': "name"},
-        'Business Search - Australian Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Australian_Business_Search'},
-        'Business Search - Australian Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Australian_Business_Search', 'Organisation_Presets': "name"},
-        'Business Search - Canadian Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Canadian_Business_Search'},
-        'Business Search - Canadian Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Canadian_Business_Search', 'Organisation_Presets': "name"},
-        'Business Search - New Zealand Business Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.NZ_Business_Search'},
-        'Business Search - New Zealand Company Name': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.NZ_Business_Search', 'Organisation_Presets': "name"},
-        'Business Search - United Kingdom Business Number': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.UK_Business_Search'},
-        'Business Search - United Kingdom Company Name': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.UK_Business_Search', 'Organisation_Presets': "name"},
-        'Certificate Transparency - CRT.sh': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_CRT', 'Organisation_Presets': "domain"},
-        'Certificate Transparency - SSLMate': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_SSLMate', 'Organisation_Presets': "domain"},
-        'Craigslist Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Craigslist_Search'},
-        'DNS Reconnaissance Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.DNS_Recon_Search', 'Organisation_Presets': "domain"},
-        'Default Password Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Default_Password_Search'},
-        'Doing Business Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Doing_Business_Search'},
-        'Domain Fuzzer - All Extensions': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Expired Global Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Global Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (Asian)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (Latin Comprehensive)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (Latin Condensed)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (Middle Eastern)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (Native American)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Punycode (North African)': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'Domain Fuzzer - Regular Domain Suffixes': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Domain_Fuzzer', 'Organisation_Presets': "domain"},
-        'DuckDuckGo Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.DuckDuckGo_Search'},
-        'Ebay Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Ebay_Search'},
-        'Email Reputation Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Email_Reputation_Search', 'Organisation_Presets': "identity_emails"},
-        'Email Verification Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Email_Verification_Search', 'Organisation_Presets': "identity_emails"},
-        'Flickr Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Flickr_Search'},
-        'GitHub Repository Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.GitHub_Search'},
-        'Google Play Store Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Google_Play_Store_Search'},
-        'Google Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Google_Search'},
-        'Greynoise IP Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Greynoise_IP_Search'},
-        'Have I Been Pwned - Account Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Have_I_Been_Pwned'},
-        'Have I Been Pwned - Breach Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned'},
-        'Have I Been Pwned - Email Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned', 'Organisation_Presets': "identity_emails"},
-        'Have I Been Pwned - Password Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Have_I_Been_Pwned'},
-        'Hunter Search - Domain': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Hunter_Search', 'Organisation_Presets': "domain"},
-        'Hunter Search - Email': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Hunter_Search', 'Organisation_Presets': "identity_emails"},
-        'IP Stack Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.IPStack_Search'},
-        'Instagram - Post Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Instagram_Search'},
-        'Instagram - Tag Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Instagram_Search'},
-        'Instagram - User Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Instagram_Search'},
-        'IntelligenceX Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.IntelligenceX_Search', 'Organisation_Presets': "domain"},
-        'Kik Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Kik_Search'},
-        'Library Genesis Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Library_Genesis_Search'},
-        'Naver Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Naver_Search'},
-        'OK Search - Group': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.OK_Search'},
-        'OK Search - User': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.OK_Search'},
-        'Phishstats Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Phishstats_Search', 'Organisation_Presets': "domain"},
-        'Phone Search - Cellular Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search', 'Organisation_Presets': "identity_phones"},
-        'Phone Search - IMEI Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
-        'Phone Search - IMSI Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
-        'Phone Search - ISPC Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
-        'Phone Search - SIM Number': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Phone_Search'},
-        'Pinterest - Board Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Pinterest_Search'},
-        'Pinterest - Pin Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Pinterest_Search'},
-        'RSS Feed Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.RSS_Feed_Search', 'Organisation_Presets': "name"},
-        'Reddit Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Reddit_Search'},
-        'Shodan Search - IP Address': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Shodan_Search'},
-        'Shodan Search - Query': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Shodan_Search'},
-        'Threat Crowd - Antivirus Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
-        'Threat Crowd - Domain Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Organisation_Presets': "domain"},
-        'Threat Crowd - Email Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Organisation_Presets': "identity_emails"},
-        'Threat Crowd - IP Address Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
-        'Threat Crowd - Virus Report Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search'},
-        'Torrent Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Torrent_Search'},
-        'Tumblr Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Tumblr_Search'},
-        'Twitter Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Twitter_Search'},
-        'Username Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Username_Search', 'Organisation_Presets': "identity_usernames"},
-        'Vehicle Registration Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Vehicle_Registration_Search'},
-        'Virus Total Search - Domain': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search', 'Organisation_Presets': "domain"},
-        'Virus Total Search - File Hash': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search'},
-        'Virus Total Search - IP Address': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search'},
-        'Virus Total Search - URL': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Virus_Total_Search', 'Organisation_Presets': "website"},
-        'Vkontakte - Group Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Vkontakte_Search'},
-        'Vkontakte - User Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Vkontakte_Search'},
-        'Vulners Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Vulners_Search'},
-        'Windows Store Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Windows_Store_Search'},
-        'Yandex Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Yandex_Search'},
-        'YouTube Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.YouTube_Search'}}
+        Valid_Plugins = plugin_definitions.Valid_Plugins
 
         def No_Limit_Plugins():
             Plugin_Names = []
@@ -181,7 +87,10 @@ if __name__ == '__main__':
 
         def handler(signal_received, frame):
             print('[i] CTRL-C detected. Shutting program down.')
-            Connection.close()
+
+            if Connection:
+                Connection.close()
+
             sys.exit()
 
         signal(SIGINT, handler)
@@ -1385,8 +1294,7 @@ if __name__ == '__main__':
                                 Connection.commit()
                                 return jsonify({"Error": f"Failed to create cronjob. Task was still created.", "Attempted Cronjob": Cron_Command}), 500
 
-                            User = Authentication_Verified["Username"]
-                            Message = f"Task ID {str(dup_id)} duplicated by {User}."
+                            Message = f"Task ID {str(dup_id)} duplicated."
                             app.logger.warning(Message)
                             Create_Event(Message)
                             return jsonify({"Message": "Successfully duplicated task.", "Provided Task ID": dup_id, "New Task ID": task_id}), 200
@@ -1520,8 +1428,7 @@ if __name__ == '__main__':
 
                     Cursor.execute("DELETE FROM tasks WHERE task_id = %s;", (del_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"Task ID {str(del_id)} deleted by {User}."
+                    Message = f"Task ID {str(del_id)} deleted."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully deleted task id {str(del_id)}."}), 200
@@ -1937,6 +1844,9 @@ if __name__ == '__main__':
                             session.get('task_frequency'), session.get('task_limit'), "Stopped",
                             Current_Timestamp, Current_Timestamp,))
                             Connection.commit()
+                            Message = f"New task created by {session.get('user')}."
+                            app.logger.warning(Message)
+                            Create_Event(Message)
                             time.sleep(1)
 
                             if session.get('task_frequency'):
@@ -2764,8 +2674,7 @@ if __name__ == '__main__':
 
                     Cursor.execute("DELETE FROM results WHERE result_id = %s;", (result_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"Result ID {str(result_id)} deleted by {User}."
+                    Message = f"Result ID {str(result_id)} deleted."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": "Successfully deleted result."}), 500
@@ -2835,23 +2744,22 @@ if __name__ == '__main__':
 
                 if request.method == 'POST':
                     result_id = int(resultid)
-                    User = Authentication_Verified["Username"]
 
                     if status == "open":
                         Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Open", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} re-opened by {User}."
+                        Message = f"Result ID {str(resultid)} re-opened."
 
                     elif status == "close":
                         Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Closed", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} closed by {User}."
+                        Message = f"Result ID {str(resultid)} closed."
 
                     elif status == "inspect":
                         Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Inspecting", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} now under inspection by {User}."
+                        Message = f"Result ID {str(resultid)} now under inspection."
 
                     elif status == "review":
                         Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Reviewing", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} now under review by {User}."
+                        Message = f"Result ID {str(resultid)} now under review."
 
                     Connection.commit()
                     app.logger.warning(Message)
@@ -3135,15 +3043,14 @@ if __name__ == '__main__':
 
                                 else:
                                     Password = generate_password_hash(Content['Password'])
-                                    User = Authentication_Verified["Username"]
 
                                     if Content["Administrator"]:
                                         Cursor.execute('INSERT INTO users (username, password, blocked, is_admin) VALUES (%s,%s,%s,%s)',(Content['Username'], Password, "False", "True",))
-                                        Message = f"New administrative user {Content['Username']} created by {User}."
+                                        Message = f"New administrative user {Content['Username']} created."
 
                                     else:
                                         Cursor.execute('INSERT INTO users (username, password, blocked, is_admin) VALUES (%s,%s,%s,%s)',(Content['Username'], Password, "False", "False",))
-                                        Message = f"New low-privileged user {Content['Username']} created by {User}."
+                                        Message = f"New low-privileged user {Content['Username']} created."
 
                                     Connection.commit()
                                     Create_Event(Message)
@@ -3243,6 +3150,7 @@ if __name__ == '__main__':
                                 Message = f"New low-privileged user created by {session.get('user')}."
 
                             Connection.commit()
+                            app.logger.warning(Message)
                             Create_Event(Message)
                             return render_template('settings.html', username=session.get('user'),
                                                    form_type=session.get('settings_form_type'),
@@ -3487,8 +3395,7 @@ if __name__ == '__main__':
                     user_id = int(accountid)
                     Cursor.execute("DELETE FROM users WHERE user_id = %s;", (user_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"User ID {str(user_id)} deleted by {User}."
+                    Message = f"User ID {str(user_id)} deleted."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully deleted user {str(user_id)}."}), 200
@@ -3541,8 +3448,7 @@ if __name__ == '__main__':
                     user_id = int(accountid)
                     Cursor.execute('UPDATE users SET blocked = %s WHERE user_id = %s', ("True", user_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"User ID {str(user_id)} blocked by {User}."
+                    Message = f"User ID {str(user_id)} blocked."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully blocked user {str(user_id)}."}), 200
@@ -3595,8 +3501,7 @@ if __name__ == '__main__':
                     user_id = int(accountid)
                     Cursor.execute('UPDATE users SET blocked = %s WHERE user_id = %s', ("False", user_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"User ID {str(user_id)} unblocked by {User}."
+                    Message = f"User ID {str(user_id)} unblocked."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully unblocked user {str(user_id)}."}), 200
@@ -3649,8 +3554,7 @@ if __name__ == '__main__':
                     user_id = int(accountid)
                     Cursor.execute('UPDATE users SET is_admin = %s WHERE user_id = %s', ("False", user_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"Privileges for user ID {str(user_id)} demoted by {User}."
+                    Message = f"Privileges for user ID {str(user_id)} demoted."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully demoted user {str(user_id)}."}), 200
@@ -3703,8 +3607,7 @@ if __name__ == '__main__':
                     user_id = int(accountid)
                     Cursor.execute('UPDATE users SET is_admin = %s WHERE user_id = %s', ("True", user_id,))
                     Connection.commit()
-                    User = Authentication_Verified["Username"]
-                    Message = f"Privileges for user ID {str(user_id)} promoted by {User}."
+                    Message = f"Privileges for user ID {str(user_id)} promoted."
                     app.logger.warning(Message)
                     Create_Event(Message)
                     return jsonify({"Message": f"Successfully promoted user {str(user_id)}."}), 200
@@ -4477,6 +4380,9 @@ if __name__ == '__main__':
                     Final_List.append(session.get('identity_id'))
                     Cursor.execute('UPDATE org_identities SET firstname = %s, middlename = %s, surname = %s, fullname = %s, username = %s, email = %s, phone = %s WHERE identity_id = %s', tuple(Final_List))
                     Connection.commit()
+                    Message = f"Identity ID {str(session.get('identity_id'))} updated by {session.get('user')}."
+                    app.logger.warning(Message)
+                    Create_Event(Message)
                     time.sleep(1)
                     return redirect(url_for('identities'))
                     

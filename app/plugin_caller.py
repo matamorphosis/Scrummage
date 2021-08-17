@@ -1,4 +1,4 @@
-import plugin_verifier, plugins.common.General as General, plugins.common.Common as Common
+import plugin_verifier, plugin_definitions, plugins.common.General as General, plugins.common.Common as Common
 
 class Plugin_Caller:
 
@@ -72,6 +72,7 @@ if __name__ == "__main__":
 
             try:
                 Task_ID = int(Arguments.task)
+                Valid_Plugins = plugin_definitions.Valid_Plugins
                 Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
                 cursor = Connection.cursor()
                 PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
@@ -79,7 +80,33 @@ if __name__ == "__main__":
                 result = cursor.fetchone()
 
                 if result:
-                    Plugin_Caller(Result=result, Task_ID=Task_ID).Call_Plugin()
+
+                    if result[1] == "[IDENTITIES_DATABASE]":
+                        ID_DB_Search_Type = Valid_Plugins[result[2]]["Organisation_Presets"]
+
+                        if ID_DB_Search_Type == "identity_usernames":
+                            cursor.execute("SELECT username FROM org_identities;")
+                            ID_DB_Results = cursor.fetchall()
+
+                        elif ID_DB_Search_Type == "identity_emails":
+                            cursor.execute("SELECT email FROM org_identities;")
+                            ID_DB_Results = cursor.fetchall()
+
+                        elif ID_DB_Search_Type == "identity_phones":
+                            cursor.execute("SELECT phone FROM org_identities;")
+                            ID_DB_Results = cursor.fetchall()
+
+                        Filtered_Data = []
+
+                        for Row in ID_DB_Results:
+                            Filtered_Data.append(Row[0])
+
+                        Query = ", ".join(Filtered_Data)
+
+                    else:
+                        Query = None
+
+                    Plugin_Caller(Result=result, Task_ID=Task_ID, Custom_Query=Query).Call_Plugin()
 
             except:
                 sys.exit("[-] Invalid Task ID.")
