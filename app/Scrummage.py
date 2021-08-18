@@ -1747,7 +1747,7 @@ if __name__ == '__main__':
                                                 form_step=session.get('task_form_step'),
                                                 error="Please choose a valid task from the provided list for the Task Type field.")
 
-                    if 'frequency' in request.form:
+                    if request.form.get('frequency') != "":
                         session['task_frequency'] = request.form['frequency']
                         task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
@@ -2067,10 +2067,7 @@ if __name__ == '__main__':
                         return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion, Valid_Plugins=list(Valid_Plugins.keys()), is_admin=session.get('is_admin'), results=results, Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), Valid_Plugins_Full=Valid_Plugins,)
 
                     else:
-                        # FIX ME
-                        Cursor.execute("SELECT * FROM tasks;", (session.get('task_id'),))
-                        results = Cursor.fetchall()
-                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, is_admin=session.get('is_admin'), error="Invalid value provided. Failed to edit object.")
+                        return redirect(url_for('tasks'))
 
                 elif session.get('task_form_step') == 1:
                     time.sleep(1)
@@ -2078,36 +2075,34 @@ if __name__ == '__main__':
                     results = Cursor.fetchone()
 
                     if request.form.get('tasktype') and request.form.get('tasktype') in Valid_Plugins.keys():
+                        
+                        if request.form.get('frequency') != "":
+                            session['task_frequency'] = request.form['frequency']
+                            task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
-                        if 'frequency' in request.form:
+                            if task_frequency_regex:
+                                Updated_Cron = []
 
-                            if 'frequency' in request.form:
-                                session['task_frequency'] = request.form['frequency']
-                                task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
+                                for Group in range(1, 6):
+                                    Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                    Regex_Group = task_frequency_regex.group(Group)
+                                    
+                                    if "," in Regex_Group:
+                                        Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
+                                        Updated_Cron.append(",".join(Item))
 
-                                if task_frequency_regex:
-                                    Updated_Cron = []
+                                    else:
+                                        Updated_Cron.append(Regex_Group)
 
-                                    for Group in range(1, 6):
-                                        Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
-                                        Regex_Group = task_frequency_regex.group(Group)
-                                        
-                                        if "," in Regex_Group:
-                                            Item = Common.Filter(Regex_Group.split(","), Items[Group][0], Items[Group][1])
-                                            Updated_Cron.append(",".join(Item))
-
-                                        else:
-                                            Updated_Cron.append(Regex_Group)
-
-                                    session['task_frequency'] = " ".join(Updated_Cron)
-                                        
-                                else:
-                                    return render_template('tasks.html', username=session.get('user'),
-                                                            form_step=session.get('task_form_step'),
-                                                            form_type=session.get('task_form_type'), results=results, Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), 
-                                                            is_admin=session.get('is_admin'), edit_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
-                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                            error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
+                                session['task_frequency'] = " ".join(Updated_Cron)
+                                    
+                            else:
+                                return render_template('tasks.html', username=session.get('user'),
+                                                        form_step=session.get('task_form_step'),
+                                                        form_type=session.get('task_form_type'), results=results, Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), 
+                                                        is_admin=session.get('is_admin'), edit_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                        error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
 
                         if 'description' in request.form:
                             session['task_description'] = html.escape(request.form['description'])
