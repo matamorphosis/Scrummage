@@ -893,10 +893,10 @@ if __name__ == '__main__':
                 Unsuccessful_User_Dates_Count = Common.JSON_Handler(Unsuccessful_User_Dates_Count).Dump_JSON(Indentation=0)
 
                 if most_common_tasks:
-                    return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
+                    return render_template('dashboard.html', is_admin=session.get('is_admin'), username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
             
                 else:
-                    return render_template('dashboard.html', username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
+                    return render_template('dashboard.html', is_admin=session.get('is_admin'), username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
 
             except Exception as e:
                 app.logger.error(e)
@@ -1011,7 +1011,7 @@ if __name__ == '__main__':
             try:
                 Cursor.execute("SELECT * FROM events ORDER BY event_id DESC LIMIT 1000")
                 events = Cursor.fetchall()
-                return render_template('events.html', username=session.get('user'), events=events, Event_Filters=Event_Filters, Event_Filter_Values=[], Event_Filter_Iterator=list(range(0, len(Event_Filters))))
+                return render_template('events.html', is_admin=session.get('is_admin'), username=session.get('user'), events=events, Event_Filters=Event_Filters, Event_Filter_Values=[], Event_Filter_Iterator=list(range(0, len(Event_Filters))))
 
             except Exception as e:
                 app.logger.error(e)
@@ -1052,7 +1052,7 @@ if __name__ == '__main__':
                     SQL_Query_Args = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
-                    return render_template('events.html', username=session.get('user'), events=Cursor.fetchall(), Event_Filters=Event_Filters, Event_Filter_Values=Event_Filter_Values, Event_Filter_Iterator=list(range(0, len(Event_Filters))))
+                    return render_template('events.html', is_admin=session.get('is_admin'), username=session.get('user'), events=Cursor.fetchall(), Event_Filters=Event_Filters, Event_Filter_Values=Event_Filter_Values, Event_Filter_Iterator=list(range(0, len(Event_Filters))))
 
                 else:
                     return redirect(url_for('events'))

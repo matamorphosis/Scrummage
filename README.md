@@ -10,7 +10,7 @@
 - Significant UI/UX enhancements.
 - Organisation specific settings and configurations, allowing for predefined searches based on your organisation and it's users.
 - Due to the above change, if you are upgrading from version 3.4, a major update has been made to the config.json file. In the installation directory, there is a file called "3.6_Upgrade.py", please copy your config.json file to this directory and run the script to update it to the latest standard. Running it will create a file called "config_new.json", please keep a backup of your old config.json file, and then rename the "config_new.json" file to "config.json" and move it to the config directory.
-- A new plugin to search GitHub repositories..
+- A new plugin to search GitHub repositories.
 - Please note versions 3.3 - 3.6 entail a major overhaul of a lot of backend and frontend code for improved efficiency. Please don't hesitate to reach out about any code stability issues.
   
 Scrummage is an OSINT tool that centralises search functionality from powerful, yet simple OSINT sites. This project draws inspiration mainly from two other projects, including:  
