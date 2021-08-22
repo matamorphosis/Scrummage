@@ -6,6 +6,7 @@
         <meta name="description" content="Scrummage Output Methods Checks">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -21,8 +22,23 @@
     </noscript>
     <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
     <p id="loader-message" class="loaderabout">Checking Full List of Scrummage Task Output Statuses...</p>
-    <div style="display: none;" id="fc" class="field-container">
-        <table style="display:none;" id="paginate">
+    <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;">
+        <div>
+            <p class="left_title_top">Output Management</p><br />
+            <a class="left_button" onclick="window.location.reload();">Reload Page</a>
+            <a class="left_button" onclick="sendRequest('config')">Configure Outputs</a>
+        </div>
+    </div></div></div>
+    <script type="text/javascript">
+        function sendRequest(typeOfRequest) {
+            if (arguments[0] === "config") {
+                var uri = "{{ url_for('configure', configtype='outputs') }}";
+                window.location.assign(uri);
+            }
+        }
+    </script>
+    <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
+        <table id="paginate" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Output</th>
@@ -48,36 +64,24 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div style="display: none;" id="chkbuttons" class="buttons-bottom">
-            <button class="button" class="button" onclick="window.location.reload();">Reload Page</button>
-            <button class="button" class="button" onclick="sendRequest('config')">Configure Outputs</button>
-        </div>
-        <script type="text/javascript">
-            function sendRequest(typeOfRequest) {
-                if (arguments[0] === "config") {
-                    var uri = "{{ url_for('configure', configtype='outputs') }}";
-                    window.location.assign(uri);
-                }
-            }
-        </script>
     </div>
     <script>
-    var myVar;
+        function pageLoad() {
+            setTimeout(showPage, 1000);
+        }
 
-    function pageLoad() {
-      myVar = setTimeout(showPage, 1000);
-    }
-
-    function showPage() {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("loader-message").style.display = "none";
-        document.getElementById("loader_logo_outer").style.display = "none";
-        document.getElementById("paginate").style.display = null;
-        document.getElementById("fc").style.display = null;
-        document.getElementById("chkbuttons").style.display = null;
-        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-        document.getElementsByTagName("INPUT")[0].className='js_search';
-    }
+        function showPage() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("loader-message").style.display = "none";
+            document.getElementById("loader_logo_outer").style.display = "none";
+            document.getElementById("paginate").style.display = null;
+            document.getElementById("fc").style.display = null;
+            document.getElementById("outerleftpop").style.display = null;
+            document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+            document.getElementsByTagName("INPUT")[0].className='js_search';
+            var table = $('#paginate').DataTable();
+            table.columns.adjust().draw();
+        }
     </script>
     {% endif %}
     {% endblock %}

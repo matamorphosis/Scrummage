@@ -7,6 +7,7 @@
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
         <title>Scrummage Results</title>
@@ -22,8 +23,8 @@
         {% if details %}
         <main>
             {% if is_admin %}
-			{% if ss_req_message %}
-			<div id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{ ss_req_message }}</p></div></div></div>
+            {% if ss_req_message %}
+            <div id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{ ss_req_message }}</p></div></div></div>
             <script type="text/javascript">
                 autoClose();
                 function autoClose() {
@@ -34,8 +35,8 @@
                     close_item.style.display = "none";
                 }
             </script>
-			{% endif %}
-            <div id="outerleftpop" class="left_pop_out_outer"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Manage Result</p><br />
+            {% endif %}
+            <div id="outerleftpop" class="left_pop_out_outer"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Manage Result</p><br />
                     <a id="bottom_delete_button" class="left_button" onclick="return confirm('Are you sure you want to delete this result?') && sendRequest('delete', '{{results[0]}}');">Delete Result</a>
                     <a id="bottom_open_button" class="left_button" onclick="return confirm('Are you sure you want to open this result?') && sendRequest('open', '{{results[0]}}');">Open Result</a>
                     <a id="bottom_inspect_button" class="left_button" onclick="return confirm('Are you sure you want to change the status of this result to under inspection?') && sendRequest('inspect', '{{results[0]}}');">Inspect Result</a>
@@ -45,26 +46,6 @@
                 </div>
             </div></div></div>
             <script type="text/javascript">
-                function change_expand_size() {
-                    var buttons = document.getElementsByClassName("left_button");
-                    var titles = document.getElementsByClassName("left_title");
-                    var item = document.getElementById("expand");
-                    if (item.innerHTML === "&gt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
-                        document.getElementById("arrow").style.textAlign = "right";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
-                        item.innerHTML = "&lt;";
-                        document.getElementById("innerleftpop").style.display = null;
-                    } else if (item.innerHTML === "&lt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
-                        document.getElementById("arrow").style.textAlign = "center";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
-                        item.innerHTML = "&gt;";
-                        document.getElementById("innerleftpop").style.display = "none";
-                    }
-                }
 
                 function loadResults() {
                     window.location.assign("{{ url_for('results') }}");
@@ -247,7 +228,7 @@
             <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
             <p id="loader-message" class="loaderabout">Loading Scrummage Results...</p>
             {% if is_admin %}
-            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Result Management</p><br />
+            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Result Management</p><br />
                     <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create Result</a>
                     <a id="uploadtask" onclick="sendRequest('Bulk')" class="left_button">Bulk Upload Results</a>
                     <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete</a>
@@ -258,29 +239,6 @@
 
                 </div>
             </div></div></div>
-            <script type="text/javascript">
-                function change_expand_size() {
-                    var buttons = document.getElementsByClassName("left_button");
-                    var buttons_disabled = document.getElementsByClassName("left_button-disabled");
-                    var titles = document.getElementsByClassName("left_title");
-                    var item = document.getElementById("expand");
-                    if (item.innerHTML === "&gt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
-                        document.getElementById("arrow").style.textAlign = "right";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
-                        item.innerHTML = "&lt;";
-                        document.getElementById("innerleftpop").style.display = null;
-                    } else if (item.innerHTML === "&lt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
-                        document.getElementById("arrow").style.textAlign = "center";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
-                        item.innerHTML = "&gt;";
-                        document.getElementById("innerleftpop").style.display = "none";
-                    }
-                }
-            </script>
             <div style="display: none;" id="fc" class="field-container-settings">
             {% else %}
             <div style="display: none;" id="fc" class="field-container">
@@ -288,14 +246,14 @@
                 {% if error %}
                     <p class="message"><strong>Error:</strong> {{error}}</p>
                 {% endif %}
-                <table style="width: 100%" id="paginate">
+                <table id="paginate">
                     <thead>
                         <tr>
                             <th id="table_id">ID</th>
                             {% if is_admin %}
                             <th id="checkboxtd"><input type="checkbox" onclick="checkAll(this)" id="mainselect" name="taskchkbox"></th>
                             {% endif %}
-                            <th style="width: 150px;">Title</th>
+                            <th style="width: 250px;">Title</th>
                             <th style="width: 60px;" id="table_status">Status</th>
                             <th style="width: 40px;" id="table_link">Link</th>
                             <th style="width: 130px;" id="updated_at">Created At</th>
@@ -306,12 +264,12 @@
                     <tbody>
                         {% for result in results %}
                         <tr>
-                            <td class="nonscreenshottab" id="resultid" style="min-width: 40px;">{{result[0]}}</td>
+                            <td class="nonscreenshottab" id="resultid">{{result[0]}}</td>
                             {% if is_admin %}
                             <td id="checkboxtd"><input type="checkbox" onclick="terms_changed(this)" id="select" name="resultchkbox" value="{{result[0]}}"></td>
                             {% endif %}
                             <td class="nonscreenshottab" id="resultplugin">{{result[2]}}</td>
-                            <td class="nonscreenshottab" style="min-width: 60px;">{{result[4]}}</td>
+                            <td class="nonscreenshottab">{{result[4]}}</td>
                             <td class="nonscreenshottab"><a href="{{result[6]}}">Link</a></td>
                             <td class="nonscreenshottab" id="timestamp_hide">{{result[7]}}</td>
                             <td class="nonscreenshottab" id="timestamp_hide">{{result[8]}}</td>
@@ -327,32 +285,45 @@
                         {% endfor %}
                     </tbody>
                 </table>
-				{% if is_admin %}
+                {% if is_admin %}
                 <script type="text/javascript">
-                $(document).ready(function(){
-                  $('#paginate').DataTable({
-                    columns: [
-                      null,
-                      { orderable: false },
-                      null,
-                      null,
-                      null,
-                      null,
-                      null,
-                      { orderable: false }
-                    ]
-                  });
-                  $('.dataTables_length').addClass('bs-select');
-                });
+                    var height = 0.7 * screen.height;
+                    height = height.toString() + "px";
+                    $(document).ready(function(){
+                      $('#paginate').DataTable({
+                        "scrollY": height,
+                        "scrollCollapse": true,
+                        "paging": true,
+                        "pageLength": 25,
+                        "autoWidth": true,
+                        columns: [
+                          null,
+                          { orderable: false },
+                          null,
+                          null,
+                          null,
+                          null,
+                          null,
+                          { orderable: false }
+                        ]
+                      });
+                      $('.dataTables_length').addClass('bs-select');
+                    });
                 </script>
                 {% else %}
                 <script type="text/javascript">
-                $(document).ready(function () {
-                  $('#paginate').DataTable({
-                    "paging": "simple_numbers" // false to disable pagination (or any other option)
-                  });
-                  $('.dataTables_length').addClass('bs-select');
-                });
+                    var height = 0.7 * screen.height;
+                    height = height.toString() + "px";
+                    $(document).ready(function(){
+                      $('#paginate').DataTable({
+                        "scrollY": height,
+                        "scrollCollapse": true,
+                        "pageLength": 25,
+                        "autoWidth": true,
+                        "paging": "simple_numbers" // false to disable pagination (or any other option)
+                      });
+                      $('.dataTables_length').addClass('bs-select');
+                    });
                 </script>
                 {% endif %}
                 <div id="filter_box">
@@ -402,143 +373,144 @@
                 </div>
                 {% if is_admin %}
                 <script type="text/javascript">
-                var myVar;
-                var ButtonArr = [['bottom_delete_button', 'Delete'], ['bottom_open_button', 'Open'], ['bottom_inspect_button', 'Inspect'], ['bottom_review_button', 'Review'], ['bottom_close_button', 'Close']];
+                    var ButtonArr = [['bottom_delete_button', 'Delete'], ['bottom_open_button', 'Open'], ['bottom_inspect_button', 'Inspect'], ['bottom_review_button', 'Review'], ['bottom_close_button', 'Close']];
 
-                function pageLoad() {
-                  myVar = setTimeout(showPage, 1000);
-                }
+                    function pageLoad() {
+                        setTimeout(showPage, 1000);
+                    }
 
-                function showPage() {
-                    document.getElementById("loader").style.display = "none";
-                    document.getElementById("loader-message").style.display = "none";
-                    document.getElementById("loader_logo_outer").style.display = "none";
-                    document.getElementById("paginate").style.display = null;
-                    document.getElementById("outerleftpop").style.display = null;
-                    document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
-                }
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("loader_logo_outer").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        document.getElementById("outerleftpop").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                        var table = $('#paginate').DataTable();
+                        table.columns.adjust().draw();
+                    }
 
-                function getSelectValues() {
-                   var checkedArray = []
-                   document.querySelectorAll('#select:checked').forEach(e => {
-                       checkedArray.push(e.value);
-                   });
-                   checkedArrayStr = checkedArray.toString();
-                   return checkedArrayStr
-                }
+                    function getSelectValues() {
+                    var checkedArray = []
+                    document.querySelectorAll('#select:checked').forEach(e => {
+                        checkedArray.push(e.value);
+                    });
+                    checkedArrayStr = checkedArray.toString();
+                    return checkedArrayStr
+                    }
 
-                function terms_changed(termsCheckBox){
-                    //If the checkbox has been checked
-                    if (termsCheckBox.checked) {
-                        //Set the disabled property to FALSE and enable the button.
-                        ButtonArr.forEach(button => {
-                            document.getElementById(button[0]).className = "left_button";
-                            document.getElementById(button[0]).disabled = false;
-                        });
-                        document.getElementById("mainselect").checked = true;
-                    } else{
-                        if($('#select:checked').length === 0) {
+                    function terms_changed(termsCheckBox){
+                        //If the checkbox has been checked
+                        if (termsCheckBox.checked) {
+                            //Set the disabled property to FALSE and enable the button.
                             ButtonArr.forEach(button => {
-                                document.getElementById(button[0]).disabled = true;
-                                document.getElementById(button[0]).className = "left_button-disabled";
+                                document.getElementById(button[0]).className = "left_button";
+                                document.getElementById(button[0]).disabled = false;
                             });
-                            document.getElementById("mainselect").checked = false;
-                        }
-                    }
-                }
-
-                function sendRequest(extension) {
-                    var xhr = new XMLHttpRequest();
-                    var selectedValArray = getSelectValues();
-                    var use_xhr = true;
-
-                    if (extension == "delete") {
-                        var uri = "{{ url_for('results') }}" + "/" + extension + "/" + selectedValArray;
-                    } else if (extension == "Create") {
-                        var uri = "{{ url_for('new_result') }}";
-                        window.location.assign(uri);
-                        use_xhr = false;
-                    } else if (extension == "Bulk") {
-                        var uri = "{{ url_for('bulk_result_upload') }}";
-                        window.location.assign(uri);
-                        use_xhr = false;
-                    } else {
-                        var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + selectedValArray;
-                    }
-                    if (use_xhr === true) {
-                        xhr.open("POST", uri, true);
-                        xhr.send();
-                        xhr.onreadystatechange = function(e) {
-                            if (xhr.readyState === 4) {
-                                location.reload();
+                            document.getElementById("mainselect").checked = true;
+                        } else{
+                            if($('#select:checked').length === 0) {
+                                ButtonArr.forEach(button => {
+                                    document.getElementById(button[0]).disabled = true;
+                                    document.getElementById(button[0]).className = "left_button-disabled";
+                                });
+                                document.getElementById("mainselect").checked = false;
                             }
                         }
                     }
-                }
 
-                function checkAny(type) {
-                    var checkboxes = document.getElementsByTagName('input');
-                    if (type == "Checked") {
-                        var ischecked = false;
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox') {
-                                if (checkboxes[i].checked == true) {
-                                    ischecked = true;
+                    function sendRequest(extension) {
+                        var xhr = new XMLHttpRequest();
+                        var selectedValArray = getSelectValues();
+                        var use_xhr = true;
+
+                        if (extension == "delete") {
+                            var uri = "{{ url_for('results') }}" + "/" + extension + "/" + selectedValArray;
+                        } else if (extension == "Create") {
+                            var uri = "{{ url_for('new_result') }}";
+                            window.location.assign(uri);
+                            use_xhr = false;
+                        } else if (extension == "Bulk") {
+                            var uri = "{{ url_for('bulk_result_upload') }}";
+                            window.location.assign(uri);
+                            use_xhr = false;
+                        } else {
+                            var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + selectedValArray;
+                        }
+                        if (use_xhr === true) {
+                            xhr.open("POST", uri, true);
+                            xhr.send();
+                            xhr.onreadystatechange = function(e) {
+                                if (xhr.readyState === 4) {
+                                    location.reload();
                                 }
                             }
                         }
-                        return ischecked;
-                    } else if (type == "Unchecked") {
-                        var unchecked = false;
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox') {
-                                if (checkboxes[i].checked == false) {
-                                    unchecked = true;
+                    }
+
+                    function checkAny(type) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (type == "Checked") {
+                            var ischecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == true) {
+                                        ischecked = true;
+                                    }
+                                }
+                            }
+                            return ischecked;
+                        } else if (type == "Unchecked") {
+                            var unchecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == false) {
+                                        unchecked = true;
+                                    }
+                                }
+                            }
+                            return unchecked;
+                        }
+                    }
+
+                    function checkAll(ele) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (ele.checked == true) {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = true;
+                                    terms_changed(checkboxes[i]);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = false;
+                                    terms_changed(checkboxes[i]);
                                 }
                             }
                         }
-                        return unchecked;
                     }
-                }
-
-                function checkAll(ele) {
-                    var checkboxes = document.getElementsByTagName('input');
-                    if (ele.checked == true) {
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                                checkboxes[i].checked = true;
-                                terms_changed(checkboxes[i]);
-                            }
-                        }
-                    } else {
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                                checkboxes[i].checked = false;
-                                terms_changed(checkboxes[i]);
-                            }
-                        }
-                    }
-                }
                 </script>
                 {% else %}
                 <script type="text/javascript">
-                var myVar;
+                    function pageLoad() {
+                        setTimeout(showPage, 1000);
+                    }
 
-                function pageLoad() {
-                  myVar = setTimeout(showPage, 1000);
-                }
-
-                function showPage() {
-                    document.getElementById("loader").style.display = "none";
-                    document.getElementById("loader-message").style.display = "none";
-                    document.getElementById("loader_logo_outer").style.display = "none";
-                    document.getElementById("paginate").style.display = null;
-                    document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
-                }
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("loader_logo_outer").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                        var table = $('#paginate').DataTable();
+                        table.columns.adjust().draw();
+                    }
                 </script>
                 {% endif %}
             </div>
@@ -558,7 +530,7 @@
                         </noscript>
                         <div class="inner_form_div">
                             <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
-                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return">
+                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Results">
                             </form>
                             <form class="form" action="{{url_for('bulk_result_upload')}}" method=post autocomplete="off">
                                 <dl>
@@ -601,7 +573,7 @@
                         </noscript>
                         <div class="inner_form_div">
                             <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
-                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return">
+                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Results">
                             </form>
                             <form class="form" action="{{url_for('new_result')}}" method=post autocomplete="off">
                                 <dl>

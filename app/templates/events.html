@@ -6,6 +6,7 @@
         <meta name="description" content="Scrummage Events">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -23,7 +24,7 @@
                 <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
                 <p id="loader-message" class="loaderabout">Loading Scrummage Events...</p>
                 <div style="display: none;" id="fc" class="field-container">
-                    <table style="display:none;" id="paginate">
+                    <table id="paginate">
                         <thead>
                             <tr>
                                 <th style="min-width: 30px; width: 30px; max-width: 30px;" id="table_id">ID</th>
@@ -88,21 +89,21 @@
                     </div>
                 </div>
                 <script>
-                var myVar;
+                    function pageLoad() {
+                        setTimeout(showPage, 1000);
+                    }
 
-                function pageLoad() {
-                  myVar = setTimeout(showPage, 1000);
-                }
-
-                function showPage() {
-                    document.getElementById("loader").style.display = "none";
-                    document.getElementById("loader-message").style.display = "none";
-                    document.getElementById("loader_logo_outer").style.display = "none";
-                    document.getElementById("paginate").style.display = null;
-                    document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
-                }
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("loader_logo_outer").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                        var table = $('#paginate').DataTable();
+                        table.columns.adjust().draw();
+                    }
                 </script>
             </section>
         </main>

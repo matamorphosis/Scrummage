@@ -95,15 +95,7 @@ class Configuration:
 
                         if Detail in Current_Item:
                             Current_Item = Current_Item[Detail]
-
-                            if type(Current_Item) == bool:
-                                Return_Details.append(Current_Item)
-
-                            elif type(Current_Item) != bool and Current_Item:
-                                Return_Details.append(Current_Item)
-
-                            else:
-                                return None
+                            Return_Details.append(Current_Item)
 
                         else:
                             return None

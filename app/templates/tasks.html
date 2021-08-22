@@ -7,6 +7,7 @@
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
         <title>Scrummage Tasks</title>
@@ -29,7 +30,7 @@
                                 </noscript>
                                 <div class="inner_form_div">  
                                     <form class="form_prv" action="{{ url_for('return_task', tasktype='edit') }}" method=post autocomplete="off">
-                                        <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Tasks">
+                                        <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                                     </form>
                                     <form class="form" action="{{ url_for('edit_task', taskid=results[0]) }}" method=post autocomplete="off">
                                         <dl>
@@ -51,26 +52,26 @@
                                                 </div>
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" id="queryfield" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
+                                                <input class="field_textarea" id="queryfield" type="text" name=query placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=text name=frequency placeholder="Frequency" value="{{results[4]}}">
+                                                <input class="field_textarea" type="text" name=frequency placeholder="Frequency" value="{{results[4]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=text name=description placeholder="Description" value="{{results[3]}}">
+                                                <input class="field_textarea" type="text" name="description" placeholder="Description" value="{{results[3]}}">
                                             </dd>
                                             {% if Without_Limit %}
                                             <dd id="limitdd" style="display: none;">
-                                                <input id="limitfield" style="display: none;" class="field_textarea" id="limitfield" type=number name=limit placeholder="Limit" value="{{results[5]}}">
+                                                <input id="limitfield" style="display: none;" class="field_textarea" id="limitfield" type="number" name=limit placeholder="Limit" value="{{results[5]}}">
                                             </dd>
                                             {% else %}
                                             <dd id="limitdd">
-                                                <input id="limitfield" class="field_textarea" id="limitfield" type=number name=limit placeholder="Limit" value="{{results[5]}}">
+                                                <input id="limitfield" class="field_textarea" id="limitfield" type="number" name=limit placeholder="Limit" value="{{results[5]}}">
                                             </dd>
                                             {% endif %}
                                             </dd>
                                             <dd id="fin_input">
-                                                <input style="display: inline-block;" id="submitbutton" class="button_next" name="next" onclick="ShowLoader()" type=submit value="Update Task">
+                                                <input style="display: inline-block;" id="submitbutton" class="button_next" name="next" onclick="ShowLoader()" type="submit" value="Update Task">
                                             </dd>
                                         </dl>
                                     </form>
@@ -175,45 +176,29 @@
             </noscript>
             <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
             <p id="loader-message" class="loaderabout">Loading Scrummage Tasks...</p>
+            {% if is_admin %}
             {% if api_check == "Failed" %}
             <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">Task Configuration Check Failed.</p><p class="api_message">Please provide the required configuration(s) for this task before running it.</p></div></div></div>
-            <script type="text/javascript">
-                autoClose();
-                function autoClose() {
-                    setTimeout(closeWindow, 10000);
-                }
-                function closeWindow() {
-                    var close_item = document.getElementById("api_window");
-                    close_item.style.display = "none";
-                }
-            </script>
             {% elif api_check == "Passed" %}
             <div style="display: none;" id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">Successfully Executed Task.</p></div></div></div>
-            <script type="text/javascript">
-                autoClose();
-                function autoClose() {
-                    setTimeout(closeWindow, 10000);
-                }
-                function closeWindow() {
-                    var close_item = document.getElementById("api_window");
-                    close_item.style.display = "none";
-                }
-            </script>
             {% elif error %}
             <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="message"><strong>Error:</strong> {{ error }}</p></div></div></div>
-            <script type="text/javascript">
-                autoClose();
-                function autoClose() {
-                    setTimeout(closeWindow, 10000);
-                }
-                function closeWindow() {
-                    var close_item = document.getElementById("api_window");
-                    close_item.style.display = "none";
-                }
-            </script>
             {% endif %}
-            {% if is_admin %}
-            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div style="text-align: right;" id="arrow" class="left_pop_out_inner"><button id="expand" class="collapsible_filter_left" onclick="change_expand_size()">&lt;</button></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Task Management</p><br />
+            {% if message or error or api_check == "Failed" %}
+                <script type="text/javascript">
+                    autoClose();
+
+                    function autoClose() {
+                        setTimeout(closeWindow, 10000);
+                    }
+
+                    function closeWindow() {
+                        var close_item = document.getElementById("api_window");
+                        close_item.style.display = "none";
+                    }
+                </script>
+            {% endif %}
+            <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Task Management</p><br />
                     <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create New Task</a>
                     <a id="checkoutputs" onclick="sendRequest('checkinput')" class="left_button">Check Inputs</a>
                     <a id="checkoutputs" onclick="sendRequest('checkoutput')" class="left_button">Check Outputs</a>
@@ -221,29 +206,6 @@
                     <a id="bottom_duplicate_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to duplicate the selected task items: ' + getSelectValues() + '?') && sendRequest('Duplicate');" disabled="true">Duplicate</a>
                 </div>
             </div></div></div>
-            <script type="text/javascript">
-                function change_expand_size() {
-                    var buttons = document.getElementsByClassName("left_button");
-                    var buttons_disabled = document.getElementsByClassName("left_button-disabled");
-                    var titles = document.getElementsByClassName("left_title");
-                    var item = document.getElementById("expand");
-                    if (item.innerHTML === "&gt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "15%";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "84%";
-                        document.getElementById("arrow").style.textAlign = "right";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px 10px 3px 10px";
-                        item.innerHTML = "&lt;";
-                        document.getElementById("innerleftpop").style.display = null;
-                    } else if (item.innerHTML === "&lt;") {
-                        document.getElementsByClassName("left_pop_out_outer")[0].style.width = "20px";
-                        document.getElementsByClassName("field-container-settings")[0].style.width = "97.7%";
-                        document.getElementById("arrow").style.textAlign = "center";
-                        document.getElementsByClassName("left_pop_out_inner")[0].style.padding = "3px";
-                        item.innerHTML = "&gt;";
-                        document.getElementById("innerleftpop").style.display = "none";
-                    }
-                }
-            </script>
             <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
             {% else %}
             <div style="display: none;" style="margin:0;" id="fc" class="field-container">
@@ -286,11 +248,11 @@
                                         </button>
                                         {% else %}
                                         <form class="task_buttons" action="{{ url_for('run_task', taskid=result[0]) }}" method=post autocomplete="off">
-                                            <input class="button-run" type=submit value="Run">
+                                            <input class="button-run" type="submit" value="Run">
                                         </form>
                                         {% endif %}
                                         <form class="task_buttons" action="{{ url_for('edit_task', taskid=result[0]) }}" method=post autocomplete="off">
-                                            <input class="button" type=submit value="Edit">
+                                            <input class="button" type="submit" value="Edit">
                                         </form>
                                     </div>
                                 </td>
@@ -301,30 +263,43 @@
                 </table>
                 {% if is_admin %}
                 <script type="text/javascript">
-                $(document).ready(function(){
-                  $('#paginate').DataTable({
-                    columns: [
-                      null,
-                      { orderable: false },
-                      null,
-                      null,
-                      null,
-                      null,
-                      null,
-                      null
-                    ]
-                  });
-                  $('.dataTables_length').addClass('bs-select');
-                });
+                    var height = 0.7 * screen.height;
+                    height = height.toString() + "px";
+                    $(document).ready(function(){
+                      $('#paginate').DataTable({
+                        "scrollY": height,
+                        "scrollCollapse": true,
+                        "paging": true,
+                        "pageLength": 25,
+                        "autoWidth": true,
+                        columns: [
+                          null,
+                          { orderable: false },
+                          null,
+                          null,
+                          null,
+                          null,
+                          null,
+                          { orderable: false }
+                        ]
+                      });
+                      $('.dataTables_length').addClass('bs-select');
+                    });
                 </script>
                 {% else %}
                 <script type="text/javascript">
-                $(document).ready(function () {
-                  $('#paginate').DataTable({
-                    "paging": "simple_numbers" // false to disable pagination (or any other option)
-                  });
-                  $('.dataTables_length').addClass('bs-select');
-                });
+                    var height = 0.7 * screen.height;
+                    height = height.toString() + "px";
+                    $(document).ready(function () {
+                      $('#paginate').DataTable({
+                        "scrollY": height,
+                        "scrollCollapse": true,
+                        "paging": "simple_numbers",
+                        "pageLength": 25,
+                        "autoWidth": true,
+                      });
+                      $('.dataTables_length').addClass('bs-select');
+                    });
                 </script>
                 {% endif %}
                 <div id="filter_box">
@@ -346,7 +321,7 @@
                                 </dd>
                                 {% endfor %}
                                 <dd id="fin_input">
-                                    <input class="button-run" name="setfilter" type=submit value="Set Filter">
+                                    <input class="button-run" name="setfilter" type="submit" value="Set Filter">
                                 </dd>
                             </dl>
                         </form>
@@ -375,150 +350,148 @@
             </div>
             {% if is_admin %}
             <script type="text/javascript">
-            var myVar;
+                function pageLoad() {
+                    setTimeout(showPage, 1000);
+                }
 
-            function pageLoad() {
-                myVar = setTimeout(showPage, 1000);
-            }
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("outerleftpop").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    {% if api_check in ["Passed", "Failed"] or error %}
+                    document.getElementById("api_window").style.display = null;
+                    {% endif %}
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                    var table = $('#paginate').DataTable();
+                    table.columns.adjust().draw();
+                }
 
-            function showPage() {
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("loader-message").style.display = "none";
-                document.getElementById("loader_logo_outer").style.display = "none";
-                document.getElementById("paginate").style.display = null;
-                document.getElementById("outerleftpop").style.display = null;
-                document.getElementById("fc").style.display = null;
-                {% if api_check in ["Passed", "Failed"] or error %}
-                document.getElementById("api_window").style.display = null;
-                {% endif %}
-                document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
-            }
-
-            function getSelectValues() {
-               var checkedArray = []
-               document.querySelectorAll('#select:checked').forEach(e => {
-                   checkedArray.push(e.value);
-               });
-               checkedArrayStr = checkedArray.toString();
-               return checkedArrayStr
-            }
-
-            function terms_changed(termsCheckBox){
-                var buttons = [["bottom_delete_button", "Delete"], ["bottom_duplicate_button", "Duplicate"]]
-                //If the checkbox has been checked
-                if (termsCheckBox.checked) {
-                    //Set the disabled property to FALSE and enable the button.
-                    buttons.forEach(button => {
-                        document.getElementById(button[0]).className = "left_button";
-                        document.getElementById(button[0]).disabled = false;
+                function getSelectValues() {
+                    var checkedArray = []
+                    document.querySelectorAll('#select:checked').forEach(e => {
+                        checkedArray.push(e.value);
                     });
-                    document.getElementById("mainselect").checked = true;
-                } else {
-                    if($('#select:checked').length === 0) {
+                    checkedArrayStr = checkedArray.toString();
+                    return checkedArrayStr
+                }
+
+                function terms_changed(termsCheckBox){
+                    var buttons = [["bottom_delete_button", "Delete"], ["bottom_duplicate_button", "Duplicate"]]
+                    if (termsCheckBox.checked) {
                         buttons.forEach(button => {
-                            document.getElementById(button[0]).disabled = true;
-                            document.getElementById(button[0]).className = "left_button-disabled";
+                            document.getElementById(button[0]).className = "left_button";
+                            document.getElementById(button[0]).disabled = false;
                         });
-                        document.getElementById("mainselect").checked = false;
+                        document.getElementById("mainselect").checked = true;
+                    } else {
+                        if($('#select:checked').length === 0) {
+                            buttons.forEach(button => {
+                                document.getElementById(button[0]).disabled = true;
+                                document.getElementById(button[0]).className = "left_button-disabled";
+                            });
+                            document.getElementById("mainselect").checked = false;
+                        }
                     }
                 }
-            }
 
-            function sendRequest() {
-                var xhr = new XMLHttpRequest();
-                var selectedValArray = getSelectValues()
-                var use_xhr = true;
+                function sendRequest() {
+                    var xhr = new XMLHttpRequest();
+                    var selectedValArray = getSelectValues()
+                    var use_xhr = true;
 
-                if (arguments[0] === 'Delete') {
-                    var uri = "{{ url_for('tasks') }}" + "/delete/" + selectedValArray
-                } else if (arguments[0] === 'Duplicate') {
-                    var uri = "{{ url_for('tasks') }}" + "/duplicate/" + selectedValArray
-                } else if (arguments[0] === "Create") {
-                    var uri = "{{ url_for('new_task') }}";
-                    window.location.assign(uri);
-                    use_xhr = false;
-                } else if (arguments[0] === "checkoutput") {
-                    var uri = "{{ url_for('check_output') }}";
-                    window.location.assign(uri);
-                    use_xhr = false;
-                } else if (arguments[0] === "checkinput") {
+                    if (arguments[0] === 'Delete') {
+                        var uri = "{{ url_for('tasks') }}" + "/delete/" + selectedValArray
+                    } else if (arguments[0] === 'Duplicate') {
+                        var uri = "{{ url_for('tasks') }}" + "/duplicate/" + selectedValArray
+                    } else if (arguments[0] === "Create") {
+                        var uri = "{{ url_for('new_task') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "checkoutput") {
+                        var uri = "{{ url_for('check_output') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "checkinput") {
                         var uri = "{{ url_for('check_input') }}";
                         window.location.assign(uri);
                         use_xhr = false;
                     }
-                if (use_xhr === true) {
-                    xhr.open("POST", uri, true);
-                    xhr.send();
-                    xhr.onreadystatechange = function(e) {
-                        if (xhr.readyState === 4) {
-                            location.reload();
-                        }
-                    }
-                }
-            }
-
-            function checkAny(type) {
-                var checkboxes = document.getElementsByTagName('input');
-                if (type == "Checked") {
-                    var ischecked = false;
-                    for (var i = 0; i < checkboxes.length; i++) {
-                        if (checkboxes[i].type == 'checkbox') {
-                            if (checkboxes[i].checked == true) {
-                                ischecked = true;
+                    if (use_xhr === true) {
+                        xhr.open("POST", uri, true);
+                        xhr.send();
+                        xhr.onreadystatechange = function(e) {
+                            if (xhr.readyState === 4) {
+                                location.reload();
                             }
                         }
                     }
-                    return ischecked;
-                } else if (type == "Unchecked") {
-                    var unchecked = false;
-                    for (var i = 0; i < checkboxes.length; i++) {
-                        if (checkboxes[i].type == 'checkbox') {
-                            if (checkboxes[i].checked == false) {
-                                unchecked = true;
+                }
+
+                function checkAny(type) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (type == "Checked") {
+                        var ischecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == true) {
+                                    ischecked = true;
+                                }
+                            }
+                        }
+                        return ischecked;
+                    } else if (type == "Unchecked") {
+                        var unchecked = false;
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox') {
+                                if (checkboxes[i].checked == false) {
+                                    unchecked = true;
+                                }
+                            }
+                        }
+                        return unchecked;
+                    }
+                }
+
+                function checkAll(ele) {
+                    var checkboxes = document.getElementsByTagName('input');
+                    if (ele.checked == true) {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = true;
+                                terms_changed(checkboxes[i]);
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < checkboxes.length; i++) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                checkboxes[i].checked = false;
+                                terms_changed(checkboxes[i]);
                             }
                         }
                     }
-                    return unchecked;
                 }
-            }
-
-            function checkAll(ele) {
-                var checkboxes = document.getElementsByTagName('input');
-                if (ele.checked == true) {
-                    for (var i = 0; i < checkboxes.length; i++) {
-                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                            checkboxes[i].checked = true;
-                            terms_changed(checkboxes[i]);
-                        }
-                    }
-                } else {
-                    for (var i = 0; i < checkboxes.length; i++) {
-                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                            checkboxes[i].checked = false;
-                            terms_changed(checkboxes[i]);
-                        }
-                    }
-                }
-            }
             </script>
             {% else %}
             <script type="text/javascript">
-            var myVar;
+                function pageLoad() {
+                    setTimeout(showPage, 1000);
+                }
 
-            function pageLoad() {
-                myVar = setTimeout(showPage, 1000);
-            }
-
-            function showPage() {
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("loader-message").style.display = "none";
-                document.getElementById("loader_logo_outer").style.display = "none";
-                document.getElementById("paginate").style.display = null;
-                document.getElementById("fc").style.display = null;
-                document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                document.getElementsByTagName("INPUT")[0].className='js_search';
-            }
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("loader-message").style.display = "none";
+                    document.getElementById("loader_logo_outer").style.display = "none";
+                    document.getElementById("paginate").style.display = null;
+                    document.getElementById("fc").style.display = null;
+                    var table = $('#paginate').DataTable();
+                    table.columns.adjust().draw();
+                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                    document.getElementsByTagName("INPUT")[0].className='js_search';
+                }
             </script>
             {% endif %}
         </main>
@@ -538,15 +511,15 @@
                         </noscript>
                         <div class="inner_form_div">
                             <form class="form_prv" action="{{ url_for('return_task', tasktype='new') }}" method=post autocomplete="off">
-                                <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Tasks">
+                                <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                             </form>
                             <form class="form" action="{{ url_for('new_task') }}" method=post autocomplete="off">
                                 <dl>
                                     <dd>
                                         {% if task_type_field %}
-                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">
+                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name="tasktype" onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">
                                         {% else %}
-                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type">
+                                        <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name="tasktype" onkeypress="return false;" placeholder="* Task Type">
                                         {% endif %}
                                         <datalist id="browsers">
                                             {% for plugin in Valid_Plugins%}
@@ -564,32 +537,32 @@
                                         </div>
                                     </dd>
                                     <dd>
-                                        <input class="field_textarea" id="queryfield" type=text name=query placeholder="* Query, you can use commas (,) to enter multiple queries.">
+                                        <input class="field_textarea" id="queryfield" type="text" name="query" placeholder="* Query, you can use commas (,) to enter multiple queries.">
                                     </dd>
                                     <dd>
                                         {% if frequency_field %}
-                                        <input class="field_textarea" type=text name=frequency placeholder="Frequency" value="{{frequency_field}}">
+                                        <input class="field_textarea" type="text" name="frequency" placeholder="Frequency" value="{{frequency_field}}">
                                         {% else %}
-                                        <input class="field_textarea" type=text name=frequency placeholder="Frequency">
+                                        <input class="field_textarea" type="text" name="frequency" placeholder="Frequency">
                                         {% endif %}
                                     </dd>
                                     <dd>
                                         {% if description_field %}
-                                        <input class="field_textarea" type=text name=description placeholder="Description" value="{{description_field}}">
+                                        <input class="field_textarea" type="text" name="description" placeholder="Description" value="{{description_field}}">
                                         {% else %}
-                                        <input class="field_textarea" type=text name=description placeholder="Description">
+                                        <input class="field_textarea" type="text" name="description" placeholder="Description">
                                         {% endif %}
                                     </dd>
                                     {% if Without_Limit %}
                                     <dd id="limitdd" style="display: none;">
-                                        <input id="limitfield" style="display: none;" class="field_textarea" id="limitfield" type=number name=limit placeholder="Limit">
+                                        <input id="limitfield" style="display: none;" class="field_textarea" id="limitfield" type="number" name="limit" placeholder="Limit">
                                     </dd>
                                     {% else %}
                                     <dd id="limitdd">
-                                        <input id="limitfield" class="field_textarea" id="limitfield" type=number name=limit placeholder="Limit">
+                                        <input id="limitfield" class="field_textarea" id="limitfield" type="number" name="limit" placeholder="Limit">
                                     </dd>
                                     <dd id="fin_input">
-                                        <input id="submitbutton" style="display: inline-block;" class="button_next" name="next" onclick="ShowLoader()" type=submit value="Create Task">
+                                        <input id="submitbutton" style="display: inline-block;" class="button_next" name="next" onclick="ShowLoader()" type="submit" value="Create Task">
                                     </dd>
                                     {% endif %}
                                 </dl>

@@ -1,55 +1,41 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Scrummage Template.">
-        <title>Scrummage</title>
-        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
-        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
-    </head>
-    <body>
-        <nav class="navbar">
-            <header>
-                <div id="topleftlogo"><img src="{{ url_for('static', filename='images/main.png') }}" class="logomain" alt="logo"/></div>
-            </header>
-            {% if session.get('user') != None and session.get('user') == username %}
-                <p class="follow">{{ username }}</p>
+<nav class="navbar">
+    <header>
+        <div id="topleftlogo"><img src="{{ url_for('static', filename='images/main.png') }}" class="logomain" alt="logo"/></div>
+    </header>
+    {% if session.get('user') != None and session.get('user') == username %}
+        <p class="follow">{{ username }}</p>
+    {% endif %}
+    <div class="navbar-toggle" id="hamburger">
+        <div class="hamburger_slice_outer_top">
+            <div id="hb1"></div>
+        </div>
+        <div class="hamburger_slice_outer">
+            <div id="hb2"></div>
+        </div>
+        <div class="hamburger_slice_outer">
+            <div id="hb3"></div>
+        </div>
+    </div>
+    <div class="container">
+        <ul class="main-nav" id="js-menu">
+            <br id="mobile-a"/><br id="mobile-a"/>
+        {% if not username %}
+            <li id="firstli"><a href="{{ url_for('login') }}">LOGIN</a></li>
+        {% else %}
+            {% if session.get('user') == username %}
+            <li id="firstli"><a href="{{ url_for('dashboard') }}">DASHBOARD</a></li><li><a href="{{ url_for('tasks') }}">TASKS</a></li><li><a href="{{ url_for('results') }}">RESULTS</a></li><li><a href="{{ url_for('events') }}">EVENTS</a></li><li><a href="{{ url_for('account') }}">SETTINGS</a></li>{% if session.get('is_admin') == True %}<li><a href="{{ url_for('identities') }}">IDENTITIES</a></li>{% endif %}<li><a href="{{ url_for('logout') }}">LOGOUT</a></li>
             {% endif %}
-            <div class="navbar-toggle" id="hamburger">
-                <div class="hamburger_slice_outer_top">
-                    <div id="hb1"></div>
-                </div>
-                <div class="hamburger_slice_outer">
-                    <div id="hb2"></div>
-                </div>
-                <div class="hamburger_slice_outer">
-                    <div id="hb3"></div>
-                </div>
-            </div>
-            <div class="container">
-                <ul class="main-nav" id="js-menu">
-                    <br id="mobile-a"/><br id="mobile-a"/>
-                {% if not username %}
-                    <li id="firstli"><a href="{{ url_for('login') }}">LOGIN</a></li>
-                {% else %}
-                    {% if session.get('user') == username %}
-                    <li id="firstli"><a href="{{ url_for('dashboard') }}">DASHBOARD</a></li><li><a href="{{ url_for('tasks') }}">TASKS</a></li><li><a href="{{ url_for('results') }}">RESULTS</a></li><li><a href="{{ url_for('events') }}">EVENTS</a></li><li><a href="{{ url_for('account') }}">SETTINGS</a></li>{% if is_admin %}<li><a href="{{ url_for('identities') }}">IDENTITIES</a></li>{% endif %}<li><a href="{{ url_for('logout') }}">LOGOUT</a></li>
-                    {% endif %}
-                {% endif %}
-                </ul>
-            </div>
-        </nav>
-        <script type="text/javascript">
-            let mainNav = document.getElementById('js-menu');
-            let navBarToggle = document.getElementById('hamburger');
+        {% endif %}
+        </ul>
+    </div>
+</nav>
+<script type="text/javascript">
+    let mainNav = document.getElementById('js-menu');
+    let navBarToggle = document.getElementById('hamburger');
 
-            navBarToggle.addEventListener('click', function () {
-                mainNav.classList.toggle('active');
-            });
-        </script>
-    {% block content %}
-    {% endblock %}
-    </body>
-</html>
+    navBarToggle.addEventListener('click', function () {
+        mainNav.classList.toggle('active');
+    });
+</script>
+{% block content %}
+{% endblock %}

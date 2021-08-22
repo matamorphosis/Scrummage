@@ -6,6 +6,7 @@
         <meta name="description" content="Scrummage Settings">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
         <title>Scrummage Identity Settings</title>
@@ -24,23 +25,17 @@
                 <p id="loader-message" class="loaderabout">Loading Scrummage Identity Settings...</p>
                 {% if error %}
                 <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="api_message">{{error}}</p></div></div></div>
-                <script type="text/javascript">
-                    autoClose();
-                    function autoClose() {
-                        setTimeout(closeWindow, 10000);
-                    }
-                    function closeWindow() {
-                        var close_item = document.getElementById("api_window");
-                        close_item.style.display = "none";
-                    }
-                </script>
                 {% elif message %}
                 <div style="display: none;" id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{message}}</p></div></div></div>
+                {% endif %}
+                {% if message or error %}
                 <script type="text/javascript">
                     autoClose();
+
                     function autoClose() {
                         setTimeout(closeWindow, 10000);
                     }
+
                     function closeWindow() {
                         var close_item = document.getElementById("api_window");
                         close_item.style.display = "none";
@@ -100,7 +95,7 @@
                                 <td class="nonscreenshottab">{{result[7]}}</td>
                                 <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                                     <form class="settings_buttons" action="{{ url_for('edit_identity', identity_id=result[0]) }}" method=post autocomplete="off">
-                                        <input class="button" type=submit value="Edit">
+                                        <input class="button" type="submit" value="Edit">
                                     </form>
                                 </td>
                             </tr>
@@ -108,20 +103,27 @@
                         </tbody>
                     </table>
                     <script type="text/javascript">
-                    $(document).ready(function(){
-                      $('#paginate').DataTable({
-                        columns: [
-                          null,
-                          { orderable: false },
-                          null,
-                          null,
-                          null,
-                          null,
-                          { orderable: false }
-                        ]
-                      });
-                      $('.dataTables_length').addClass('bs-select');
-                    });
+                        var height = 0.7 * screen.height;
+                        height = height.toString() + "px";
+                        $(document).ready(function(){
+                          $('#paginate').DataTable({
+                            "scrollY": height,
+                            "scrollCollapse": true,
+                            "paging": true,
+                            "pageLength": 25,
+                            "autoWidth": true,
+                            columns: [
+                              null,
+                              { orderable: false },
+                              null,
+                              null,
+                              null,
+                              null,
+                              { orderable: false }
+                            ]
+                          });
+                          $('.dataTables_length').addClass('bs-select');
+                        });
                     </script>
                     <div id="filter_box">
                         <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
@@ -142,7 +144,7 @@
                                     </dd>
                                     {% endfor %}
                                     <dd id="fin_input">
-                                        <input class="button-run" name="setfilter" type=submit value="Set Filter">
+                                        <input class="button-run" name="setfilter" type="submit" value="Set Filter">
                                     </dd>
                                 </dl>
                             </form>
@@ -170,106 +172,105 @@
                     </div>
                 </div>
                 <script type="text/javascript">
-                function getSelectValues() {
-                   var checkedArray = []
-                   document.querySelectorAll('#select:checked').forEach(e => {
-                       checkedArray.push(e.value);
-                   });
-                   checkedArrayStr = checkedArray.toString();
-                   return checkedArrayStr
-                }
+                    function getSelectValues() {
+                    var checkedArray = []
+                    document.querySelectorAll('#select:checked').forEach(e => {
+                        checkedArray.push(e.value);
+                    });
+                    checkedArrayStr = checkedArray.toString();
+                    return checkedArrayStr
+                    }
 
-                function terms_changed(termsCheckBox){
-                    var buttons = [["bottom_delete_button", "Delete"]]
-                    if(termsCheckBox.checked){
-                        //Set the disabled property to FALSE and enable the button.
-                        buttons.forEach(button => {
-                            document.getElementById(button[0]).className = "left_button";
-                            document.getElementById(button[0]).disabled = false;
-                        });
-                        document.getElementById("mainselect").checked = true;
-                    } else{
-                        if($('#select:checked').length === 0) {
+                    function terms_changed(termsCheckBox){
+                        var buttons = [["bottom_delete_button", "Delete"]]
+                        if (termsCheckBox.checked) {
                             buttons.forEach(button => {
-                                document.getElementById(button[0]).disabled = true;
-                                document.getElementById(button[0]).className = "left_button-disabled";
+                                document.getElementById(button[0]).className = "left_button";
+                                document.getElementById(button[0]).disabled = false;
                             });
-                            document.getElementById("mainselect").checked = false;
-                        }
-                    }
-                }
-
-                function sendRequest(typeOfRequest) {
-                    var xhr = new XMLHttpRequest();
-                    var selectedValArray = getSelectValues()
-                    var use_xhr = true;
-
-                    if (arguments[0] === 'Delete') {
-                        var uri = "{{ url_for('identities') }}" + "/delete/" + selectedValArray;
-                    } else if (arguments[0] === "Create") {
-                        var uri = "{{ url_for('new_identity') }}";
-                        window.location.assign(uri);
-                        use_xhr = false;
-                    } else if (arguments[0] === "Bulk") {
-                        var uri = "{{ url_for('bulk_identity_upload') }}";
-                        window.location.assign(uri);
-                        use_xhr = false;
-                    }
-                    if (use_xhr === true) {
-                        xhr.open("POST", uri, true);
-                        xhr.send();
-                        xhr.onreadystatechange = function(e) {
-                            if (xhr.readyState === 4) {
-                                var uri = "{{ url_for('identities') }}";
-                                window.location.assign(uri);
+                            document.getElementById("mainselect").checked = true;
+                        } else {
+                            if ($('#select:checked').length === 0) {
+                                buttons.forEach(button => {
+                                    document.getElementById(button[0]).disabled = true;
+                                    document.getElementById(button[0]).className = "left_button-disabled";
+                                });
+                                document.getElementById("mainselect").checked = false;
                             }
                         }
                     }
-                }
 
-                function checkAny(type) {
-                    var checkboxes = document.getElementsByTagName('input');
-                    if (type == "Checked") {
-                        var ischecked = false;
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox') {
-                                if (checkboxes[i].checked == true) {
-                                    ischecked = true;
+                    function sendRequest(typeOfRequest) {
+                        var xhr = new XMLHttpRequest();
+                        var selectedValArray = getSelectValues()
+                        var use_xhr = true;
+
+                        if (arguments[0] === 'Delete') {
+                            var uri = "{{ url_for('identities') }}" + "/delete/" + selectedValArray;
+                        } else if (arguments[0] === "Create") {
+                            var uri = "{{ url_for('new_identity') }}";
+                            window.location.assign(uri);
+                            use_xhr = false;
+                        } else if (arguments[0] === "Bulk") {
+                            var uri = "{{ url_for('bulk_identity_upload') }}";
+                            window.location.assign(uri);
+                            use_xhr = false;
+                        }
+                        if (use_xhr === true) {
+                            xhr.open("POST", uri, true);
+                            xhr.send();
+                            xhr.onreadystatechange = function(e) {
+                                if (xhr.readyState === 4) {
+                                    var uri = "{{ url_for('identities') }}";
+                                    window.location.assign(uri);
                                 }
                             }
                         }
-                        return ischecked;
-                    } else if (type == "Unchecked") {
-                        var unchecked = false;
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox') {
-                                if (checkboxes[i].checked == false) {
-                                    unchecked = true;
+                    }
+
+                    function checkAny(type) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (type == "Checked") {
+                            var ischecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == true) {
+                                        ischecked = true;
+                                    }
+                                }
+                            }
+                            return ischecked;
+                        } else if (type == "Unchecked") {
+                            var unchecked = false;
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox') {
+                                    if (checkboxes[i].checked == false) {
+                                        unchecked = true;
+                                    }
+                                }
+                            }
+                            return unchecked;
+                        }
+                    }
+
+                    function checkAll(ele) {
+                        var checkboxes = document.getElementsByTagName('input');
+                        if (ele.checked == true) {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = true;
+                                    terms_changed(checkboxes[i]);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
+                                    checkboxes[i].checked = false;
+                                    terms_changed(checkboxes[i]);
                                 }
                             }
                         }
-                        return unchecked;
                     }
-                }
-
-                function checkAll(ele) {
-                    var checkboxes = document.getElementsByTagName('input');
-                    if (ele.checked == true) {
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                                checkboxes[i].checked = true;
-                                terms_changed(checkboxes[i]);
-                            }
-                        }
-                    } else {
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].id != "mainselect") {
-                                checkboxes[i].checked = false;
-                                terms_changed(checkboxes[i]);
-                            }
-                        }
-                    }
-                }
                 </script>
                 {% if error %}
                 <section id="msg" style="display: none;"><p class="message" style="padding-top: 30px;"><strong>Error:</strong> {{error}}</p></section>
@@ -277,25 +278,25 @@
                 <section id="msg" style="display: none;"><p class="message" style="padding-top: 30px;"><strong>Message:</strong> {{message}}</p></section>
                 {% endif %}
                 <script type="text/javascript">
-                var myVar;
+                    function pageLoad() {
+                        setTimeout(showPage, 1000);
+                    }
 
-                function pageLoad() {
-                  myVar = setTimeout(showPage, 1000);
-                }
-
-                function showPage() {
-                    document.getElementById("loader").style.display = "none";
-                    document.getElementById("loader-message").style.display = "none";
-                    document.getElementById("loader_logo_outer").style.display = "none";
-                    document.getElementById("paginate").style.display = null;
-                    {% if error or message %}
-                    document.getElementById("api_window").style.display = null;
-                    {% endif %}
-                    document.getElementById("outerleftpop").style.display = null;
-                    document.getElementById("fc").style.display = null;
-                    document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
-                    document.getElementsByTagName("INPUT")[0].className='js_search';
-                }
+                    function showPage() {
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("loader-message").style.display = "none";
+                        document.getElementById("loader_logo_outer").style.display = "none";
+                        document.getElementById("paginate").style.display = null;
+                        {% if error or message %}
+                        document.getElementById("api_window").style.display = null;
+                        {% endif %}
+                        document.getElementById("outerleftpop").style.display = null;
+                        document.getElementById("fc").style.display = null;
+                        document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
+                        document.getElementsByTagName("INPUT")[0].className='js_search';
+                        var table = $('#paginate').DataTable();
+                        table.columns.adjust().draw();
+                    }
                 </script>
             </main>
             {% elif form_step == 1 %}
@@ -311,30 +312,30 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                        <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                        <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                     </form>
                                     <form class="form" action="{{ url_for('edit_identity', identity_id=results[0]) }}" method=post autocomplete="off">
                                         <dl>
                                             <dd>
-                                                <input class="field_textarea" type=text name=First placeholder="* First Name" value="{{results[1]}}">
+                                                <input class="field_textarea" type="text" name=First placeholder="* First Name" value="{{results[1]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=text name=Middle placeholder="Middle Name" value="{{results[2]}}">
+                                                <input class="field_textarea" type="text" name=Middle placeholder="Middle Name" value="{{results[2]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=text name=Surname placeholder="* Surname" value="{{results[3]}}">
+                                                <input class="field_textarea" type="text" name=Surname placeholder="* Surname" value="{{results[3]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=text name=Username placeholder="Username" value="{{results[5]}}">
+                                                <input class="field_textarea" type="text" name=Username placeholder="Username" value="{{results[5]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=email name=Email placeholder="* Email" value="{{results[6]}}">
+                                                <input class="field_textarea" type="email" name=Email placeholder="* Email" value="{{results[6]}}">
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" type=tel name=Phone placeholder="* Phone" value="{{results[7]}}">
+                                                <input class="field_textarea" type="tel" name=Phone placeholder="* Phone" value="{{results[7]}}">
                                             </dd>
                                             <dd id="fin_input">
-                                                <input class="button" name="createuser" onclick="ShowLoader()" type=submit value="Update Identity">
+                                                <input class="button" name="createuser" onclick="ShowLoader()" type="submit" value="Update Identity">
                                             </dd>
                                         </dl>
                                     </form>
@@ -343,6 +344,7 @@
                                            document.getElementById("form_loader").style.display = "block";
                                            setTimeout(HideLoader, 3000);
                                         }
+
                                         function HideLoader() {
                                            document.getElementById("form_loader").style.display = "none";
                                         }
@@ -369,30 +371,30 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                            <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                            <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                         </form>
                                         <form class="form" action="{{ url_for('new_identity') }}" method=post autocomplete="off">
                                             <dl>
                                                 <dd>
-                                                    <input class="field_textarea" type=text name=First placeholder="* First Name">
+                                                    <input class="field_textarea" type="text" name=First placeholder="* First Name">
                                                 </dd>
                                                 <dd>
-                                                    <input class="field_textarea" type=text name=Middle placeholder="Middle Name">
+                                                    <input class="field_textarea" type="text" name=Middle placeholder="Middle Name">
                                                 </dd>
                                                 <dd>
-                                                    <input class="field_textarea" type=text name=Surname placeholder="* Surname">
+                                                    <input class="field_textarea" type="text" name=Surname placeholder="* Surname">
                                                 </dd>
                                                 <dd>
-                                                    <input class="field_textarea" type=text name=Username placeholder="Username">
+                                                    <input class="field_textarea" type="text" name=Username placeholder="Username">
                                                 </dd>
                                                 <dd>
-                                                    <input class="field_textarea" type=email name=Email placeholder="* Email">
+                                                    <input class="field_textarea" type="email" name=Email placeholder="* Email">
                                                 </dd>
                                                 <dd>
-                                                    <input class="field_textarea" type=tel name=Phone placeholder="* Phone">
+                                                    <input class="field_textarea" type="tel" name=Phone placeholder="* Phone">
                                                 </dd>
                                                 <dd id="fin_input">
-                                                    <input class="button" name="createuser" onclick="ShowLoader()" type=submit value="Create Identity">
+                                                    <input class="button" name="createuser" onclick="ShowLoader()" type="submit" value="Create Identity">
                                                 </dd>
                                             </dl>
                                         </form>
@@ -401,6 +403,7 @@
                                                document.getElementById("form_loader").style.display = "block";
                                                setTimeout(HideLoader, 3000);
                                             }
+
                                             function HideLoader() {
                                                document.getElementById("form_loader").style.display = "none";
                                             }
@@ -427,7 +430,7 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                            <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Settings">
+                                            <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                         </form>
                                         <form class="form" action="{{ url_for('bulk_identity_upload') }}" method=post autocomplete="off">
                                             <dl>
@@ -435,7 +438,7 @@
                                                     <textarea name="bulk_identities" rows="10" cols="30" name=Data placeholder="* Firstname,Middlename,* Surname,Username,* Email,* Phone"></textarea>
                                                 </dd>
                                                 <dd id="fin_input">
-                                                    <input class="button" name="upload" onclick="ShowLoader()" type=submit value="Upload Identities">
+                                                    <input class="button" name="upload" onclick="ShowLoader()" type="submit" value="Upload Identities">
                                                 </dd>
                                             </dl>
                                         </form>
@@ -444,6 +447,7 @@
                                                document.getElementById("form_loader").style.display = "block";
                                                setTimeout(HideLoader, 3000);
                                             }
+
                                             function HideLoader() {
                                                document.getElementById("form_loader").style.display = "none";
                                             }
