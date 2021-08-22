@@ -1627,6 +1627,7 @@ if __name__ == '__main__':
         def api_tasks_new():
 
             try:
+                Task_Bad_Characters = Bad_Characters
 
                 if request.method == 'POST':
 
@@ -1641,7 +1642,14 @@ if __name__ == '__main__':
                             if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
 
-                            if (any(char in Content['Query'] for char in Bad_Characters) and session.get('task_query') != "[IDENTITIES_DATABASE]"):
+                            Plugin_in_List = Valid_Plugins[Content['Task Type']]
+
+                            if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+
+                                for Bad_Character in Plugin_in_List['Safe_Characters']:
+                                    Task_Bad_Characters.remove(Bad_Character)
+
+                            if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if 'Frequency' in Content:
@@ -1778,8 +1786,12 @@ if __name__ == '__main__':
                     if 'description' in request.form:
                         session['task_description'] = html.escape(request.form['description'])
 
-                    if request.form.get('tasktype') == "Phone Search - Cellular Number":
-                        Task_Bad_Characters.remove("+")
+                    Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
+
+                    if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+
+                        for Bad_Character in Plugin_in_List['Safe_Characters']:
+                            Task_Bad_Characters.remove(Bad_Character)
 
                     session['task_form_type'] = request.form['tasktype']                     
 
@@ -1910,6 +1922,7 @@ if __name__ == '__main__':
         def api_tasks_edit(taskid):
 
             try:
+                Task_Bad_Characters = Bad_Characters
 
                 if request.method == 'POST':
 
@@ -1930,7 +1943,14 @@ if __name__ == '__main__':
                             if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
 
-                            if any(char in Content['Query'] for char in Bad_Characters):
+                            Plugin_in_List = Valid_Plugins[Content['Task Type']]
+
+                            if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+
+                                for Bad_Character in Plugin_in_List['Safe_Characters']:
+                                    Task_Bad_Characters.remove(Bad_Character)
+
+                            if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if 'Frequency' in Content:
@@ -2107,8 +2127,12 @@ if __name__ == '__main__':
                         if 'description' in request.form:
                             session['task_description'] = html.escape(request.form['description'])
 
-                        if request.form.get('tasktype') == "Phone Search - Cellular Number":
-                            Task_Bad_Characters.remove("+")
+                        Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
+
+                        if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+
+                            for Bad_Character in Plugin_in_List['Safe_Characters']:
+                                Task_Bad_Characters.remove(Bad_Character)
 
                         session['task_form_type'] = request.form['tasktype']
 
