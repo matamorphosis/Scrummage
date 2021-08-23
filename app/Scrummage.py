@@ -1644,7 +1644,7 @@ if __name__ == '__main__':
 
                             Plugin_in_List = Valid_Plugins[Content['Task Type']]
 
-                            if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+                            if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
                                 for Bad_Character in Plugin_in_List['Safe_Characters']:
                                     Task_Bad_Characters.remove(Bad_Character)
@@ -1787,10 +1787,13 @@ if __name__ == '__main__':
                         session['task_description'] = html.escape(request.form['description'])
 
                     Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
+                    print(Plugin_in_List)
 
-                    if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+                    if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
+                        print(True)
 
                         for Bad_Character in Plugin_in_List['Safe_Characters']:
+                            print(Bad_Character)
                             Task_Bad_Characters.remove(Bad_Character)
 
                     session['task_form_type'] = request.form['tasktype']                     
@@ -1945,7 +1948,7 @@ if __name__ == '__main__':
 
                             Plugin_in_List = Valid_Plugins[Content['Task Type']]
 
-                            if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+                            if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
                                 for Bad_Character in Plugin_in_List['Safe_Characters']:
                                     Task_Bad_Characters.remove(Bad_Character)
@@ -2129,7 +2132,7 @@ if __name__ == '__main__':
 
                         Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
 
-                        if type(Plugin_in_List) == list and "Safe_Characters" in Plugin_in_List:
+                        if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
                             for Bad_Character in Plugin_in_List['Safe_Characters']:
                                 Task_Bad_Characters.remove(Bad_Character)
@@ -2291,7 +2294,6 @@ if __name__ == '__main__':
                     return redirect(url_for('tasks'))
 
             except Exception as e:
-                raise e
                 app.logger.error(e)
                 return redirect(url_for('tasks'))
 
