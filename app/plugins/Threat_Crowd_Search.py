@@ -19,11 +19,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -45,7 +43,7 @@ class Plugin_Search:
                             Permalink = JSON_Response.get("permalink")
                             Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
-                            Title = "Threat Crowd | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
+                            Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Account", self.Task_ID, Local_Plugin_Name.lower())
@@ -77,7 +75,7 @@ class Plugin_Search:
                             Permalink = JSON_Response.get("permalink")
                             Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
-                            Title = "Threat Crowd | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
+                            Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Domain Information", self.Task_ID, Local_Plugin_Name.lower())
@@ -109,7 +107,7 @@ class Plugin_Search:
                             Permalink = JSON_Response.get("permalink")
                             Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
-                            Title = "Threat Crowd | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
+                            Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Domain Information", self.Task_ID, Local_Plugin_Name.lower())
@@ -139,7 +137,7 @@ class Plugin_Search:
                         Permalink = JSON_Response.get("permalink")
                         Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Permalink_Response = Permalink_Responses["Filtered"]
-                        Title = "Threat Crowd | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
+                        Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
                         Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Virus", self.Task_ID, Local_Plugin_Name.lower())
@@ -166,7 +164,7 @@ class Plugin_Search:
                         Permalink = JSON_Response.get("permalink")
                         Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Permalink_Response = Permalink_Responses["Filtered"]
-                        Title = "Threat Crowd | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
+                        Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
                         Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Virus Report", self.Task_ID, Local_Plugin_Name.lower())

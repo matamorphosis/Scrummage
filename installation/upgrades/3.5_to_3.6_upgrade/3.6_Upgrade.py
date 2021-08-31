@@ -61,6 +61,12 @@ try:
     
     cursor.execute(create_org_query)
     print(str(datetime.datetime.now()) + " Organisation Identities table created successfully in PostgreSQL.")
+    cursor.execute("SELECT result_id FROM results WHERE result_type = 'Virus';")
+    results = cursor.fetchall()
+
+    for result in results:
+        cursor.execute("UPDATE results SET result_type = %s WHERE result_id = %s;", ("Malware", result[0]))
+    
     connection.commit()
     print(str(datetime.datetime.now()) + " Scrummage Database successfully updated in PostgreSQL.")
 

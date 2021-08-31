@@ -32,11 +32,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Shodan_API_Key = self.Load_Configuration()
             API_Session = Shodan(Shodan_API_Key)
@@ -95,7 +93,7 @@ class Plugin_Search:
                                     else:
                                         Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}"
 
-                                    Title = f"Shodan | {str(Shodan_Item_Host)}"
+                                    Title = f"{self.Plugin_Name} | {str(Shodan_Item_Host)}"
 
                                     if Shodan_Item_URL not in Cached_Data and Shodan_Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Shodan_Item_Response, Shodan_Item_Host, self.The_File_Extensions["Query"])
@@ -108,6 +106,12 @@ class Plugin_Search:
                                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                                         Current_Step += 1
+
+                                else:
+                                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid host.")
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                     elif self.Type == "Host":
                         Local_Plugin_Name = self.Plugin_Name + "-Host"
@@ -123,7 +127,7 @@ class Plugin_Search:
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
                         Shodan_URL = f"https://www.{self.Domain}/host/{Query}"
-                        Title = f"Shodan | {Query}"
+                        Title = f"{self.Plugin_Name} | {Query}"
 
                         if Shodan_URL not in Cached_Data and Shodan_URL not in Data_to_Cache:
                             Shodan_Responses = Common.Request_Handler(Shodan_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")

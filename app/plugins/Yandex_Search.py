@@ -48,11 +48,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Yandex_Details = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -65,7 +63,6 @@ class Plugin_Search:
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                 Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
                 New_JSON_Response = Recursive_Dict_Check(["yandexsearch", "response", "results", "grouping", "group"], JSON_Response)
-                print(JSON_Response)
 
                 if New_JSON_Response:
 
@@ -79,11 +76,11 @@ class Plugin_Search:
                                 Title = Recursive_Dict_Check(["title", "#text"], JSON_Response)
 
                                 if Title:
-                                    Title = f"Yandex | {Title}"
+                                    Title = f"{self.Plugin_Name} | {Title}"
 
                                 else:
                                     Title = General.Get_Title(Yandex_URL)
-                                    Title = f"Yandex | {Title}"
+                                    Title = f"{self.Plugin_Name} | {Title}"
 
                                 if Yandex_URL not in Cached_Data and Yandex_URL not in Data_to_Cache:
                                     Yandex_Item_Responses = Common.Request_Handler(Yandex_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://{self.Domain}")
@@ -96,6 +93,9 @@ class Plugin_Search:
 
                                     else:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                         except Exception as e:
                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")

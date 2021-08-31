@@ -21,11 +21,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -52,9 +50,9 @@ class Plugin_Search:
 
                             try:
                                 Detailed_Item_URL = URL_Body + Current_Item_Regex.group(1)
-                                Detailed_Responses = Common.Request_Handler(Item_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                Detailed_Responses = Common.Request_Handler(Detailed_Item_URL, Filter=True, Host=f"https://www.{self.Domain}")
                                 Detailed_Response = Detailed_Responses["Regular"]
-                                Output_Dict = Common.JSON_Handler(Detailed_Response).Is_JSON()
+                                JSON_Response = Common.JSON_Handler(Detailed_Response).Is_JSON()
 
                                 if JSON_Response:
                                     Output_Response = "<head><title>" + JSON_Response["title"] + "</title></head>\n"

@@ -20,11 +20,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -55,9 +53,9 @@ class Plugin_Search:
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)
 
                         if Query not in Cached_Data and Query not in Data_to_Cache:
-                            Title = f"Email Verification | {Query}"
+                            Title = f"{self.Plugin_Name} | {Query}"
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Concat_Plugin_Name, JSON_Output_Response, Title, self.The_File_Extensions["Main"])
-                            HTML_Output_File_Data = General.JSONDict_to_HTML(Filter_JSON, JSON_Output_Response, f"Email Verification Query {Query}")
+                            HTML_Output_File_Data = General.JSONDict_to_HTML(Filter_JSON, JSON_Output_Response, f"{self.Plugin_Name} Query {Query}")
                             HTML_Output_File = General.Create_Query_Results_Output_File(Directory, Query, self.Concat_Plugin_Name, HTML_Output_File_Data, Title, self.The_File_Extensions["Main_Converted"])
 
                             if Output_file and HTML_Output_File:
@@ -66,6 +64,12 @@ class Plugin_Search:
 
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response type.")
+
+                else:
+                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to match regex.")
 
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 

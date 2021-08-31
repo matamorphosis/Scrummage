@@ -95,7 +95,15 @@ class Configuration:
 
                         if Detail in Current_Item:
                             Current_Item = Current_Item[Detail]
-                            Return_Details.append(Current_Item)
+
+                            if type(Current_Item) in [bool, int]:
+                                Return_Details.append(Current_Item)
+
+                            elif Current_Item:
+                                Return_Details.append(Current_Item)
+
+                            else:
+                                return None
 
                         else:
                             return None
@@ -137,8 +145,8 @@ class Configuration:
                             else:
                                 return None
 
-                        except:
-                            logging.warning(f"{Date()} - Common Library - Failed to connect to database.")
+                        except Exception as e:
+                            logging.warning(f"{Date()} - Common Library - Failed to connect to database. {str(e)}.")
                             return None
 
                 else:
@@ -289,8 +297,8 @@ def Defect_Dojo_Output(Object, Title, Description):
                 Finding = str(int(str(Finding)))
                 logging.info(f"{Date()} - Common Library - DefectDojo finding {Finding} created.")
 
-            except:
-                logging.info(f"{Date()} - Common Library - Failed to create DefectDojo finding.")
+            except Exception as e:
+                logging.info(f"{Date()} - Common Library - Failed to create DefectDojo finding. {str(e)}.")
 
         except (Exception, psycopg2.DatabaseError) as Error:
             logging.warning(Date() + str(Error))
@@ -404,6 +412,7 @@ def Slack_Main(Object, Description):
     Slack_Details = Load_Output(Object, "slack")
 
     if Slack_Details:
+        print(Slack_Details)
 
         try:
             client = slack.WebClient(token=Slack_Details[0])
@@ -444,8 +453,8 @@ def Elasticsearch_Main(Object, Title, Plugin_Name, Domain, Link, Result_Type, Ou
             else:
                 logging.info(f"{Date()} - Common Library - Failed to create result in Elasticsearch, using the URI {URI}.")
 
-        except:
-            logging.warning(f"{Date()} - Common Library - Failed to create result in Elasticsearch.")
+        except Exception as e:
+            logging.warning(f"{Date()} - Common Library - Failed to create result in Elasticsearch. {str(e)}.")
 
 def Email_Main(Object, Email_Subject, Email_Body):
     Email_Details = Load_Output(Object, "email")
@@ -467,8 +476,8 @@ def Email_Main(Object, Email_Subject, Email_Body):
             server.quit()
             logging.info(f"{Date()} - Common Library - Email Sent.")
 
-        except:
-            logging.warning(f"{Date()} - Common Library - Failed to send alert! Check email login settings.")
+        except Exception as e:
+            logging.warning(f"{Date()} - Common Library - Failed to send alert! Check email login settings. {str(e)}.")
 
 def Set_Configuration_File():
 
@@ -565,7 +574,7 @@ class JSON_Handler:
         except Exception as e:
             logging.error(f"{Date()} - Common Library - {str(e)}.")
 
-def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=False, Application_Form_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Full_Response=False, Host="", Data={}, Params={}, JSON_Data={}, Optional_Headers={}, Scrape_Regex_URL="", Proxies={}, Certificate_Verification=True):
+def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=False, Application_JSON_CT=False, Application_Form_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Full_Response=False, Host="", Data={}, Params={}, JSON_Data={}, Optional_Headers={}, Scrape_Regex_URL="", Proxies={}, Certificate_Verification=True):
 
     try:
         Headers = {}
@@ -584,6 +593,9 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=Fals
             if User_Agent:
                 Headers['User-Agent'] = Current_User_Agent
 
+            if Application_JSON_Accept:
+                Headers['Accept'] = 'application/json'
+            
             if Application_JSON_CT:
                 Headers['Content-Type'] = 'application/json'
 
@@ -654,8 +666,8 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_CT=Fals
                         if not Temp_URL_Extensions in Scrape_URLs:
                             Scrape_URLs.append(Temp_URL_Extensions)
 
-                except:
-                    logging.warning(f"{Date()} - Common Library - Failed to regex URLs.")
+                except Exception as e:
+                    logging.warning(f"{Date()} - Common Library - Failed to regex URLs. {str(e)}.")
 
                 Response_Dict["Regular"] = Response
                 Response_Dict["Scraped"] = Scrape_URLs
@@ -716,7 +728,7 @@ def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Compon
     try:
 
         if Type != "":
-            Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?$", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*"}
+            Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?(\/)?$", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*"}
 
             for Key, Value in Predefined_Regex_Patterns.items():
 

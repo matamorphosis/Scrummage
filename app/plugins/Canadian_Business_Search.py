@@ -22,11 +22,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -45,7 +43,7 @@ class Plugin_Search:
 
                         try:
 
-                            if JSON_Response['count'] != 0:
+                            if int(JSON_Response['count']) > 0:
                                 Query = str(int(Query))
                                 Main_URL = f'https://{self.Domain}/search/results?search=%7B{Query}%7D&status=Active'
                                 Responses = Common.Request_Handler(Main_URL, Filter=True, Host=f"https://{self.Domain}")
@@ -61,6 +59,9 @@ class Plugin_Search:
 
                                     else:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                         except:
                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid query provided for CBN Search.")

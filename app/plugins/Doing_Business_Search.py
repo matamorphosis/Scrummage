@@ -20,11 +20,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -40,7 +38,7 @@ class Plugin_Search:
                 if 'message' not in JSON_Response:
                     Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                     Item_URL = f"https://www.{self.Domain}/en/data/exploreeconomies/{Query}"
-                    Title = f"Doing Business | {Query}"
+                    Title = f"{self.Plugin_Name} | {Query}"
                     Current_Doing_Business_Responses = Common.Request_Handler(Item_URL, Filter=True, Host=f"https://www.{self.Domain}")
                     Current_Doing_Business_Response = Current_Doing_Business_Responses["Filtered"]
 

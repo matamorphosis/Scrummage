@@ -1700,6 +1700,20 @@ table.dataTable td {
     -o-transition: all 0.30s ease-in-out;
 }
 
+.imageresult {
+    background-image: url('../images/camera.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 10px 1px 0px 1px;
+    height: 12px;
+    width: 20px;
+    float: left;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
 .result_details_buttons {
     display: inline-flex;
 }

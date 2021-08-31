@@ -35,27 +35,24 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
 
             try:
-                pyhibp.set_api_key(key=Load_Configuration())
+                pyhibp.set_api_key(key=self.Load_Configuration())
 
             except:
                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to set API key, make sure it is set in the configuration file.")
 
-            if self.Type == "email":
+            if self.Type == "Email":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                 Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:
                     Query_Response = pyhibp.get_pastes(email_address=Query)
-                    logging.info(Query_Response)
 
                     if Query_Response:
                         Current_Domain = Query_Response[0]["Source"]
@@ -74,9 +71,12 @@ class Plugin_Search:
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
                 Cached_Data_Object.Write_Cache(Data_to_Cache)
 
-            elif self.Type == "breach":
+            elif self.Type == "Breach":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                 Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
@@ -100,16 +100,18 @@ class Plugin_Search:
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
                 Cached_Data_Object.Write_Cache(Data_to_Cache)
 
-            elif self.Type == "password":
+            elif self.Type == "Password":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                 Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:
                     Query_Response = pw.is_password_breached(password=Query)
-                    logging.info(Query_Response)
 
                     if Query_Response:
                         Link = f"https://{self.Domain}/Passwords?{Query}"
@@ -125,9 +127,12 @@ class Plugin_Search:
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
                 Cached_Data_Object.Write_Cache(Data_to_Cache)
 
-            elif self.Type == "account":
+            elif self.Type == "Account":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                 Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
@@ -155,6 +160,9 @@ class Plugin_Search:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                                 Current_Step += 1
+
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 Cached_Data_Object.Write_Cache(Data_to_Cache)
 

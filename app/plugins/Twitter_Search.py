@@ -59,7 +59,7 @@ class Plugin_Search:
                     Link = JSON_Item['url']
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
-                        Title = "Twitter | " + JSON_Item['text']
+                        Title = f"{self.Plugin_Name} | " + JSON_Item['text']
                         Item_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://{self.Domain}")
                         Item_Response = Item_Responses["Filtered"]
 
@@ -86,11 +86,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Twitter_Credentials = self.Load_Configuration()
 

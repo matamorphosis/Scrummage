@@ -36,7 +36,7 @@ if __name__ == '__main__':
                          "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group",
                          "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing", "Phone Details"
                          "Repository", "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Data Leakage", "Exploit",
-                         "Economic Details", "Virus", "Virus Report", "Web Application Architecture", "IP Address Information"])
+                         "Economic Details", "Malware", "Malware Report", "Web Application Architecture", "IP Address Information", "Wiki Page", "Hash"])
         Result_Filters = ["Result ID", "Task ID", "Title", "Plugin", "Status", "Domain", "Link", "Created At", "Updated At", "Result Type"]
         Task_Filters = ["Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At"]
         Event_Filters = ["Event ID", "Description", "Created At"]
@@ -697,6 +697,7 @@ if __name__ == '__main__':
         @api_auth_requirement
         @api_admin_requirement
         def api_results_screenshot(resultid):
+            global SS_Thread_In_Use
 
             try:
 
@@ -955,8 +956,6 @@ if __name__ == '__main__':
                     data["Most Common Tasks"][0][mc_task[0]] = mc_task[1]
 
                 Dates = Common.Date(Additional_Last_Days=5, Date_Only=True)
-                Successful_User_Dates_Count = []
-                Unsuccessful_User_Dates_Count = []
                 Cursor.execute('SELECT username FROM users;')
                 Current_Users = Cursor.fetchall()
                 Current_Index = 2
@@ -1267,7 +1266,7 @@ if __name__ == '__main__':
             try:
 
                 if request.method == 'POST':
-                    dup_id = int(dup_id)
+                    dup_id = int(taskid)
                     Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (dup_id,))
                     result = Cursor.fetchone()
 
@@ -1616,7 +1615,7 @@ if __name__ == '__main__':
                     time.sleep(1)
                     return redirect(url_for('tasks'))
 
-            except Exception as e: 
+            except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('tasks'))
 

@@ -38,18 +38,16 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
 
-                if self.Type == "pin":
+                if self.Type == "Pin":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                     Request_URL = f"https://api.{self.Domain}/v1/pins/{Query}/?access_token=" + Load_Configuration() + "&fields=id%2Clink%2Cnote%2Curl%2Ccreated_at%2Cmedia%2Coriginal_link%2Cmetadata%2Ccounts%2Ccolor%2Cboard%2Cattribution"
                     Search_Response = Common.Request_Handler(Request_URL)
@@ -59,7 +57,7 @@ class Plugin_Search:
                     if Search_Response.get('message') != "You have exceeded your rate limit. Try again later.":
                         JSON_Response = JSON_Object.Dump_JSON()
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Response, Query, self.The_File_Extensions["Main"])
-                        Result_Title = "Pinterest | " + Search_Response["data"]["metadata"]["link"]["title"]
+                        Result_Title = f"{self.Plugin_Name} | " + Search_Response["data"]["metadata"]["link"]["title"]
                         Result_URL = Search_Response["data"]["url"]
                         Search_Result_Response = Common.Request_Handler(Result_URL)
 
@@ -77,7 +75,7 @@ class Plugin_Search:
                     else:
                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
-                elif self.Type == "board":
+                elif self.Type == "Board":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                     Request_URL = "https://api.pinterest.com/v1/boards/" + Query + "/pins/?access_token=" + Load_Configuration() + "&fields=id%2Clink%2Cnote%2Curl%2Coriginal_link%2Cmetadata%2Cmedia%2Cimage%2Ccreator%2Ccreated_at%2Ccounts%2Ccolor%2Cboard%2Cattribution&limit=" + str(self.Limit) + ""
                     Search_Response = Common.Request_Handler(Request_URL)

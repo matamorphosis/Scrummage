@@ -1,4 +1,5 @@
 import importlib, plugin_definitions, plugins.common.General as General, plugins.common.Common as Common
+from typing import Dict
 
 class Plugin_Verifier:
 
@@ -39,15 +40,15 @@ class Plugin_Verifier:
                         Kwargs = {}
                         Func_Kwargs = {}
 
-                        for Key in ["Limit", "Type", "Alphabets", "Comprehensive"]:
+                        for Key in ["Requires_Limit", "Type", "Alphabets", "Comprehensive"]:
 
                             if Key in Dict_Item and Key == "Type":
                                 Kwargs[Key] = Dict_Item[Key]
 
-                            elif Key in Dict_Item and Key == "Limit":
-                                Kwargs[Key] = self.limit
+                            elif Key in Dict_Item and Key == "Requires_Limit" and Dict_Item.get(Key):
+                                Kwargs["Limit"] = self.limit
 
-                            elif Key in Dict_Item:
+                            elif Key in Dict_Item and Key != "Requires_Limit":
                                 Func_Kwargs[Key] = Dict_Item[Key]
 
                         if "Custom_Search" in Dict_Item:
@@ -82,15 +83,15 @@ class Plugin_Verifier:
                         Kwargs = {}
                         Func_Kwargs = {}
 
-                        for Key in ["Limit", "Type", "Alphabets", "Comprehensive"]:
+                        for Key in ["Requires_Limit", "Type", "Alphabets", "Comprehensive"]:
 
                             if Key in Dict_Item and Key == "Type":
                                 Kwargs[Key] = Dict_Item[Key]
 
-                            elif Key in Dict_Item and Key == "Limit":
-                                Kwargs[Key] = self.limit
+                            elif Key in Dict_Item and Key == "Requires_Limit" and Dict_Item.get(Key):
+                                Kwargs["Limit"] = self.limit
 
-                            elif Key in Dict_Item:
+                            elif Key in Dict_Item and Key != "Requires_Limit":
                                 Func_Kwargs[Key] = Dict_Item[Key]
 
                         if "Custom_Search" in Dict_Item:

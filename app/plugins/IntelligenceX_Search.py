@@ -30,11 +30,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             IX_Access_Token = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -69,7 +67,7 @@ class Plugin_Search:
                                     Title = f"IntelligenceX Data Leak | " + IX_Item["name"]
 
                                 else:
-                                    TItle = "IntelligenceX Data Leak | Untitled Document"
+                                    Title = "IntelligenceX Data Leak | Untitled Document"
 
                                 if IX_URL not in Cached_Data and IX_URL not in Data_to_Cache:
                                     IX_Item_Responses = Common.Request_Handler(IX_URL, Filter=True, Host=f"https://{self.Domain}")
@@ -82,6 +80,12 @@ class Plugin_Search:
 
                                     else:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 else:
                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - No results found.")

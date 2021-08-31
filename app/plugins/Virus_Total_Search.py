@@ -30,11 +30,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             VT_API_Key = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -56,7 +54,7 @@ class Plugin_Search:
                             Link = f"https://www.{self.Domain}/gui/self.Domain/{Query}/detection"
                             Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"Virus Total self.Domain | {Query}"
+                            Title = f"{self.Plugin_Name} Domain | {Query}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -67,6 +65,9 @@ class Plugin_Search:
 
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                        else:
+                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 elif self.Type == "IP":
 
@@ -82,7 +83,7 @@ class Plugin_Search:
                             Link = f"https://www.{self.Domain}/gui/ip-address/{Query}/detection"
                             Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"Virus Total IP Address | {Query}"
+                            Title = f"{self.Plugin_Name} IP Address | {Query}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -94,11 +95,13 @@ class Plugin_Search:
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
+                        else:
+                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
                 elif self.Type == "URL":
 
                     if Common.Regex_Handler(Query, Type=self.Type):
-                        import base64
-                        Query_Encoded = base64.urlsafe_b64encode(Query.encode()).decode().strip("=")
+                        Query_Encoded = General.Encoder(Query, URLSafe=True).strip("=")
                         Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/urls/{Query_Encoded}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
                         if Response.status_code == 200:
@@ -110,7 +113,7 @@ class Plugin_Search:
                             Link = f"https://www.{self.Domain}/gui/url/{Query_Encoded}/detection"
                             Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"Virus Total URL | {Query}"
+                            Title = f"{self.Plugin_Name} URL | {Query}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -121,6 +124,9 @@ class Plugin_Search:
 
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                        else:
+                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 elif self.Type == "Hash":
                     Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/files/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
@@ -134,7 +140,7 @@ class Plugin_Search:
                         Link = f"https://www.{self.Domain}/gui/file/{Query}/detection"
                         Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                         Main_URL_Response = Main_URL_Responses["Filtered"]
-                        Title = f"Virus Total File | {Query}"
+                        Title = f"{self.Plugin_Name} File | {Query}"
 
                         if Link not in Cached_Data and Link not in Data_to_Cache:
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -145,6 +151,9 @@ class Plugin_Search:
 
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 

@@ -31,11 +31,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Location = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -55,7 +53,7 @@ class Plugin_Search:
                         Item_URL = f"https://www.microsoft.com/en-au/p/{Regex_Group_1}/{Regex_Group_2}"
                         Win_Store_Responses = Common.Request_Handler(Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Win_Store_Response = Win_Store_Responses["Filtered"]
-                        Title = "Windows Store | " + General.Get_Title(Item_URL)
+                        Title = f"{self.Plugin_Name} | " + General.Get_Title(Item_URL)
 
                         if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Win_Store_Response, Regex_Group_1, self.The_File_Extension)

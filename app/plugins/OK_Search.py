@@ -29,11 +29,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             OK_API_Details = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -67,7 +65,7 @@ class Plugin_Search:
                                 else:
                                     Full_Name = OK_Item["first_name"]
 
-                                Title = f"OK User | {Full_Name}"
+                                Title = f"{self.Plugin_Name} User | {Full_Name}"
 
                                 if OK_URL not in Cached_Data and OK_URL not in Data_to_Cache:
                                     OK_Item_Responses = Common.Request_Handler(OK_URL, Filter=True, Host=f"https://{self.Domain}")
@@ -80,6 +78,9 @@ class Plugin_Search:
 
                                     else:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                         else:
                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid query provided, the user ID provided possibly doesn't exist.")
@@ -106,7 +107,7 @@ class Plugin_Search:
                             if all(Item in OK_Item for Item in ["name", "shortname"]):
                                 OK_URL = f"https://{self.Domain}/" + OK_Item["shortname"]
                                 Full_Name = OK_Item["name"]
-                                Title = f"OK Group | {Full_Name}"
+                                Title = f"{self.Plugin_Name} Group | {Full_Name}"
 
                                 if OK_URL not in Cached_Data and OK_URL not in Data_to_Cache:
                                     OK_Item_Responses = Common.Request_Handler(OK_URL, Filter=True, Host=f"https://{self.Domain}")
@@ -120,6 +121,9 @@ class Plugin_Search:
                                     else:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
+
                         else:
                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid query provided, the group ID provided possibly doesn't exist.")
 
@@ -127,7 +131,7 @@ class Plugin_Search:
                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
 
                 else:
-                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid self.Type supplied.")
+                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid type supplied.")
 
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 

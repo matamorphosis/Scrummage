@@ -20,11 +20,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -38,7 +36,7 @@ class Plugin_Search:
                     if BW_Info:
                         BW_JSON_Output = Common.JSON_Handler(BW_Info).Dump_JSON()
                         Query_Domain = URL_Components["Body"] + URL_Components["Extension"]
-                        Title = f"Built With | {Query_Domain}"
+                        Title = f"{self.Plugin_Name} | {Query_Domain}"
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, BW_JSON_Output, Query_Domain, self.The_File_Extensions["Main"])
                         BW_Search_URL = f"https://{self.Domain}/{Query_Domain}"
                         Responses = Common.Request_Handler(BW_Search_URL, Filter=True, Host=f"https://{self.Domain}")

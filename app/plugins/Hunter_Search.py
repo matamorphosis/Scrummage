@@ -31,11 +31,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Hunter_API_Key = self.Load_Configuration()
             API_Session = PyHunter(Hunter_API_Key)
@@ -63,7 +61,7 @@ class Plugin_Search:
                                     Current_Hunter_Item_Host = f"https://{self.Domain}/verify/{Current_Email_Address}"
                                     Current_Hunter_Item_Responses = Common.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"https://{self.Domain}")
                                     Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
-                                    Title = "Hunter | " + Current_Email_Address
+                                    Title = f"{self.Plugin_Name} | " + Current_Email_Address
 
                                     if Current_Email_Address not in Cached_Data and Current_Email_Address not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Filtered_Response, Current_Hunter_Item_Host, self.The_File_Extensions["Query"])
@@ -76,6 +74,9 @@ class Plugin_Search:
                                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                                         Current_Step += 1
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                     elif self.Type == "Email":
 
@@ -104,7 +105,7 @@ class Plugin_Search:
                                     else:
                                         Filtered_Response = Common.Request_Handler(Current_Hunter_Item_Host)
 
-                                    Title = "Hunter | " + Current_Hunter_Item_Host
+                                    Title = f"{self.Plugin_Name} | " + Current_Hunter_Item_Host
 
                                     if Current_Hunter_Item_Host not in Cached_Data and Current_Hunter_Item_Host not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Filtered_Response, Current_Hunter_Item_Host, self.The_File_Extensions["Query"])
@@ -117,6 +118,9 @@ class Plugin_Search:
                                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                                         Current_Step += 1
+
+                            else:
+                                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 except Exception as e:
                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to complete task - {str(e)}")

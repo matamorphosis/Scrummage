@@ -49,11 +49,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Google_Details = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -85,7 +83,7 @@ class Plugin_Search:
 
                                 if 'link' in Google_Item_Line and 'title' in Google_Item_Line:
                                     Google_Item_URL = Google_Item_Line['link']
-                                    Title = "Google | " + Google_Item_Line['title']
+                                    Title = f"{self.Plugin_Name} | " + Google_Item_Line['title']
 
                                     if Google_Item_URL not in Cached_Data and Google_Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Path_Regex = Common.Regex_Handler(Google_Item_URL, Type="URL")
@@ -112,6 +110,9 @@ class Plugin_Search:
 
                                         else:
                                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to match regular expression.")
+
+                                else:
+                                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                             except Exception as e:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")

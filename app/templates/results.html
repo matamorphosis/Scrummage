@@ -123,7 +123,7 @@
                             {% else %}
                                 {% if is_admin %}
                                     {% if not results[12] %}
-                                        {% if '.onion' not in results[6] and 'general-insurance.coles.com.au' not in results[6] and 'magnet:?xt=urn:btih:' not in results[6] %}
+                                        {% if '.onion' not in results[6] and 'general-insurance.coles.com.au' not in results[6] and 'magnet:?xt=urn:btih:' not in results[6] and 'nameapi.org' not in results[6] %}
                                             {% if Screenshot_Permitted %}
                                             <td id="screenshot_td">
                                                 <form class="result_details_buttons" action="{{ url_for('screenshot', resultid=results[0]) }}" method=post autocomplete="off">
@@ -213,6 +213,8 @@
                             e.getElementsByTagName("div")[0].className="csv";
                         } else if (e.getAttribute("href").includes(".html") == true) {
                             e.getElementsByTagName("div")[0].className="html";
+                        } else if (e.getAttribute("href").includes(".jpg") == true) {
+                            e.getElementsByTagName("div")[0].className="imageresult";
                         }
                    });
                 }

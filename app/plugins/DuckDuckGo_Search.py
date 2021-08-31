@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests, logging, os, urllib.parse, plugins.common.General as General, plugins.common.Common as Common
+import logging, os, urllib.parse, plugins.common.General as General, plugins.common.Common as Common
 
 class Plugin_Search:
 
@@ -20,18 +20,16 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
                 URL_Query = urllib.parse.quote(Query)
-                URL = f"https://api.duckduckgo.com/?q={URL_Query}&format=json"
+                URL = f"https://api.{self.Domain}/?q={URL_Query}&format=json"
                 DDG_Response = Common.Request_Handler(URL)
                 JSON_Object = Common.JSON_Handler(DDG_Response)
                 JSON_Response = JSON_Object.To_JSON_Loads()
@@ -49,7 +47,7 @@ class Plugin_Search:
                             if 'FirstURL' in DDG_Item_Link:
                                 DDG_URL = DDG_Item_Link['FirstURL']
                                 Title = General.Get_Title(DDG_URL)
-                                Title = f"DuckDuckGo | {Title}"
+                                Title = f"{self.Plugin_Name} | {Title}"
 
                                 if DDG_URL not in Cached_Data and DDG_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                                     DDG_Item_Responses = Common.Request_Handler(DDG_URL, Filter=True, Host=f"https://www.{self.Domain}")
@@ -64,9 +62,6 @@ class Plugin_Search:
                                         logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                                     Current_Step += 1
-
-                                else:
-                                    break
 
                             elif 'Topics' in DDG_Item_Link:
 

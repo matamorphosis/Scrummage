@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import time, os, logging, urllib.request, plugins.common.Common as Common
+import time, os, PIL, logging, urllib.request, plugins.common.Common as Common
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -61,7 +61,7 @@ class Screenshot:
     def Grab_Screenshot(self):
 
         try:
-            Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:']
+            Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:', 'nameapi.org']
 
             if not self.Internally_Requested:
                 self.Cursor.execute('SELECT link FROM results WHERE result_id = %s', (self.Screenshot_ID,))
@@ -167,12 +167,15 @@ class Screenshot:
             logging.error(f"{Common.Date()} - General Library - {str(e)}.")
 
 
-def Get_Limit(Limit=10):
+def Get_Limit(Limit):
 
     try:
 
         if int(Limit) > 0:
             Limit = int(Limit)
+
+        else:
+            Limit = 10
 
         return Limit
 
@@ -190,8 +193,8 @@ def Logging(Directory, Plugin_Name):
             Complete_File = os.path.join(General_Directory_Search.group(1), Main_File)
             return Complete_File
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to initialise logging.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to initialise logging. {str(e)}.")
 
 def Get_Plugin_Logging_Name(Plugin_Name):
 
@@ -229,8 +232,8 @@ class Cache:
 
             return self.Cached_Data
 
-        except:
-            logging.warning(f"{Common.Date()} - General Library - Failed to read file.")
+        except Exception as e:
+            logging.warning(f"{Common.Date()} - General Library - Failed to read file. {str(e)}.")
 
     def Write_Cache(self, Data_to_Cache):
 
@@ -246,8 +249,8 @@ class Cache:
                 File_Output.write(Current_Output_Data)
                 File_Output.close()
 
-            except:
-                logging.warning(f"{Common.Date()} - General Library - Failed to create file.")
+            except Exception as e:
+                logging.warning(f"{Common.Date()} - General Library - Failed to create file. {str(e)}.")
 
 def Convert_to_List(String):
 
@@ -265,8 +268,8 @@ def Convert_to_List(String):
             List = [String]
             return List
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to convert the provided query to a list.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to convert the provided query to a list. {str(e)}.")
 
 class Connections:
 
@@ -280,8 +283,8 @@ class Connections:
             self.Input = str(Input)
             self.Concat_Plugin_Name = str(Concat_Plugin_Name)
 
-        except:
-            logging.warning(f"{Common.Date()} - General Library - Error setting initial variables.")
+        except Exception as e:
+            logging.warning(f"{Common.Date()} - General Library - Error setting initial variables. {str(e)}.")
 
     def Output(self, Complete_File_List, Link, DB_Title, Directory_Plugin_Name, Dump_Types=[]):
 
@@ -303,8 +306,8 @@ class Connections:
                     self.Ticket_Subject = f"Scrummage {self.Plugin_Name} results for query {self.Input}."
                     self.Ticket_Text = f"Results were identified for the search {self.Input} performed by the Scrummage plugin {self.Plugin_Name}. Please ensure these results do not pose a threat to your organisation, and take the appropriate action necessary if they pose a security risk.\n\nResult data can be found in the following output files:\n- {Text_Complete_Files}."
 
-            except:
-                logging.warning(f"{Common.Date()} - General Library - Error setting unique variables.")
+            except Exception as e:
+                logging.warning(f"{Common.Date()} - General Library - Error setting unique variables. {str(e)}.")
 
             logging.info(f"{Common.Date()} - General Library - Adding item to Scrummage database and other configured outputs.")
             Connector_Object = Common.Configuration(Output=True)
@@ -342,7 +345,7 @@ class Connections:
             Common.Slack_Main(Connector_Object, self.Ticket_Text)
 
         except Exception as e:
-            logging.warning(f"{Common.Date()} - General Library - Error handling outputs.")
+            logging.warning(f"{Common.Date()} - General Library - Error handling outputs. {str(e)}.")
 
 def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension):
     Main_File = f"Main-file-for-{Plugin_Name}-query-{Query}{Main_File_Extension}"
@@ -396,8 +399,8 @@ def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension)
 
         return Complete_File
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to create main file.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to create main file. {str(e)}.")
 
 def Data_Type_Discovery(Data_to_Search):
     # Function responsible for determining the type of data found. Examples: Hash_Type, Credentials, Email, or URL.
@@ -440,8 +443,8 @@ def Data_Type_Discovery(Data_to_Search):
 
         return Dump_Types
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to determine data type.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to determine data type. {str(e)}.")
 
 def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data, Query_Result_Name, The_File_Extension):
 
@@ -466,8 +469,14 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
 
             if not os.path.exists(Complete_File):
 
-                with open(Complete_File, 'w') as Current_Output_file:
-                    Current_Output_file.write(Output_Data)
+                if The_File_Extension == ".jpg":
+                    Image_File = PIL.Image.open(Output_Data)
+                    Image_File.save(Complete_File)
+
+                else:
+                    
+                    with open(Complete_File, 'w') as Current_Output_file:
+                        Current_Output_file.write(Output_Data)
 
                 logging.info(f"{Common.Date()} - General Library - File: {Complete_File} created.")
 
@@ -476,11 +485,11 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
 
             return Complete_File
 
-        except:
-            logging.warning(f"{Common.Date()} - General Library - Failed to create query file.")
+        except Exception as e:
+            logging.warning(f"{Common.Date()} - General Library - Failed to create query file. {str(e)}.")
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to initialise query file.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to initialise query file. {str(e)}.")
 
 def Make_Directory(Plugin_Name):
     Today = Common.Date(Full_Timestamp=True)
@@ -525,15 +534,15 @@ def Get_Title(URL, Requests=False):
         else:
             logging.warning(f"{Common.Date()} - General Library - Invalid URL provided.")
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to get title.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to get title. {str(e)}.")
 
 def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
 
     try:
 
         if type(JSON_Data) == list:
-            HTML_Data = ["<head>", "<style>", "  * {", "    margin: auto;", "    background-color: #000;", "    color: #fff;", "    font-size: 14px;", "    font-family: arial;", "    text-align: center;", "  }", "  table {", "    text-align: center;", "    border-collapse: collapse;", "    border-radius: 2px;", "    width: 99%;", "    overflow: hidden;", "    table-layout: fixed;", "  }", "  table tr {", "    text-align: center;", "  }", "  table tr th {", "    background-color: #303030;", "    padding: 5px;", "   text-align: left;", "  }", "  table tr td {", "    padding: 5px;", "   text-align: left;", "  }", "  .title {", "    color: #DC143C;", "    font-family: arial;", "    font-size: 16pt;", "    font-weight: normal;", "    padding: 5px 10px 5px 10px;", "    float: left;", "  }","  textarea {", "    text-align: left;", "  }", "</style>", "</head>", "<body>", "<h1 class=\"title\">Scrummage Result for Greynoise Query 8.8.8.8</h1>"]
+            HTML_Data = ["<head>", "<style>", "  * {", "    margin: auto;", "    background-color: #000;", "    color: #fff;", "    font-size: 14px;", "    font-family: arial;", "    text-align: center;", "  }", "  table {", "    text-align: center;", "    border-collapse: collapse;", "    border-radius: 2px;", "    width: 99%;", "    overflow: hidden;", "    table-layout: fixed;", "  }", "  table tr {", "    text-align: center;", "  }", "  table tr th {", "    background-color: #303030;", "    padding: 5px;", "   text-align: left;", "  }", "  table tr td {", "    padding: 5px;", "    background-color: #1A1A1A;", "   text-align: left;", "  }", "  .title {", "    color: #DC143C;", "    font-family: arial;", "    font-size: 16pt;", "    font-weight: normal;", "    padding: 5px 10px 5px 10px;", "    float: left;", "  }","  textarea {", "    resize: none;", "    border: 0px;", "    border-radius: 2px;", "    background-color: #1A1A1A;", "    text-align: left;", "  }", "</style>", "</head>", "<body>", f"<h1 class=\"title\">Scrummage Result for {Title}</h1>"]
             HTML_Table = ["  <table>", "    <tr>", "      <th>Item</th>", "      <th>Value</th>", "    </tr>"]
 
             for JSON_Block in JSON_Data:
@@ -551,17 +560,18 @@ def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
             return "\n".join(HTML_Data)
 
         else:
+            logging.warning(f"{Common.Date()} - General Library - Data provided in the wrong format, needs to be a list.")
             return None
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided JSON data to HTML.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided JSON data to HTML. {str(e)}.")
 
 def CSV_to_HTML(CSV_Data, Title):
 
     try:
 
         if type(CSV_Data) == list:
-            HTML_Data = ["<head>", "<style>", "  * {", "    margin: auto;", "    background-color: #000;", "    color: #fff;", "    font-size: 14px;", "    font-family: arial;", "    text-align: center;", "  }", "  table {", "    text-align: center;", "    border-collapse: collapse;", "    border-radius: 2px;", "    width: 99%;", "    overflow: hidden;", "    table-layout: fixed;", "  }", "  table tr {", "    text-align: center;", "  }", "  table tr th {", "    background-color: #303030;", "    padding: 5px;", "   text-align: left;", "  }", "  table tr td {", "    padding: 5px;", "   text-align: left;", "  }", "  .title {", "    color: #DC143C;", "    font-family: arial;", "    font-size: 16pt;", "    font-weight: normal;", "    padding: 5px 10px 5px 10px;", "    float: left;", "  }","  textarea {", "    text-align: left;", "  }", "</style>", "</head>", "<body>", "<h1 class=\"title\">Scrummage Result for Greynoise Query 8.8.8.8</h1>"]
+            HTML_Data = ["<head>", "<style>", "  * {", "    margin: auto;", "    background-color: #000;", "    color: #fff;", "    font-size: 14px;", "    font-family: arial;", "    text-align: center;", "  }", "  table {", "    text-align: center;", "    border-collapse: collapse;", "    border-radius: 2px;", "    width: 99%;", "    overflow: hidden;", "    table-layout: fixed;", "  }", "  table tr {", "    text-align: center;", "  }", "  table tr th {", "    background-color: #303030;", "    padding: 5px;", "   text-align: left;", "  }", "  table tr td {", "    padding: 5px;", "    background-color: #1A1A1A;", "   text-align: left;", "  }", "  .title {", "    color: #DC143C;", "    font-family: arial;", "    font-size: 16pt;", "    font-weight: normal;", "    padding: 5px 10px 5px 10px;", "    float: left;", "  }","  textarea {", "    resize: none;", "    border: 0px;", "    border-radius: 2px;", "    background-color: #1A1A1A;", "    text-align: left;", "  }", "</style>", "</head>", "<body>", f"<h1 class=\"title\">Scrummage Result for {Title}</h1>"]
             HTML_Table = ["  <table>"]
 
             for CSV_Line in CSV_Data:
@@ -589,10 +599,11 @@ def CSV_to_HTML(CSV_Data, Title):
             return "\n".join(HTML_Data)
 
         else:
+            logging.warning(f"{Common.Date()} - General Library - Data provided in the wrong format, needs to be a list.")
             return None
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided CSV data to HTML.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided CSV data to HTML. {str(e)}.")
 
 def CSV_to_JSON(Query, CSV_Data):
 
@@ -611,7 +622,25 @@ def CSV_to_JSON(Query, CSV_Data):
             return Indented_Registration_Response
 
         else:
+            logging.warning(f"{Common.Date()} - General Library - Data provided in the wrong format, needs to be a list.")
             return None
 
-    except:
-        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided CSV data to JSON.")
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to convert provided CSV data to JSON. {str(e)}.")
+
+def Encoder(To_Encode, URLSafe=False, Type="Base64"):
+    # Currently just handles b64 encoding as no other encoding types are required; however, this function can be scaled with future demand.
+
+    try:
+
+        if Type == "Base64":
+            import base64
+
+            if URLSafe:
+                return base64.urlsafe_b64encode(To_Encode.encode()).decode()
+
+            else:
+                return base64.b64encode(To_Encode.encode()).decode()
+
+    except Exception as e:
+        logging.warning(f"{Common.Date()} - General Library - Failed to encode data. {str(e)}.")

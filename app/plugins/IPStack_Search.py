@@ -29,11 +29,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -50,17 +48,20 @@ class Plugin_Search:
 
                     if Query not in Cached_Data and Query not in Data_to_Cache:
                         Result_URL = f"https://{self.Domain}/?{Query}"
-                        Title = f"IP Stack | {Query}"
+                        Title = f"{self.Plugin_Name} | {Query}"
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, JSON_Output_Response, Title, self.The_File_Extensions["Main"])
-                        HTML_Output_File_Data = General.JSONDict_to_HTML(JSON_Response, JSON_Output_Response, f"IPStack Query {Query}")
+                        HTML_Output_File_Data = General.JSONDict_to_HTML(JSON_Response, JSON_Output_Response, f"{self.Plugin_Name} Query {Query}")
                         HTML_Output_File = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, HTML_Output_File_Data, Title.replace(" ", "-"), self.The_File_Extensions["Main_Converted"])
 
                         if Output_file:
-                            Output_Connections.Output([Output_file], Result_URL, Title, self.Plugin_Name.lower())
+                            Output_Connections.Output([Output_file, HTML_Output_File], Result_URL, Title, self.Plugin_Name.lower())
                             Data_to_Cache.append(Result_URL)
 
                         else:
                             logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                else:
+                    logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to match regex.")
 
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 

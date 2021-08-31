@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import logging, os, base64, plugins.common.General as General, plugins.common.Common as Common
+import logging, os, plugins.common.General as General, plugins.common.Common as Common
 
 class Plugin_Search:
 
@@ -30,11 +30,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             GitHub_API_Key = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -44,11 +42,12 @@ class Plugin_Search:
 
                 try:
 
-                    if self.Limit > 100:
+                    if int(self.Limit) > 100:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - This plugin does not support limits over 100, setting limit to 100.")
                         self.Limit = 100
 
                     URL = f"https://api.{self.Domain}/search/repositories?q={Query}&per_page={str(self.Limit)}"
-                    Creds = base64.b64encode(f"{str(GitHub_API_Key[0])}:{str(GitHub_API_Key[1])}".encode("ascii")).decode("ascii")
+                    Creds = General.Encoder(f"{str(GitHub_API_Key[0])}:{str(GitHub_API_Key[1])}")
                     Custom_Headers = {"Authorization": f"Basic {Creds}"}
                     GH_Response = Common.Request_Handler(URL, Optional_Headers=Custom_Headers)
                     JSON_Object = Common.JSON_Handler(GH_Response)
@@ -63,7 +62,7 @@ class Plugin_Search:
                             URL = Repo["html_url"]
                             Current_GH_Repo_Responses = Common.Request_Handler(URL, Filter=True, Host=f"https://{self.Domain}")
                             Filtered_Response = Current_GH_Repo_Responses["Filtered"]
-                            Title = "GitHub | " + URL
+                            Title = f"{self.Plugin_Name} | {URL}"
 
                             if URL not in Cached_Data and URL not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Filtered_Response, URL, self.The_File_Extensions["Query"])
@@ -74,6 +73,9 @@ class Plugin_Search:
 
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                    else:
+                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 except Exception as e:
                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to complete task - {str(e)}")

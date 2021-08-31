@@ -28,22 +28,19 @@ class Plugin_Search:
         try:
             Data_to_Cache = []
             Directory = General.Make_Directory(self.Plugin_Name.lower())
-            print(Directory)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Naver_Details = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             if int(self.Limit) > 100:
-                logging.fatal(f"{Common.Date()} - {self.Logging_Plugin_Name} - This plugin does not support limits over 100.")
-                return None
+                logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - This plugin does not support limits over 100, setting limit to 100.")
+                self.Limit = 100
 
             for Query in self.Query_List:
                 URL_Query = urllib.parse.quote(Query)
@@ -65,7 +62,7 @@ class Plugin_Search:
                             if 'title' in Naver_Item_Link and 'link' in Naver_Item_Link:
                                 Naver_URL = Naver_Item_Link['link']
                                 Title = Naver_Item_Link['title']
-                                Title = f"Naver | {Title}"
+                                Title = f"{self.Plugin_Name} | {Title}"
 
                                 if Naver_URL not in Cached_Data and Naver_URL not in Data_to_Cache:
                                     Naver_Item_Responses = Common.Request_Handler(Naver_URL, Filter=True, Host=f"https://www.{self.Domain}")

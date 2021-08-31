@@ -31,11 +31,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             YouTube_Details = self.Load_Configuration()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
@@ -52,7 +50,7 @@ class Plugin_Search:
                     Full_Video_URL = f"https://www.{self.Domain}/watch?v=" + Search_Result['id']['videoId']
                     Search_Video_Responses = Common.Request_Handler(Full_Video_URL, Filter=True, Host=f"https://www.{self.Domain}")
                     Search_Video_Response = Search_Video_Responses["Filtered"]
-                    Title = "YouTube | " + Search_Result['snippet']['title']
+                    Title = f"{self.Plugin_Name} | " + Search_Result['snippet']['title']
 
                     if Full_Video_URL not in Cached_Data and Full_Video_URL not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Search_Video_Response, Search_Result['id']['videoId'], self.The_File_Extensions["Query"])

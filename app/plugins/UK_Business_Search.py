@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, logging, base64, plugins.common.General as General, plugins.common.Common as Common
+import os, logging, plugins.common.General as General, plugins.common.Common as Common
 
 class Plugin_Search:
 
@@ -20,7 +20,7 @@ class Plugin_Search:
         Result = Common.Configuration(Input=True).Load_Configuration(Object=self.Concat_Plugin_Name, Details_to_Load=["api_key"])
 
         if Result:
-            return base64.b64encode(Result.encode('ascii'))
+            return General.Encoder(Result)
 
         else:
             return None
@@ -32,11 +32,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Concat_Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -49,7 +47,7 @@ class Plugin_Search:
                         Authorization_Key = self.Load_Configuration()
 
                         if Authorization_Key:
-                            Authorization_Key = "Basic " + Authorization_Key.decode('ascii')
+                            Authorization_Key = "Basic " + Authorization_Key
                             headers_auth = {"Authorization": Authorization_Key}
                             Main_URL = f'https://api.{self.Domain}/company/{Query}'
                             Response = Common.Request_Handler(Main_URL, Optional_Headers=headers_auth)
@@ -122,6 +120,9 @@ class Plugin_Search:
 
                                                 else:
                                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
+
+                                    else:
+                                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                                 except:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Error during UKCN Search, perhaps the rate limit has been exceeded.")

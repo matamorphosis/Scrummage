@@ -184,7 +184,7 @@
             {% elif error %}
             <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="message"><strong>Error:</strong> {{ error }}</p></div></div></div>
             {% endif %}
-            {% if message or error or api_check == "Failed" %}
+            {% if message or error or api_check in ["Passed", "Failed"] %}
                 <script type="text/javascript">
                     autoClose();
 

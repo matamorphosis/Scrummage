@@ -19,11 +19,9 @@ class Plugin_Search:
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name.lower())
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter("%(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
@@ -37,13 +35,12 @@ class Plugin_Search:
 
                 if Kik_Item_Regex and Kik_Item_Regex.group(1) != " ":
                     Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
-                    Title = f"Kik | {Kik_Item_Regex.group(1)}"
+                    Title = f"{self.Plugin_Name} | {Kik_Item_Regex.group(1)}"
 
                     if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                         Output_file = General.Main_File_Create(Directory, self.Plugin_Name, Filtered_Response, Query, self.The_File_Extension)
 
                         if Output_file:
-                            print(Main_URL, Title)
                             Output_Connections.Output([Output_file], Main_URL, Title, self.Plugin_Name.lower())
                             Data_to_Cache.append(Main_URL)
 
