@@ -30,4 +30,4 @@ bs4
 timeout_decorator
 py1337x
 wikipedia
-PIL
+pillow
