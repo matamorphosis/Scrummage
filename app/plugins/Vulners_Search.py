@@ -39,7 +39,7 @@ class Plugin_Search:
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
-                vulners_api = vulners.Vulners(api_key=Load_Configuration())
+                vulners_api = vulners.Vulners(api_key=self.Load_Configuration())
                 Search_Response = vulners_api.search(Query, limit=int(self.Limit))
                 JSON_Response = Common.JSON_Handler(Search_Response).Dump_JSON()
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Response, Query, self.The_File_Extensions["Main"])
