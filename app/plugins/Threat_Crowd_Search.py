@@ -32,9 +32,9 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                        URL = f"https://www.threatcrowd.org/searchApi/v2/email/report/?email={Query}"
+                        URL = f"https://www.{self.Domain}/searchApi/v2/email/report/?email={Query}"
                         Response = Common.Request_Handler(URL)
-                        Search_Response = Common.Request_Handler(Request_URL)
+                        Search_Response = Common.Request_Handler(URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
 
@@ -65,7 +65,7 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                        URL = f"https://www.threatcrowd.org/searchApi/v2/self.Domain/report/?self.Domain={Query}"
+                        URL = f"https://www.{self.Domain}/searchApi/v2/self.Domain/report/?self.Domain={Query}"
                         Response = Common.Request_Handler(URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
@@ -97,7 +97,7 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type="IP"):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                        URL = f"https://www.threatcrowd.org/searchApi/v2/ip/report/?ip={Query}"
+                        URL = f"https://www.{self.Domain}/searchApi/v2/ip/report/?ip={Query}"
                         Response = Common.Request_Handler(URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
@@ -127,7 +127,7 @@ class Plugin_Search:
 
                 elif self.Type == "AV":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                    URL = f"https://www.threatcrowd.org/searchApi/v2/antivirus/report/?antivirus={Query}"
+                    URL = f"https://www.{self.Domain}/searchApi/v2/antivirus/report/?antivirus={Query}"
                     Response = Common.Request_Handler(URL)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
@@ -154,7 +154,7 @@ class Plugin_Search:
 
                 elif self.Type == "Virus Report":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                    URL = f"https://www.threatcrowd.org/searchApi/v2/file/report/?resource={Query}"
+                    URL = f"https://www.{self.Domain}/searchApi/v2/file/report/?resource={Query}"
                     Response = Common.Request_Handler(URL)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()

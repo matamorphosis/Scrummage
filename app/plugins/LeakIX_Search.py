@@ -10,7 +10,7 @@ class Plugin_Search:
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
         self.Domain = "leakix.net"
-        self.Result_Type = "IP Address Information"
+        self.Result_Type = "Data Leakage"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):

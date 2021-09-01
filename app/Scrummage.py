@@ -933,6 +933,7 @@ if __name__ == '__main__':
             try:
                 PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
                 PSQL_Select_Query_2 = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
+                Mixed_Options = ['Inspecting', 'Reviewing']
                 open_values = {}
                 closed_values = {}
                 mixed_values = {}
@@ -3936,6 +3937,7 @@ if __name__ == '__main__':
                             return redirect(url_for('account'))
 
                     else:
+                        List_of_Item_Values = session['item_list']
                         return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), List_of_Item_Values=List_of_Item_Values.items(), Configure=True, error="One or more required fields were missing from the request.")
 
                 else:

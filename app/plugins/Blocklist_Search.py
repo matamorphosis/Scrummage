@@ -30,7 +30,7 @@ class Plugin_Search:
             for Query in self.Query_List:
 
                 if Common.Regex_Handler(Query, Type="IP"):
-                    URL = f"https://www.blocklist.de/en/search.html?ip={Query}&action=search&send=start+search"
+                    URL = f"https://www.{self.Domain}/en/search.html?ip={Query}&action=search&send=start+search"
                     Response = Common.Request_Handler(URL)
                     Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
 
