@@ -136,7 +136,7 @@ class Plugin_Search:
                         JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
-                        Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Virus", self.Task_ID, self.Plugin_Name.lower())
+                        Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Malware", self.Task_ID, self.Plugin_Name.lower())
                         Link = f"https://www.{self.Domain}/gui/file/{Query}/detection"
                         Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                         Main_URL_Response = Main_URL_Responses["Filtered"]

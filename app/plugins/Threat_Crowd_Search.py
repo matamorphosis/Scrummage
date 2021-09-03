@@ -140,7 +140,7 @@ class Plugin_Search:
                         Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Permalink_Response, Query, self.The_File_Extensions["Query"])
-                        Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Virus", self.Task_ID, Local_Plugin_Name.lower())
+                        Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, "Malware", self.Task_ID, Local_Plugin_Name.lower())
                         
                         if Output_file:
                             Output_Connections.Output([Main_File, Output_file], Permalink, Title, self.Plugin_Name.lower())
