@@ -1040,6 +1040,9 @@ if __name__ == '__main__':
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
+                        elif Current_Filter_Value == "*":
+                            SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
+
                         elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
 
@@ -1237,8 +1240,13 @@ if __name__ == '__main__':
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
-                            SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
+                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Current_Bad_Chars)):
+                            
+                            if Current_Filter_Value == "*":
+                                SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
+
+                            else:
+                                SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                         
                         Task_Filter_Values.append(Current_Filter_Value)
 
@@ -2877,6 +2885,9 @@ if __name__ == '__main__':
                                 Mixed_Options = ['Inspecting', 'Reviewing']
                                 SQL_Query_Args.append(f'status = ANY (ARRAY{str(Mixed_Options)})')
 
+                            elif Current_Filter_Value == "*":
+                                SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
+
                             else:
                                 SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                         
@@ -3976,6 +3987,9 @@ if __name__ == '__main__':
 
                         elif type(Current_Filter_Value) == str and Converted_Filter in ["blocked", "is_admin"]:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
+
+                        elif Current_Filter_Value == "*":
+                            SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
                         
                         elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
@@ -4121,6 +4135,9 @@ if __name__ == '__main__':
                     
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
+
+                        elif Current_Filter_Value == "*":
+                            SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
                         
                         elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
