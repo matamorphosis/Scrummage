@@ -30,10 +30,14 @@
                                 </noscript>
                                 <div class="inner_form_div">  
                                     <form class="form_prv" action="{{ url_for('return_task', tasktype='edit') }}" method=post autocomplete="off">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                                     </form>
                                     <form class="form" action="{{ url_for('edit_task', taskid=results[0]) }}" method=post autocomplete="off">
                                         <dl>
+                                            <dd class="nopadding">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            </dd>
                                             <dd>
                                                 <input onchange="advise(this)" id="textarea" class="field_textarea" list="browsers" name=tasktype onkeypress="return false;" placeholder="* Task Type" value="{{results[2]}}">
                                                 <datalist id="browsers">
@@ -248,10 +252,12 @@
                                         </button>
                                         {% else %}
                                         <form class="task_buttons" action="{{ url_for('run_task', taskid=result[0]) }}" method=post autocomplete="off">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input class="button-run" type="submit" value="Run">
                                         </form>
                                         {% endif %}
                                         <form class="task_buttons" action="{{ url_for('edit_task', taskid=result[0]) }}" method=post autocomplete="off">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input class="button" type="submit" value="Edit">
                                         </form>
                                     </div>
@@ -305,8 +311,11 @@
                 <div id="filter_box">
                     <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
                     <div class="collapsible_filter_content">
-                        <form id="collapsible_filter_form" action="{{ url_for ('tasks_filtered') }}" method=get autocomplete="off">
+                        <form id="collapsible_filter_form" action="{{ url_for ('tasks_filtered') }}" method="get" autocomplete="off">
                             <dl>
+                                <dd class="nopadding">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                </dd>
                                 {% for Item in Task_Filter_Iterator %}
                                 {% if Item == 0 %}
                                 <dd id="first_dd">
@@ -510,11 +519,15 @@
                            <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
                         </noscript>
                         <div class="inner_form_div">
-                            <form class="form_prv" action="{{ url_for('return_task', tasktype='new') }}" method=post autocomplete="off">
+                            <form class="form_prv" action="{{ url_for('return_task', tasktype='new') }}" method="post" autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                             </form>
-                            <form class="form" action="{{ url_for('new_task') }}" method=post autocomplete="off">
+                            <form class="form" action="{{ url_for('new_task') }}" method="post" autocomplete="off">
                                 <dl>
+                                    <dd class="nopadding">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    </dd>
                                     <dd>
                                         {% if task_type_field %}
                                         <input onchange="advise(this)" class="field_textarea" id="textarea" list="browsers" name="tasktype" onkeypress="return false;" placeholder="* Task Type" value="{{task_type_field}}">

@@ -29,6 +29,9 @@
                   <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
                      <dl>
                         <dt>
+                           <dd class="nopadding">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                           </dd>
                            <dd>
                               <input class="textarea" type=text name=username placeholder="Username">
                            </dd>

@@ -7,6 +7,7 @@ if __name__ == '__main__':
     try:
         from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, jsonify
         from flask_compress import Compress
+        from flask_wtf.csrf import CSRFProtect
         from signal import signal, SIGINT
         from functools import wraps
         from datetime import datetime, timedelta
@@ -63,6 +64,8 @@ if __name__ == '__main__':
             File_Path = os.path.dirname(os.path.realpath('__file__'))
             app = Flask(__name__, instance_path=os.path.join(File_Path, 'static/protected'))
             Compress(app)
+            csrf = CSRFProtect(app)
+            
             app.config.update(
                 SESSION_COOKIE_SECURE=True,
                 SESSION_COOKIE_HTTPONLY=True,

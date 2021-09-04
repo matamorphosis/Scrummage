@@ -689,6 +689,10 @@ table.dataTable td {
     transition: 0.5s;
 }
 
+.nopadding {
+    padding: 0px;
+}
+
 #expand {
     text-align: right;
 }

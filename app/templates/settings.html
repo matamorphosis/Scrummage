@@ -27,10 +27,14 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                     </form>
                                     <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
                                         <dl>
+                                            <dd class="nopadding">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            </dd>
                                             <dd>
                                                 <input onchange="setLimit(this)" id="textarea" class="field_textarea" list="browsers" name=item onkeypress="return false;" placeholder="* Item to Configure">
                                                 <datalist id="browsers">
@@ -82,10 +86,14 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('configure', configtype=Config_Type) }}" method=get autocomplete="off">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to {{Config_Type_Upper}} Configuration Options">
                                     </form>
                                     <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
                                         <dl>
+                                            <dd class="nopadding">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            </dd>
                                             {% for Key, Value in List_of_Item_Values %}
                                             <dd>
                                                 <input class="field_textarea" type="text" name={{Key}} placeholder="{{Key}}" value="{{Value}}">
@@ -211,6 +219,7 @@
                                 <td class="nonscreenshottab">{{result[4]}}</td>
                                 <td class="buttons_in_tasks_table" id="tsk_in_tbl_btns">
                                     <form class="settings_buttons" action="{{ url_for('change_account_password', account=result[0]) }}" method=post autocomplete="off">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input class="button" type="submit" value="Change">
                                     </form>
                                 </td>
@@ -245,6 +254,9 @@
                         <div class="collapsible_filter_content">
                             <form id="collapsible_filter_form" action="{{ url_for ('account_filtered') }}" method=get autocomplete="off">
                                 <dl>
+                                    <dd class="nopadding">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    </dd>
                                     {% for Item in Account_Filter_Iterator %}
                                     {% if Item == 0 %}
                                     <dd id="first_dd">
@@ -464,10 +476,14 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                         </form>
                                         <form class="form" action="{{ url_for('change_account_password', account=current_user_id) }}" method=post autocomplete="off">
                                             <dl>
+                                                <dd class="nopadding">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                </dd>
                                                 <dd>
                                                     <input class="field_textarea" type=password name=New_Password placeholder="New Password">
                                                 </dd>
@@ -517,10 +533,14 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                         </form>
                                         <form class="form" action="{{ url_for('new_account') }}" method=post autocomplete="off">
                                             <dl>
+                                                <dd class="nopadding">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                </dd>
                                                 <dd>
                                                     <input class="field_textarea" type="text" name=Username placeholder="Username">
                                                 </dd>
@@ -574,6 +594,7 @@
                         <p class="api_key_message">&nbsp;API Key Management:&nbsp;</p>
                         <button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
                         <form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey') }}" method="post" autocomplete="off">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input class="button" name="getapikey" type="submit" value="Reload Key">
                         </form>
                         <script type="text/javascript">
@@ -620,6 +641,9 @@
                                 <div class="inner_form_div">
                                     <form class="form" action="{{ url_for('change_account_password', account='mine') }}" method=post autocomplete="off">
                                         <dl>
+                                            <dd class="nopadding">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            </dd>
                                             <dd style="padding-top: 30px;">
                                                 <input class="field_textarea" type=password name=Current_Password placeholder="Current Password">
                                             </dd>
