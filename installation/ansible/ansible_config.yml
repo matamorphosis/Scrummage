@@ -1,0 +1,28 @@
+---
+- name: Scrummage setup
+  hosts: scrummageservers
+  become: true
+  tasks:
+    - name: docker.io
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+
+    - name: Install Docker python module
+      pip:
+        name: docker
+        state: present
+
+    - name: download and launch a docker web container
+      docker_container:
+        name: scrummage
+        image: ghcr.io/matamorphosis/scrummage:latest
+        state: started
+        restart_policy: always
+        published_ports: 5000:5000
+
+    - name: Enable docker service
+      systemd:
+        name: docker
+        enabled: yes
