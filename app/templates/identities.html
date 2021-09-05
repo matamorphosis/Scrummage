@@ -131,9 +131,6 @@
                         <div class="collapsible_filter_content">
                             <form id="collapsible_filter_form" action="{{ url_for('identities_filtered') }}" method=get autocomplete="off">
                                 <dl>
-                                    <dd class="nopadding">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                    </dd>
                                     {% for Item in Identity_Filter_Iterator %}
                                     {% if Item == 0 %}
                                     <dd id="first_dd">
@@ -221,7 +218,9 @@
                             use_xhr = false;
                         }
                         if (use_xhr === true) {
+                            var csrf_token = "{{ csrf_token() }}";
                             xhr.open("POST", uri, true);
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
                             xhr.send();
                             xhr.onreadystatechange = function(e) {
                                 if (xhr.readyState === 4) {
@@ -316,7 +315,6 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                     </form>
                                     <form class="form" action="{{ url_for('edit_identity', identity_id=results[0]) }}" method=post autocomplete="off">
@@ -379,7 +377,6 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                         </form>
                                         <form class="form" action="{{ url_for('new_identity') }}" method=post autocomplete="off">
@@ -442,7 +439,6 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('identities') }}" method=get autocomplete="off">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Identities">
                                         </form>
                                         <form class="form" action="{{ url_for('bulk_identity_upload') }}" method=post autocomplete="off">

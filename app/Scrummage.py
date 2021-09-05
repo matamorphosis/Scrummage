@@ -7,7 +7,7 @@ if __name__ == '__main__':
     try:
         from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, jsonify
         from flask_compress import Compress
-        from flask_wtf.csrf import CSRFProtect
+        from flask_wtf.csrf import CSRFProtect, CSRFError
         from signal import signal, SIGINT
         from functools import wraps
         from datetime import datetime, timedelta
@@ -394,6 +394,32 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return jsonify({"Error": "Unknown error."}), 500
+
+        @app.errorhandler(CSRFError)
+        def handle_csrf_error(e):
+            
+            if session.get('user'):
+                
+                if request.url.endswith("/logout"):
+                    session["next_page"] = url_for("dashboard")
+                    
+                elif "tasks" in request.url:
+                    return redirect(url_for('tasks'))
+
+                elif "results" in request.url:
+                    return redirect(url_for('results'))
+
+                elif "identities" in request.url:
+                    return redirect(url_for('identities'))
+                
+                elif "settings" in request.url:
+                    return redirect(url_for('settings'))
+
+                else:
+                    return redirect(url_for('dashboard'))
+
+            else:
+                return redirect(url_for('no_session'))
 
         @app.errorhandler(404)
         @login_requirement
@@ -3385,7 +3411,7 @@ if __name__ == '__main__':
                 if User_Info[5] and User_Info[6]:
 
                     try:
-                        Decoded_Token = jwt.decode(User_Info[5], API_Secret, algorithm='HS256')
+                        jwt.decode(User_Info[5], API_Secret, algorithm='HS256')
                         session['apigen_settings_message'] = "Current token is still valid."
                         return redirect(url_for('account'))
 
@@ -3685,11 +3711,12 @@ if __name__ == '__main__':
         def account():
 
             try:
+                Cursor.execute('SELECT * FROM users ORDER BY user_id')
             
                 if session.get('apigen_settings_message'):
                     Settings_Message = session.get('apigen_settings_message')
                     session['apigen_settings_message'] = ""
-                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
                 
                 else:
                     Settings_Message = ""
@@ -3703,7 +3730,6 @@ if __name__ == '__main__':
                         session['settings_form_step'] = 0
                         session['settings_form_type'] = ""
                         session['other_user_id'] = 0
-                        Cursor.execute('SELECT * FROM users ORDER BY user_id')
                         return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
 
                     else:
@@ -3713,7 +3739,7 @@ if __name__ == '__main__':
                         session['na_settings_error'] = ""
                         session['na_req_settings_error'] = []
                         session['na_settings_message'] = ""
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message)
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message)
 
             except Exception as e:
                 app.logger.error(e)

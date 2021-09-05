@@ -29,8 +29,7 @@
                                    <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
                                 </noscript>
                                 <div class="inner_form_div">  
-                                    <form class="form_prv" action="{{ url_for('return_task', tasktype='edit') }}" method=post autocomplete="off">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <form class="form_prv" action="{{ url_for('return_task', tasktype='edit') }}" method=get autocomplete="off">
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                                     </form>
                                     <form class="form" action="{{ url_for('edit_task', taskid=results[0]) }}" method=post autocomplete="off">
@@ -313,9 +312,6 @@
                     <div class="collapsible_filter_content">
                         <form id="collapsible_filter_form" action="{{ url_for ('tasks_filtered') }}" method="get" autocomplete="off">
                             <dl>
-                                <dd class="nopadding">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                </dd>
                                 {% for Item in Task_Filter_Iterator %}
                                 {% if Item == 0 %}
                                 <dd id="first_dd">
@@ -430,7 +426,9 @@
                         use_xhr = false;
                     }
                     if (use_xhr === true) {
+                        var csrf_token = "{{ csrf_token() }}";
                         xhr.open("POST", uri, true);
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
                         xhr.send();
                         xhr.onreadystatechange = function(e) {
                             if (xhr.readyState === 4) {
@@ -519,8 +517,7 @@
                            <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
                         </noscript>
                         <div class="inner_form_div">
-                            <form class="form_prv" action="{{ url_for('return_task', tasktype='new') }}" method="post" autocomplete="off">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <form class="form_prv" action="{{ url_for('return_task', tasktype='new') }}" method="get" autocomplete="off">
                                 <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Tasks">
                             </form>
                             <form class="form" action="{{ url_for('new_task') }}" method="post" autocomplete="off">

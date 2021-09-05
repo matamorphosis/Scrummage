@@ -27,7 +27,6 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                     </form>
                                     <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
@@ -86,7 +85,6 @@
                                 </noscript>
                                 <div class="inner_form_div">
                                     <form class="form_prv" action="{{ url_for('configure', configtype=Config_Type) }}" method=get autocomplete="off">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to {{Config_Type_Upper}} Configuration Options">
                                     </form>
                                     <form class="form" action="{{ url_for('configure_item') }}" method=post autocomplete="off">
@@ -254,9 +252,6 @@
                         <div class="collapsible_filter_content">
                             <form id="collapsible_filter_form" action="{{ url_for ('account_filtered') }}" method=get autocomplete="off">
                                 <dl>
-                                    <dd class="nopadding">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                    </dd>
                                     {% for Item in Account_Filter_Iterator %}
                                     {% if Item == 0 %}
                                     <dd id="first_dd">
@@ -380,7 +375,9 @@
                         use_xhr = false;
                     }
                     if (use_xhr === true) {
+                        var csrf_token = "{{ csrf_token() }}";
                         xhr.open("POST", uri, true);
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
                         xhr.send();
                         xhr.onreadystatechange = function(e) {
                             if (xhr.readyState === 4) {
@@ -476,7 +473,6 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                         </form>
                                         <form class="form" action="{{ url_for('change_account_password', account=current_user_id) }}" method=post autocomplete="off">
@@ -533,7 +529,6 @@
                                     </noscript>
                                     <div class="inner_form_div">
                                         <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
                                         </form>
                                         <form class="form" action="{{ url_for('new_account') }}" method=post autocomplete="off">

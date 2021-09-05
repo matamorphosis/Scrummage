@@ -58,12 +58,13 @@
                     if (extension == "delete") {
                         var uri = "{{ url_for('results') }}" + "/" + extension + "/" + id;
                         sendtoresults = true;
-
                     } else {
                         var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + id;
                     }
 
+                    var csrf_token = "{{ csrf_token() }}";
                     xhr.open("POST", uri, true);
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
                     xhr.send();
                     if (sendtoresults == true) {
                         setTimeout(loadResults, 500);
@@ -279,11 +280,9 @@
                             <td class="nonscreenshottab" id="timestamp_hide">{{result[8]}}</td>
                             <td style="text-align: center" id="resultsbuttons">
                                 <form class="result_buttons" action="{{url_for('result_details', resultid=result[0])}}" method=get autocomplete="off">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input id="show_detailed_button" class="button" type=submit value="Show Details">
                                 </form>
                                 <form class="mobile_result_buttons" action="{{url_for('result_details', resultid=result[0])}}" method=get autocomplete="off">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input id="show_detailed_button" class="button" type=submit value="Show">
                                 </form>
                             </td>
@@ -337,9 +336,6 @@
                     <div class="collapsible_filter_content">
                         <form id="collapsible_filter_form" action="{{ url_for ('results_filtered') }}" method=get autocomplete="off">
                             <dl>
-                                <dd class="nopadding">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                </dd>
                                 {% for Item in Result_Filter_Iterator %}
                                 {% if Item == 0 %}
                                 <dd id="first_dd">
@@ -449,7 +445,9 @@
                             var uri = "{{ url_for('results') }}" + "/changestatus/" + extension + "/" + selectedValArray;
                         }
                         if (use_xhr === true) {
+                            var csrf_token = "{{ csrf_token() }}";
                             xhr.open("POST", uri, true);
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
                             xhr.send();
                             xhr.onreadystatechange = function(e) {
                                 if (xhr.readyState === 4) {
@@ -539,7 +537,6 @@
                         </noscript>
                         <div class="inner_form_div">
                             <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Results">
                             </form>
                             <form class="form" action="{{url_for('bulk_result_upload')}}" method=post autocomplete="off">
@@ -586,7 +583,6 @@
                         </noscript>
                         <div class="inner_form_div">
                             <form class="form_prv" action="{{url_for('results')}}" method=get autocomplete="off">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input style="display: inline-block;" class="button_prv" name="return" type=submit value="< Return to Results">
                             </form>
                             <form class="form" action="{{url_for('new_result')}}" method=post autocomplete="off">
