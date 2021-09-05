@@ -104,6 +104,7 @@ Valid_Plugins = {'Abuse IP Database Search - Domain': {'Requires_Configuration':
 'Threat Crowd - IP Address Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Type': 'IP Address'},
 'Threat Crowd - Virus Report Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Threat_Crowd_Search', 'Type': 'Virus Report'},
 'Torrent Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Torrent_Search'},
+'Tor Whois Domain Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Tor_Whois_Search'},
 'Tumblr Search': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Tumblr_Search'},
 'Trumail Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Trumail_Search'},
 'Twitter Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Twitter_Search'},

@@ -17,6 +17,7 @@ flickr_api
 python-docx
 flask_compress
 flask_jwt
+flask_wtf
 tweepy
 ratelimiter
 pyleri

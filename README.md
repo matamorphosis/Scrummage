@@ -26,7 +26,7 @@ Any feedback is welcome.
 
 # An Overview of the Web Application
 
-## Some of the Many Available Scrummage Plugins**  
+## Some of the Many Available Scrummage Plugins  
 * Blockchain Search
 * Domain Fuzzer
 * Twitter Scraper
