@@ -518,6 +518,7 @@ if __name__ == '__main__':
                 return redirect(url_for('index'))
 
         @app.route('/api/auth', methods=['POST'])
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         def api_auth():
 
@@ -722,6 +723,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
 
         @app.route('/api/result/screenshot/<resultid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -954,7 +956,7 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
 
-        @app.route('/api/dashboard', methods=['GET'])
+        @app.route('/api/dashboard')
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         def api_dashboard():
@@ -1107,14 +1109,14 @@ if __name__ == '__main__':
                         data = {}
                         Safe_Content = {}
 
-                        for Item in ["ID", "Description", "Created At"]:
+                        for Item in Event_Filters:
 
                             if Item in Content:
 
                                 if any(char in Item for char in Bad_Characters):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
-                                if Item == "ID":
+                                if Item == "Event ID":
 
                                     if type(Content[Item]) != int:
                                         return jsonify({"Error": f"The ID provided is not an integer."}), 500
@@ -1170,7 +1172,7 @@ if __name__ == '__main__':
                     return jsonify({"Error": "Method not allowed."}), 500
 
             except:
-                return jsonify({"Error": "Unknown Exception Occurred."}), 500
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/api/endpoints')
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -1190,8 +1192,9 @@ if __name__ == '__main__':
                         Task_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/tasks", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Query": "String", "Plugin": "String", "Description": "String", "Frequency": "String - Cronjob", "Limit": "Integer", "Status": "String", "Created At": "String - Timestamp", "Updated At": "String - Timestamp"}}, "Shows which task apis are configured": {"Endpoint": "/api/tasks/inputs/check", "Admin rights required": True}, "Shows which output options are enabled for tasks to export their results to": {"Endpoint": "/api/tasks/outputs/check", "Admin rights required": True}}, "POST": {"Create a new task": {"Endpoint": "/api/task/new", "Admin rights required": True, "Fields": {"Task Type": {"Required": True, "Type": "String"}, "Query": {"Required": True, "Type": "String"}, "Frequency": {"Required": False, "Type": "String - Cronjob"}, "Description": {"Required": False, "Type": "String"}, "Limit": {"Required": False, "Type": "Integer"}}}, "Edit a task": {"Endpoint": "/api/task/edit/<task_id>", "Admin rights required": True, "Fields": {"Task Type": {"Required": True, "Type": "String"}, "Query": {"Required": True, "Type": "String"}, "Frequency": {"Required": False, "Type": "String - Cronjob"}, "Description": {"Required": False, "Type": "String"}, "Limit": {"Required": False, "Type": "Integer"}}}, "Run a task": {"Endpoint": "/api/task/run/<task_id>", "Admin rights required": True}, "Duplicate a task": {"Endpoint": "/api/task/duplicate/<task_id>", "Admin rights required": True}, "Delete a task": {"Endpoint": "/api/task/delete/<task_id>", "Admin rights required": True}}}
                         Event_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/events", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Description": "String", "Created At": "String - Timestamp"}}}}
                         Account_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/accounts", "Admin rights required": True, "Optional Search Filters": {"ID": "Integer", "Username": "String", "Blocked": "Boolean", "Administrative Rights": "Boolean"}}}, "POST": {"Create new account": {"Endpoint": "/api/account/new", "Admin rights required": True, "Fields": {"Username": {"Attributes": {"Required": True, "Type": "String"}}, "Password": {"Attributes": {"Required": True, "Type": "String"}}, "Password Retype": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete account": {"Endpoint": "/api/account/delete/<account_id>", "Admin rights required": True}, "Disable account": {"Endpoint": "/api/account/disable/<account_id>", "Admin rights required": True}, "Enable account": {"Endpoint": "/api/account/enable/<account_id>", "Admin rights required": True}, "Give account administrative rights": {"Endpoint": "/api/account/promote/<account_id>", "Admin rights required": True}, "Strip account of administrative rights": {"Endpoint": "/api/account/demote/<account_id>", "Admin rights required": True}, "Change any user's password": {"Endpoint": "/api/account/password/change/<account_id>", "Admin rights required": True, "Fields": {"Password": {"Attributes": {"Required": True, "Type": "String"}}, "Password Retype": {"Attributes": {"Required": True, "Type": "String"}}}}}}
+                        Identity_Endpoints = {"GET": {"Retrieve identity data": {"Endpoint": "/api/identities", "Admin rights required": True, "Optional Search Filters": {"Identity ID": "Integer", "Firstname": "String", "Middlename": "String", "Surname": "String", "Fullname": "String", "Username": "String", "Email": "String", "Phone": "String"}}, "POST": {"Create new identity": {"Endpoint": "/api/identity/new", "Admin rights required": True, "Fields": {"First": {"Attributes": {"Required": True, "Type": "String"}}, "Middle": {"Attributes": {"Required": False, "Type": "String"}}, "Surname": {"Attributes": {"Required": True, "Type": "String"}}, "Username": {"Attributes": {"Required": False, "Type": "String"}}, "Email": {"Attributes": {"Required": True, "Type": "String"}}, "Phone": {"Attributes": {"Required": True, "Type": "String"}}}}, "Edit identity": {"Endpoint": "/api/identity/edit/<identity_id>", "Admin rights required": True, "Fields": {"First": {"Attributes": {"Required": True, "Type": "String"}}, "Middle": {"Attributes": {"Required": False, "Type": "String"}}, "Surname": {"Attributes": {"Required": True, "Type": "String"}}, "Username": {"Attributes": {"Required": False, "Type": "String"}}, "Email": {"Attributes": {"Required": True, "Type": "String"}}, "Phone": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete identity": {"Endpoint": "/api/identity/delete/<identity_id>", "Admin rights required": True}}}}
                         Settings_Endpoints = {'GET': {'Retrieve configuration data': {'Endpoint': '/api/settings/configurations/<type_of_configuration>', 'Admin rights required': True}}, 'POST': {'Update configuration': {'Endpoint': '/api/settings/configure/<type_of_configuration>', 'Admin rights required': True, 'Fields': {'object': {'Required': True, 'Type': 'String'}, 'data': {'Required': True, 'Type': 'Dictionary', 'Notes': 'This data depends on the configuration you are updating.'}}}}}
-                        return jsonify({"Endpoints": {"API": {"GET": {"Endpoint Checking": "/api/endpoints", "Admin rights required": False}}, "Authentication": Auth_Endpoint, "Dashboard": Dashboard_Endpoints, "Settings": Settings_Endpoints, "Tasks": Task_Endpoints, "Results": Result_Endpoints, "Events": Event_Endpoints, "User Management": Account_Endpoints}}), 200
+                        return jsonify({"Endpoints": {"API": {"GET": {"Endpoint Checking": "/api/endpoints", "Admin rights required": False}}, "Authentication": Auth_Endpoint, "Dashboard": Dashboard_Endpoints, "Settings": Settings_Endpoints, "Tasks": Task_Endpoints, "Results": Result_Endpoints, "Events": Event_Endpoints, "User Management": Account_Endpoints, "Identity Management": Identity_Endpoints}}), 200
 
                     else:
                         Auth_Endpoint = {'POST': {"Obtain API Key": {"Endpoint": "/api/auth", "Fields": {"Username": {"Attributes": {"Required": True, "Type": "String"}}, "Password": {"Attributes": {"Required": True, "Type": "String"}}}}}}
@@ -1205,7 +1208,7 @@ if __name__ == '__main__':
                     return jsonify({"Error": "Method not allowed."}), 500
 
             except:
-                return jsonify({"Error": "Unknown Exception Occurred."}), 500
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/tasks', methods=['GET', 'POST'])
         @login_requirement
@@ -1296,6 +1299,7 @@ if __name__ == '__main__':
                 return redirect(url_for('tasks'))
 
         @app.route('/api/task/duplicate/<taskid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -1436,6 +1440,7 @@ if __name__ == '__main__':
                 return redirect(url_for('tasks'))
 
         @app.route('/api/task/delete/<taskid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -1529,6 +1534,7 @@ if __name__ == '__main__':
                 return redirect(url_for('tasks'))
 
         @app.route('/api/task/run/<taskid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -1658,6 +1664,7 @@ if __name__ == '__main__':
                 return redirect(url_for('tasks'))
 
         @app.route('/api/task/new')
+        @csrf.exempt
         @api_auth_requirement
         @api_admin_requirement
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -1953,6 +1960,7 @@ if __name__ == '__main__':
                 return redirect(url_for('tasks'))
 
         @app.route('/api/task/edit/<taskid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -2345,21 +2353,22 @@ if __name__ == '__main__':
                         data = {}
                         Safe_Content = {}
 
-                        for Item in ["ID", "Query", "Plugin", "Description", "Frequency", "Limit", "Status", "Created At", "Updated At"]:
+                        for Item in Task_Filters:
 
                             if Item in Content:
 
                                 if any(char in Item for char in Bad_Characters):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
-                                if Item == "ID":
+                                if Item == "Task ID":
 
                                     if type(Content[Item]) != int:
                                         return jsonify({"Error": f"The ID provided is not an integer."}), 500
 
-                                    Safe_Content["task_id"] = Content[Item]
+                                    else:
+                                        Safe_Content["task_id"] = Content[Item]
 
-                                elif Item == "Limit":
+                                elif Item == "Task Limit":
                                     Safe_Content["task_limit"] = Content[Item]
 
                                 elif Item == "Created At":
@@ -2414,7 +2423,7 @@ if __name__ == '__main__':
 
             except Exception as e:
                 app.logger.error(e)
-                return jsonify({"Error": "Unknown Exception Occurred."}), 500
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/results/upload', methods=['POST', 'GET'])
         @login_requirement
@@ -2542,6 +2551,7 @@ if __name__ == '__main__':
                 return redirect(url_for('results'))
 
         @app.route('/api/result/new')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -2684,6 +2694,7 @@ if __name__ == '__main__':
                 return redirect(url_for('results'))
 
         @app.route('/api/result/delete/<resultid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -2790,6 +2801,7 @@ if __name__ == '__main__':
                 return redirect(url_for('results'))
 
         @app.route('/api/result/changestatus/<status>/<resultid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -2969,21 +2981,21 @@ if __name__ == '__main__':
                             data = {}
                             Safe_Content = {}
 
-                            for Item in ["ID", "Associated Task ID", "Title", "Plugin", "Domain", "Link", "Screenshot URL", "Status", "Created At", "Updated At", "Output Files", "Result Type", "Screenshot Requested"]:
+                            for Item in Result_Filters:
 
                                 if Item in Content:
 
                                     if any(char in Item for char in Bad_Characters):
                                         return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
-                                    if Item == "ID":
+                                    if Item == "Result ID":
 
                                         if type(Content[Item]) != int:
                                             return jsonify({"Error": f"The ID provided is not an integer."}), 500
 
                                         Safe_Content["result_id"] = Content[Item]
 
-                                    elif Item == "Associated Task ID":
+                                    elif Item == "Task ID":
                                         Safe_Content["task_id"] = Content[Item]
 
                                     elif " " in Item:
@@ -3034,7 +3046,7 @@ if __name__ == '__main__':
                         return jsonify({"Error": "Method not allowed."}), 500
 
             except:
-                return jsonify({"Error": "Unknown Exception Occurred."}), 500
+                return jsonify({"Error": "Unknown error."}), 500
 
         def check_security_requirements(Password):
 
@@ -3065,6 +3077,7 @@ if __name__ == '__main__':
                 return redirect(url_for('dashboard'))
 
         @app.route('/api/account/new')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3225,6 +3238,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/password/change/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3442,6 +3456,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/delete/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3495,6 +3510,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/disable/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3548,6 +3564,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/enable/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3601,6 +3618,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/demote/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3654,6 +3672,7 @@ if __name__ == '__main__':
                 return redirect(url_for('account'))
 
         @app.route('/api/account/promote/<accountid>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -3787,6 +3806,7 @@ if __name__ == '__main__':
                 return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/api/settings/configure/<configtype>')
+        @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
         @api_admin_requirement
@@ -4056,21 +4076,22 @@ if __name__ == '__main__':
                         data = {}
                         Safe_Content = {}
 
-                        for Item in ["ID", "Username", "Blocked", "Administrative Rights"]:
+                        for Item in Account_Filters:
 
                             if Item in Content:
 
                                 if any(char in Item for char in Bad_Characters):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
-                                if Item == "ID":
+                                if Item == "User ID":
 
                                     if type(Content[Item]) != int:
                                         return jsonify({"Error": f"The ID provided is not an integer."}), 500
 
-                                    Safe_Content["user_id"] = Content[Item]
+                                    else:
+                                        Safe_Content["user_id"] = Content[Item]
 
-                                elif Item == "Administrative Rights":
+                                elif Item == "Is Admin":
                                     Safe_Content["is_admin"] = Content[Item]
 
                                 else:
@@ -4119,6 +4140,7 @@ if __name__ == '__main__':
 
             except Exception as e:
                 app.logger.error(e)
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/identities', methods=['GET'])
         @login_requirement
@@ -4138,6 +4160,84 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('identities'))
+
+        @app.route('/api/identities')
+        @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
+        @api_auth_requirement
+        @api_admin_requirement
+        def api_identity_details():
+
+            try:
+
+                if request.method == 'GET':
+
+                    if request.is_json:
+                        Content = request.get_json()
+                        data = {}
+                        Safe_Content = {}
+
+                        for Item in Identity_Filters:
+
+                            if Item in Content:
+
+                                if any(char in Item for char in Bad_Characters):
+                                    return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
+
+                                if Item == "Identity ID":
+
+                                    if type(Content[Item]) != int:
+                                        return jsonify({"Error": f"The ID provided is not an integer."}), 500
+
+                                    else:
+                                        Safe_Content["identity_id"] = Content[Item]
+
+                                else:
+                                    Safe_Content[Item.lower()] = Content[Item]
+
+                        if len(Safe_Content) > 1:
+                            Select_Query = "SELECT * FROM org_identities WHERE "
+
+                            for Item_Key, Item_Value in sorted(Safe_Content.items()):
+                                Select_Query += f"{Item_Key} = '{Item_Value}'"
+
+                                if Item_Key != sorted(Safe_Content.keys())[-1]:
+                                    Select_Query += " and "
+
+                                else:
+                                    Select_Query += ";"
+
+                            Cursor.execute(Select_Query)
+
+                        elif len(Safe_Content) == 1:
+                            Key = list(Safe_Content.keys())[0]
+                            Val = list(Safe_Content.values())[0]
+                            Select_Query = "SELECT * FROM org_identities WHERE "
+                            Select_Query += f"{Key} = '{Val}'"
+                            Cursor.execute(Select_Query)
+
+                        else:
+                            return jsonify({"Error": "No valid fields found in request."}), 500
+
+                        for Identity in Cursor.fetchall():
+                            data[Identity[0]] = {"Fullname": Identity[4], "Username": Identity[5], "Email": Identity[6], "Phone": Identity[7]}
+
+                        return jsonify(data), 200
+
+                    else:
+                        data = {}
+                        Cursor.execute('SELECT * FROM org_identities ORDER BY identity_id DESC LIMIT 1000')
+
+                        for Identity in Cursor.fetchall():
+                            data[Identity[0]] = {"Fullname": Identity[4], "Username": Identity[5], "Email": Identity[6], "Phone": Identity[7]}
+
+                        return jsonify(data), 200
+
+                else:
+                    return jsonify({"Error": "Method not allowed."}), 500
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/identities/filtered', methods=['GET', 'POST'])
         @login_requirement
@@ -4218,6 +4318,31 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
+        @app.route('/api/identity/delete/<identity_id>')
+        @csrf.exempt
+        @api_auth_requirement
+        @api_admin_requirement
+        @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
+        def api_identities_delete(identity_id):
+
+            try:
+
+                if request.method == 'POST':
+                    identity_id = int(identity_id)
+                    Cursor.execute("DELETE FROM org_identities WHERE user_id = %s;", (identity_id,))
+                    Connection.commit()
+                    Message = f"User ID {str(identity_id)} deleted."
+                    app.logger.warning(Message)
+                    Create_Event(Message)
+                    return jsonify({"Message": f"Successfully deleted identity {str(identity_id)}."}), 200
+
+                else:
+                    return jsonify({"Error": "Method not allowed."}), 500
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown error."}), 500
+
         @app.route('/identities/new', methods=['POST', 'GET'])
         @login_requirement
         @admin_requirement
@@ -4287,6 +4412,74 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('identities'))
+
+        @app.route('/api/identity/new')
+        @csrf.exempt
+        @api_auth_requirement
+        @api_admin_requirement
+        @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
+        def api_identities_new():
+
+            try:
+
+                if request.method == 'POST':
+
+                    if request.is_json:
+                        Content = request.get_json()
+                        Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
+                        Required_Fields = ["First", "Surname", "Email", "Phone"]
+                        Final_List = []
+
+                        if not all(Field in Content for Field in Required_Fields):
+                            return jsonify({"Error": "Please fill out all required fields (" + ", ".join(Required_Fields) + ")."}), 500
+
+                        for Field in Full_Fields:
+
+                            if Field != "Fullname":
+
+                                if Field != "Phone" and any(str(Content.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+
+                                elif Field == "Phone" and not Common.Regex_Handler(str(Content.get(Field)), Type="Phone_Multi"):
+                                    return jsonify({"Error": "Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces."}), 500
+                                
+                                elif Field == "Email" and not Common.Regex_Handler(str(Content.get(Field)), Type="Email"):
+                                    return jsonify({"Error": "Please ensure the provided email address is in the correct format."}), 500
+                            
+                                elif Field not in ["Email", "Phone"] and any(Char in str(Content.get(Field)) for Char in Bad_Characters):
+                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+
+                                if Field in ["First", "Middle", "Surname"]:
+                                    Final_List.append(str(Content.get(Field)).capitalize())
+                                
+                                else:
+                                    Final_List.append(str(Content.get(Field)))
+
+                            else:
+
+                                if Content.get("Middle"):
+                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Middle").capitalize() + " " + Content.get("Surname").capitalize()
+
+                                else:
+                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Surname").capitalize()
+
+                                Final_List.append(Full_Name)
+
+                        Cursor.execute('INSERT INTO org_identities (firstname, middlename, surname, fullname, username, email, phone) VALUES (%s,%s,%s,%s,%s,%s,%s)', tuple(Final_List))
+                        Connection.commit()
+                        Message = f"New identity created."
+                        Create_Event(Message)
+                        return jsonify({"Message": Message}), 200
+
+                    else:
+                        return jsonify({"Error": "Request is not in JSON format."}), 500
+
+                else:
+                    return jsonify({"Error": "Method not allowed."}), 500
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown error."}), 500
 
         @app.route('/identities/upload', methods=['POST', 'GET'])
         @login_requirement
@@ -4457,6 +4650,77 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('identities'))
+
+        @app.route('/api/identity/edit/<identity_id>')
+        @csrf.exempt
+        @api_auth_requirement
+        @api_admin_requirement
+        def api_edit_identity(identity_id):
+
+            try:
+
+                if request.method == 'POST':
+
+                    if request.is_json:
+                        Content = request.get_json()
+                        identity_id = str(int(identity_id))
+                        Cursor.execute("SELECT * FROM org_identities WHERE identity_id = %s;", (identity_id,))
+                        results = Cursor.fetchone()
+                        Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
+                        Required_Fields = ["First", "Surname", "Email", "Phone"]
+                        Final_List = []
+
+                        if not all(Field in Content for Field in Required_Fields):
+                            return jsonify({"Error": "Please fill out all required fields (" + ", ".join(Required_Fields) + ")."}), 500
+
+                        for Field in Full_Fields:
+
+                            if Field != "Fullname":
+
+                                if Field != "Phone" and any(str(Content.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+
+                                elif Field == "Phone" and not Common.Regex_Handler(str(Content.get(Field)), Type="Phone_Multi"):
+                                    return jsonify({"Error": "Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces."}), 500
+                                
+                                elif Field == "Email" and not Common.Regex_Handler(str(Content.get(Field)), Type="Email"):
+                                    return jsonify({"Error": "Please ensure the provided email address is in the correct format."}), 500
+                            
+                                elif Field not in ["Email", "Phone"] and any(Char in str(Content.get(Field)) for Char in Bad_Characters):
+                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+
+                                if Field in ["First", "Middle", "Surname"]:
+                                    Final_List.append(str(Content.get(Field)).capitalize())
+                                
+                                else:
+                                    Final_List.append(str(Content.get(Field)))
+
+                            else:
+
+                                if request.form.get("Middle"):
+                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Middle").capitalize() + " " + Content.get("Surname").capitalize()
+
+                                else:
+                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Surname").capitalize()
+
+                                Final_List.append(Full_Name)
+
+                        Final_List.append(identity_id)
+                        Cursor.execute('UPDATE org_identities SET firstname = %s, middlename = %s, surname = %s, fullname = %s, username = %s, email = %s, phone = %s WHERE identity_id = %s', tuple(Final_List))
+                        Connection.commit()
+                        Message = f"Identity ID {str(identity_id)} updated."
+                        Create_Event(Message)
+                        return jsonify({"Message": Message}), 200
+
+                    else:
+                        return jsonify({"Error": "Request is not in JSON format."}), 500
+
+                else:
+                    return jsonify({"Error": "Method not allowed."}), 500
+
+            except Exception as e:
+                app.logger.error(e)
+                return jsonify({"Error": "Unknown error."}), 500
 
         Permit_Screenshots = General.Screenshot(File_Path, False).Screenshot_Checker()
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
