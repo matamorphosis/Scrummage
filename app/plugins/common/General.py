@@ -51,7 +51,7 @@ class Screenshot:
                 logging.warning(f"{Common.Date()} - General Library - {str(e)}.")
 
                 if "session not created" in str(e):
-                    logging.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. The Chrome driver is located at {Chrome_Config[1]}. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
+                    logging.warning(f"\033[0;31mPlease run the \"Fix_ChromeDriver.sh\" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. Screenshot functionality has been disabled in the meantime until this issue is resolved.\033[0m\n")
                     return False
 
         else:
@@ -129,7 +129,7 @@ class Screenshot:
                 Message_E = e.replace("Message: session not created: ", "")
                 Message_E = Message_E.replace("This version of", "The installed version of")
                 logging.warning(f"Screenshot Request Error: {Message_E}.")
-                logging.warning(f"Kindly replace the Chrome Web Driver, located at {Chrome_Config[1]}, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.")
+                logging.warning(f"Kindly replace the Chrome Web Driver, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.")
                 self.Create_Event(Message)
                 self.Cursor.execute('UPDATE results SET screenshot_requested = %s WHERE result_id = %s', (False, self.Screenshot_ID,))
                 self.Connection.commit()

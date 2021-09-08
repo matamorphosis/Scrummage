@@ -574,7 +574,7 @@ class JSON_Handler:
         except Exception as e:
             logging.error(f"{Date()} - Common Library - {str(e)}.")
 
-def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=False, Application_JSON_CT=False, Application_Form_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Full_Response=False, Host="", Data={}, Params={}, JSON_Data={}, Optional_Headers={}, Scrape_Regex_URL="", Proxies={}, Certificate_Verification=True):
+def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=False, Application_JSON_CT=False, Application_Form_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Full_Response=False, Content_Response=False, Host="", Data={}, Params={}, JSON_Data={}, Optional_Headers={}, Scrape_Regex_URL="", Proxies={}, Certificate_Verification=True):
 
     try:
         Headers = {}
@@ -651,7 +651,12 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=
                 return None
 
             if not Full_Response:
-                Response = Response.text
+
+                if not Content_Response:
+                    Response = Response.text
+
+                else:
+                    Response = Response.content
 
             Response_Dict = {}
 

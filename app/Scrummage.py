@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
-                         "BSB Details", "Certificate", "Search Result", "Credentials", "Domain Information", "Email Information",
+                         "BSB Details", "Certificate", "Search Result", "Cloud Storage - Azure Blob", "Cloud Storage - AWS S3", "Credentials", "Domain Information", "Email Information",
                          "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group",
                          "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing", "Phone Details"
                          "Repository", "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Data Leakage", "Exploit",

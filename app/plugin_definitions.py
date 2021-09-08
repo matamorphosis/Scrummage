@@ -28,6 +28,7 @@ Valid_Plugins = {'Abuse IP Database Search - Domain': {'Requires_Configuration':
 'Business Search - United Kingdom Business Number': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.UK_Business_Search', 'Type': 'UKBN'},
 'Business Search - United Kingdom Company Name': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.UK_Business_Search', 'Organisation_Presets': 'name', 'Type': 'UKCN'},
 'Callername Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Callername_Search'},
+'Cloud Storage Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Cloud_Storage_Search'},
 'Certificate Transparency - CRT.sh': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_CRT', 'Organisation_Presets': 'domain'},
 'Certificate Transparency - SSLMate': {'Requires_Configuration': True, 'Requires_Limit': False, 'Module': 'plugins.Certificate_Transparency_SSLMate', 'Organisation_Presets': 'domain'},
 'Craigslist Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Craigslist_Search'},
