@@ -10,7 +10,7 @@ then
     echo "[-] This script must be run as root." 
     exit 0
 else
-    GoogleChromeVersion=`google-chrome --product-version | awk -F  "." '/1/ {print $1}'`
+    GoogleChromeVersion=`google-chrome --product-version | awk -F  "." '{print $1}'`
     if [[ $GoogleChromeVersion =~ .+ ]]
     then
         LatestVersions=`curl -X GET "https://chromedriver.chromium.org/downloads" | grep -oP "(https\:\/\/chromedriver\.storage\.googleapis\.com\/index\.html\?path\=[0-9\.]+\/)" | sort -u | tail -n 3`
