@@ -137,7 +137,9 @@ else
 
     echo "[+] Creating Admin user using Create_User.py"
     echo $LINE
-    python3 ./support_files/Create_User.py -u $ADMIN_USER -p $ADMIN_PASSWD -a True -b False
+    pushd support_files
+    python3 ./Create_User.py -u $ADMIN_USER -p $ADMIN_PASSWD -a True -b False
+    popd
     echo $LINE
     echo "[+] Admin user created, user details:"
     ADMIN_USER="Username: $ADMIN_USER"
