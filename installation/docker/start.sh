@@ -30,7 +30,7 @@ if [ -f /FirstRun.txt ]; then
     ADMIN_USER="admin"
     ADMIN_PASSWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
     python3 /Scrummage/installation/support_files/Create_User_New.py -u $ADMIN_USER -p $ADMIN_PASSWD -a True -b False
-    echo -e "This is the admin password, this will only be displayed on the first run of Scrummage:\n$ADMIN_PASSWD"
+    echo -e "\n----------------------------------------------------------------------------------------------------\nThis is the admin password, this will only be displayed on the first run of Scrummage:\n$ADMIN_PASSWD\n----------------------------------------------------------------------------------------------------\n"
     rm /FirstRun.txt
 fi
 chmod +x /Scrummage/installation/support_files/Fix_ChromeDriver.sh
