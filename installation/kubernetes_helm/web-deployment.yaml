@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kompose.cmd: C:\Users\mbrit\Downloads\Current Projects\Scrummage\dev\kompose-windows-amd64.exe
-      convert
     kompose.version: 1.21.0 (992df58d8)
   creationTimestamp: null
   labels:
@@ -18,8 +16,6 @@ spec:
   template:
     metadata:
       annotations:
-        kompose.cmd: C:\Users\mbrit\Downloads\Current Projects\Scrummage\dev\kompose-windows-amd64.exe
-          convert
         kompose.version: 1.21.0 (992df58d8)
       creationTimestamp: null
       labels:
