@@ -3,40 +3,40 @@ import plugin_verifier, plugin_definitions, plugins.common.General as General, p
 class Plugin_Caller:
 
     def __init__(self, Result, Task_ID, Custom_Query=None):
-    
+
         try:
             self.plugin_name = Result[2]
             self.query = Result[1]
             self.custom_query = Custom_Query
             self.limit = Result[5]
             self.task_id = Task_ID
-        
+
         except Exception as e:
-            print(f"{Common.Date()} - Plugin Caller - {str(e)}")
+            print(f'{Common.Date()} - Plugin Caller - {e}')
 
     def Starter(self, Object):
-    
+
         try:
             Connection = Object.Load_Configuration(Postgres_Database=True, Object="postgresql")
             Cursor = Connection.cursor()
             PSQL_Update_Query = 'UPDATE tasks SET status = %s WHERE task_id = %s'
             Cursor.execute(PSQL_Update_Query, ("Running", int(self.task_id),))
             Connection.commit()
-            
+
         except Exception as e:
-            print(f"{Common.Date()} - Plugin Caller - {str(e)}")
+            print(f'{Common.Date()} - Plugin Caller - {e}')
 
     def Stopper(self, Object):
-    
+
         try:
             Connection = Object.Load_Configuration(Postgres_Database=True, Object="postgresql")
             Cursor = Connection.cursor()
             PSQL_Update_Query = 'UPDATE tasks SET status = %s WHERE task_id = %s'
             Cursor.execute(PSQL_Update_Query, ("Stopped", int(self.task_id),))
             Connection.commit()
-            
+
         except Exception as e:
-            print(f"{Common.Date()} - Plugin Caller - {str(e)}")
+            print(f'{Common.Date()} - Plugin Caller - {e}')
 
     def Call_Plugin(self):
 
@@ -52,8 +52,7 @@ class Plugin_Caller:
                 print(f"{Common.Date()} - Plugin Caller - Failed to start plugin.")
 
         except Exception as e:
-            print(f"{Common.Date()} - Plugin Caller - {str(e)}")
-
+            print(f'{Common.Date()} - Plugin Caller - {e}')
         finally:
             self.Stopper(Object)
         
@@ -84,11 +83,7 @@ if __name__ == "__main__":
                     if result[1] == "[IDENTITIES_DATABASE]":
                         ID_DB_Search_Type = Valid_Plugins[result[2]]["Organisation_Presets"]
 
-                        if ID_DB_Search_Type == "identity_usernames":
-                            cursor.execute("SELECT username FROM org_identities;")
-                            ID_DB_Results = cursor.fetchall()
-
-                        elif ID_DB_Search_Type == "identity_emails":
+                        if ID_DB_Search_Type == "identity_emails":
                             cursor.execute("SELECT email FROM org_identities;")
                             ID_DB_Results = cursor.fetchall()
 
@@ -96,10 +91,11 @@ if __name__ == "__main__":
                             cursor.execute("SELECT phone FROM org_identities;")
                             ID_DB_Results = cursor.fetchall()
 
-                        Filtered_Data = []
+                        elif ID_DB_Search_Type == "identity_usernames":
+                            cursor.execute("SELECT username FROM org_identities;")
+                            ID_DB_Results = cursor.fetchall()
 
-                        for Row in ID_DB_Results:
-                            Filtered_Data.append(Row[0])
+                        Filtered_Data = [Row[0] for Row in ID_DB_Results]
 
                         Query = ", ".join(Filtered_Data)
 
@@ -113,6 +109,6 @@ if __name__ == "__main__":
 
         else:
             sys.exit("[-] Failed to set working directory.")
-            
+
     except Exception as e:
-        print(f"{Common.Date()} - Plugin Caller - {str(e)}")
+        print(f'{Common.Date()} - Plugin Caller - {e}')

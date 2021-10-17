@@ -53,7 +53,7 @@ class Plugin_Search:
                         Craigslist_Responses = Common.Request_Handler(Item_URL, Filter=True, Host=Local_URL)
                         Craigslist_Response = Craigslist_Responses["Filtered"]
                         Local_URL = f"{Local_URL}/"
-                        
+
                         Filename = Item_URL.replace(Local_URL, "")
                         Filename = Filename.replace(".html/", "")
                         Filename = Filename.replace(".html", "")
@@ -73,4 +73,4 @@ class Plugin_Search:
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 
         except Exception as e:
-            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
+            logging.warning(f'{Common.Date()} - {self.Logging_Plugin_Name} - {e}')
