@@ -4,7 +4,7 @@ import psycopg2, sys, json, datetime
 def Load_Main_Database():
 
     try:
-        
+
         with open('db.json') as JSON_File:
             Configuration_Data = json.load(JSON_File)
             DB_Info = Configuration_Data['postgresql']
@@ -18,12 +18,11 @@ def Load_Main_Database():
     	sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")        
 
     try:
-        DB_Connection = psycopg2.connect(user=DB_Username,
+        return psycopg2.connect(user=DB_Username,
                                       password=DB_Password,
                                       host=DB_Host,
                                       port=DB_Port,
                                       database=DB_Database)
-        return DB_Connection
 
     except:
         sys.exit(str(datetime.datetime.now()) + " Failed to connect to database.")

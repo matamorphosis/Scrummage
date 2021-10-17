@@ -55,4 +55,4 @@ class Plugin_Search:
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 
         except Exception as e:
-            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
+            logging.warning(f'{Common.Date()} - {self.Logging_Plugin_Name} - {e}')

@@ -34,12 +34,11 @@ if __name__ == "__main__":
             sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")
 
         try:
-            DB_Connection = psycopg2.connect(user=DB_Username,
+            return psycopg2.connect(user=DB_Username,
                                           password=DB_Password,
                                           host=DB_Host,
                                           port=DB_Port,
                                           database=DB_Database)
-            return DB_Connection
 
         except:
             sys.exit(str(datetime.datetime.now()) + " Failed to connect to database.")
@@ -49,23 +48,15 @@ if __name__ == "__main__":
         if len(Password) < 8:
             return False
 
-        else:
-            Lower = any(Letter.islower() for Letter in Password)
-            Upper = any(Letter.isupper() for Letter in Password)
-            Digit = any(Letter.isdigit() for Letter in Password)
+        Lower = any(Letter.islower() for Letter in Password)
+        Upper = any(Letter.isupper() for Letter in Password)
+        Digit = any(Letter.isdigit() for Letter in Password)
 
-            if not Upper or not Lower or not Digit:
-                return False
-
-            else:
-                return True
+        return Upper and Lower and Digit
 
     def check_safe_username(Username):
         
-        if not Username.isalnum():
-            return False
-
-        return True
+        return bool(Username.isalnum())
 
     connection = Load_Main_Database()
     cursor = connection.cursor()
