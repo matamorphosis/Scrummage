@@ -32,3 +32,22 @@ spec:
       serviceAccountName: ""
       volumes: null
 status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  ports:
+  - name: "5000"
+    port: 5000
+    targetPort: 5000
+  selector:
+    io.kompose.service: web
+status:
+  loadBalancer: {}
