@@ -123,7 +123,9 @@ else
     chown $SUDO_USER:$SUDO_USER ./support_files/db.json
     chmod 770 ./support_files/db.json
     echo $LINE
-    python3 ./support_files/Create_Tables.py
+    pushd support_files
+    python3 ./Create_Tables.py
+    popd
     echo $LINE
     PRIVATE_KEY="../certs/privateKey.key"
     CERTIFICATE_CRT="../certs/certificate.crt"
