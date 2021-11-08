@@ -86,7 +86,7 @@ class Plugin_Search:
                                     Title = f"{self.Plugin_Name} | " + Google_Item_Line['title']
 
                                     if Google_Item_URL not in Cached_Data and Google_Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                        Path_Regex = Common.Regex_Handler(Google_Item_URL, Type="URL")
+                                        Path_Regex = Common.Regex_Handler(Google_Item_URL, Type="URL_Wild")
 
                                         if Path_Regex:
                                             Google_Item_Response = Common.Request_Handler(Google_Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
