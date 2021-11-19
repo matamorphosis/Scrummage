@@ -55,7 +55,7 @@ Valid_Plugins = {'Abuse IP Database Search - Domain': {'Requires_Configuration':
 'Fringe Project Search - IP Address': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.FringeProject_Search', 'Type': 'IP'},
 'GitHub Repository Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.GitHub_Search', 'Safe_Characters': ['+']},
 'Google Play Store Search': {'Requires_Configuration': False, 'Requires_Limit': True, 'Module': 'plugins.Google_Play_Store_Search'},
-'Google Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Google_Search'},
+'Google Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Google_Search', 'Safe_Characters': ['_', '/', '.', '?', '=', '-', ':', '"', '!', '*', '(', '|', ')', '#', '[', ']', '+', '@', '&']},
 'Gravatar Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Gravatar_Search'},
 'Greynoise IP Search': {'Requires_Configuration': False, 'Requires_Limit': False, 'Module': 'plugins.Greynoise_IP_Search'},
 'Have I Been Pwned - Account Search': {'Requires_Configuration': True, 'Requires_Limit': True, 'Module': 'plugins.Have_I_Been_Pwned', 'Type': 'Account'},
