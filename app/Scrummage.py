@@ -1691,7 +1691,9 @@ if __name__ == '__main__':
                             if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
                                 for Bad_Character in Plugin_in_List['Safe_Characters']:
-                                    Task_Bad_Characters.remove(Bad_Character)
+
+                                    if Bad_Character in Task_Bad_Characters:
+                                        Task_Bad_Characters.remove(Bad_Character)
 
                             if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
@@ -1835,7 +1837,9 @@ if __name__ == '__main__':
                     if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
                         for Bad_Character in Plugin_in_List['Safe_Characters']:
-                            Task_Bad_Characters.remove(Bad_Character)
+
+                            if Bad_Character in Task_Bad_Characters:
+                                Task_Bad_Characters.remove(Bad_Character)
 
                     session['task_form_type'] = request.form['tasktype']                     
 
@@ -1992,8 +1996,10 @@ if __name__ == '__main__':
 
                             if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
-                                for Bad_Character in Plugin_in_List['Safe_Characters']:
-                                    Task_Bad_Characters.remove(Bad_Character)
+                                for Bad_Character in Plugin_in_List['Safe_Characters']:  
+
+                                    if Bad_Character in Task_Bad_Characters:
+                                        Task_Bad_Characters.remove(Bad_Character)
 
                             if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
@@ -2176,8 +2182,10 @@ if __name__ == '__main__':
 
                         if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
 
-                            for Bad_Character in Plugin_in_List['Safe_Characters']:
-                                Task_Bad_Characters.remove(Bad_Character)
+                            for Bad_Character in Plugin_in_List['Safe_Characters']:  
+
+                                if Bad_Character in Task_Bad_Characters:
+                                    Task_Bad_Characters.remove(Bad_Character)
 
                         session['task_form_type'] = request.form['tasktype']
 
