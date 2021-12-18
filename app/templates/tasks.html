@@ -142,7 +142,7 @@
                                 document.getElementById("suggestion_dd").style.display = "none";
                             } else if (orgPresets == "domain") {
                                 document.getElementById("queryfield").value = "{{suggestion[2]}}";
-                                var SubDomains = {{suggestion[3] | safe}};
+                                var SubDomains = "{{suggestion[3] | safe}}"";
                                 if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
                                     document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
                                     document.getElementById("suggestion_dd").style.display = "none";
@@ -647,7 +647,7 @@
                             document.getElementById("suggestion_dd").style.display = "none";
                         } else if (orgPresets == "domain") {
                             document.getElementById("queryfield").value = "{{suggestion[2]}}";
-                            var SubDomains = {{suggestion[3] | safe}};
+                            var SubDomains = "{{suggestion[3] | safe}}";
                             if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
                                 document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
                                 document.getElementById("suggestion_dd").style.display = "none";
