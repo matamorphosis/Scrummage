@@ -19,18 +19,6 @@ if __name__ == '__main__':
         from ratelimiter import RateLimiter
         import os, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, importlib, plugins.common.General as General, plugins.common.Common as Common
 
-        Valid_Plugins = plugin_definitions.Valid_Plugins
-
-        def No_Limit_Plugins():
-            Plugin_Names = []
-
-            for Key, Value in Valid_Plugins.items():
-
-                if not Value["Requires_Limit"]:
-                    Plugin_Names.append(Key)
-
-            return Plugin_Names
-
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
                          "BSB Details", "Certificate", "Search Result", "Cloud Storage - Azure Blob", "Cloud Storage - AWS S3", "Credentials", "Domain Information", "Email Information",
@@ -59,6 +47,18 @@ if __name__ == '__main__':
 
         except:
             sys.exit(f'{Common.Date()} Error setting the working directory.')
+
+        Valid_Plugins = plugin_definitions.Valid_Plugins
+
+        def No_Limit_Plugins():
+            Plugin_Names = []
+
+            for Key, Value in Valid_Plugins.items():
+
+                if not Value["Requires_Limit"]:
+                    Plugin_Names.append(Key)
+
+            return Plugin_Names
 
         try:
             File_Path = os.path.dirname(os.path.realpath('__file__'))
