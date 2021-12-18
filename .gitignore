@@ -1,4 +1,5 @@
 *.json
+!plugin_definitions.json
 *.log*
 **/__pycache__
 **/protected

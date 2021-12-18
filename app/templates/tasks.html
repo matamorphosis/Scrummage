@@ -99,7 +99,10 @@
                 </main>
                 <script type="text/javascript">
                     var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
-                    var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "{{ url_for('static', filename='json/plugin_definitions.json') }}", false);
+                    request.send(null)
+                    var Valid_Plugins_Full = JSON.parse(request.responseText);
 
                     function advise(element) {
                         document.getElementById("queryfield").readOnly = false;
@@ -601,7 +604,10 @@
             </div>
             <script type="text/javascript">
                 var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
-                var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
+                var request = new XMLHttpRequest();
+                request.open("GET", "{{ url_for('static', filename='json/plugin_definitions.json') }}", false);
+                request.send(null)
+                var Valid_Plugins_Full = JSON.parse(request.responseText);
 
                 function advise(element) {
                     document.getElementById("queryfield").readOnly = false;

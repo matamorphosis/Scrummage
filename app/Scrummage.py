@@ -1787,7 +1787,7 @@ if __name__ == '__main__':
                     return render_template('tasks.html', username=session.get('user'),
                                             form_type=session.get('task_form_type'),
                                             is_admin=session.get('is_admin'), form_step=session.get('task_form_step'),
-                                            new_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                            new_task=True, suggestion=Suggestion,
                                             Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins())
 
                 elif session.get('task_form_step') == 1:
@@ -1797,7 +1797,7 @@ if __name__ == '__main__':
                         return render_template('tasks.html', username=session.get('user'),
                                                 form_type=session.get('task_form_type'),
                                                 new_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                 form_step=session.get('task_form_step'),
                                                 error="Please choose a valid task from the provided list for the Task Type field.")
 
@@ -1825,7 +1825,7 @@ if __name__ == '__main__':
                             return render_template('tasks.html', username=session.get('user'),
                                                     form_step=session.get('task_form_step'),
                                                     form_type=session.get('task_form_type'),
-                                                    is_admin=session.get('is_admin'), new_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                    is_admin=session.get('is_admin'), new_task=True, suggestion=Suggestion,
                                                     Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                     error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
 
@@ -1854,7 +1854,7 @@ if __name__ == '__main__':
                                 if (any(char in session.get('task_query') for char in Bad_Characters) and session.get('task_query') != "[IDENTITIES_DATABASE]"):
                                     return render_template('tasks.html', username=session.get('user'),
                                                                 form_type=session.get('task_form_type'),
-                                                                form_step=session.get('task_form_step'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                form_step=session.get('task_form_step'), suggestion=Suggestion,
                                                                 Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                                 is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
 
@@ -1864,7 +1864,7 @@ if __name__ == '__main__':
                                 except:
                                     return render_template('tasks.html', username=session.get('user'),
                                                             form_type=session.get('task_form_type'),
-                                                            form_step=session.get('task_form_step'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                            form_step=session.get('task_form_step'), suggestion=Suggestion,
                                                             Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                             is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
 
@@ -1876,7 +1876,7 @@ if __name__ == '__main__':
                                     if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
                                         return render_template('tasks.html', username=session.get('user'),
                                                                 form_step=session.get('task_form_step'), new_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                 Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                                 is_admin=session.get('is_admin'),
                                                                 error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
@@ -1885,7 +1885,7 @@ if __name__ == '__main__':
                                         sess_form_type = session["task_form_type"]
                                         return render_template('tasks.html', username=session.get('user'),
                                                                 form_step=session.get('task_form_step'), new_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                 Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                                 is_admin=session.get('is_admin'),
                                                                 error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
@@ -1894,7 +1894,7 @@ if __name__ == '__main__':
                                         return render_template('tasks.html', username=session.get('user'),
                                                                     form_type=session.get('task_form_type'),
                                                                     form_step=session.get('task_form_step'), new_task=True,
-                                                                    is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                                    is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                                     Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                                     error="Invalid query specified, please provide a valid query with no special characters.")
 
@@ -1936,7 +1936,7 @@ if __name__ == '__main__':
                             if Frequency_Error:
                                 return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'),
                                                         form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                         results=results, error=Frequency_Error)
 
                             else:
@@ -1945,14 +1945,14 @@ if __name__ == '__main__':
                         else:
                             return render_template('tasks.html', username=session.get('user'),
                                                         form_type=session.get('task_form_type'),
-                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                         form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                         error="Please provide a valid query to search for.")
 
                     else:
                         return render_template('tasks.html', username=session.get('user'),
                                                     form_type=session.get('task_form_type'),
-                                                    new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                    new_task=True, is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                     form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                     error="Please provide a valid query to search for.")
                     
@@ -2135,7 +2135,7 @@ if __name__ == '__main__':
 
                     if results:
                         session['task_form_step'] = 1
-                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion, Valid_Plugins=list(Valid_Plugins.keys()), is_admin=session.get('is_admin'), results=results, Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), Valid_Plugins_Full=Valid_Plugins,)
+                        return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion, Valid_Plugins=list(Valid_Plugins.keys()), is_admin=session.get('is_admin'), results=results, Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),)
 
                     else:
                         return redirect(url_for('tasks'))
@@ -2171,7 +2171,7 @@ if __name__ == '__main__':
                                 return render_template('tasks.html', username=session.get('user'),
                                                         form_step=session.get('task_form_step'),
                                                         form_type=session.get('task_form_type'), results=results, Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), 
-                                                        is_admin=session.get('is_admin'), edit_task=True, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins,
+                                                        is_admin=session.get('is_admin'), edit_task=True, suggestion=Suggestion,
                                                         Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                         error="Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\"")
 
@@ -2193,7 +2193,7 @@ if __name__ == '__main__':
                         return render_template('tasks.html', username=session.get('user'),
                                                form_step=session.get('task_form_step'),
                                                edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
-                                               is_admin=session.get('is_admin'), results=results, Valid_Plugins_Full=Valid_Plugins, suggestion=Suggestion,
+                                               is_admin=session.get('is_admin'), results=results, suggestion=Suggestion,
                                                error="Invalid task type, please select an option from the provided list for the Task Type field.")
 
                     if 'query' in request.form:
@@ -2208,7 +2208,7 @@ if __name__ == '__main__':
                                     return render_template('tasks.html', username=session.get('user'),
                                                                form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
                                                                results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
-                                                               form_type=session.get('task_form_type'), Valid_Plugins_Full=Valid_Plugins,
+                                                               form_type=session.get('task_form_type'),
                                                                error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 try:
@@ -2219,7 +2219,7 @@ if __name__ == '__main__':
                                                            form_step=session.get('task_form_step'), edit_task=True,
                                                            form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                           is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
+                                                           is_admin=session.get('is_admin'),
                                                            error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                             else:
@@ -2232,7 +2232,7 @@ if __name__ == '__main__':
                                                                form_step=session.get('task_form_step'), edit_task=True,
                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                               is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
+                                                               is_admin=session.get('is_admin'),
                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
 
                                     elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
@@ -2241,14 +2241,14 @@ if __name__ == '__main__':
                                                                form_step=session.get('task_form_step'), edit_task=True,
                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                               is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
+                                                               is_admin=session.get('is_admin'),
                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
                                     if any(char in Current_Query for char in Bad_Characters):
                                         return render_template('tasks.html', username=session.get('user'),
                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                    form_step=session.get('task_form_step'), edit_task=True,
-                                                                   is_admin=session.get('is_admin'), Valid_Plugins_Full=Valid_Plugins,
+                                                                   is_admin=session.get('is_admin'),
                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
 
@@ -2277,7 +2277,7 @@ if __name__ == '__main__':
 
                                     except:
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_type=session.get('task_form_type'), Valid_Plugins_Full=Valid_Plugins, suggestion=Suggestion,
+                                                               form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                                Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), is_admin=session.get('is_admin'), edit_task=True,
                                                                error="Failed to update cron job.")
@@ -2321,7 +2321,7 @@ if __name__ == '__main__':
                                 return render_template('tasks.html', username=session.get('user'),
                                                        form_step=session.get('task_form_step'), Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
                                                        Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), edit_task=True, is_admin=session.get('is_admin'),
-                                                       results=results, error=Frequency_Error, suggestion=Suggestion, Valid_Plugins_Full=Valid_Plugins)
+                                                       results=results, error=Frequency_Error, suggestion=Suggestion)
 
                             else:
                                 return redirect(url_for('tasks'))
@@ -2330,14 +2330,14 @@ if __name__ == '__main__':
                             return render_template('tasks.html', username=session.get('user'),
                                                        form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion,
                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), is_admin=session.get('is_admin'),
-                                                       Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, Valid_Plugins_Full=Valid_Plugins,
+                                                       Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
                                                        error="Please provide a valid query to search for.")
 
                     else:
                         return render_template('tasks.html', username=session.get('user'),
                                                    form_step=session.get('task_form_step'), edit_task=True, suggestion=Suggestion,
                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), is_admin=session.get('is_admin'),
-                                                   Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results, Valid_Plugins_Full=Valid_Plugins,
+                                                   Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
                                                    error="Please provide a valid query to search for.")
 
                 else:
