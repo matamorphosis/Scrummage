@@ -48,7 +48,7 @@ if __name__ == '__main__':
         except:
             sys.exit(f'{Common.Date()} Error setting the working directory.')
 
-        Valid_Plugins = plugin_definitions.Valid_Plugins
+        Valid_Plugins = plugin_definitions.Get_Definitions()
 
         def No_Limit_Plugins():
             Plugin_Names = []
