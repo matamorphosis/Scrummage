@@ -115,16 +115,29 @@
                         }
                         var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
                         if (orgPresets) {
+                            var accurate = false;
                             if (orgPresets == "name") {
-                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                                if ("{{suggestion[0]}}" != "") {
+                                    document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                                    accurate = true;
+                                }
                             } else if (orgPresets == "website") {
-                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                                if ("{{suggestion[1]}}" != "") {
+                                    document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                                    accurate = true;
+                                }
                             } else if (orgPresets == "domain") {
-                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                                if ("{{suggestion[2]}}" != "") {
+                                    document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                                    accurate = true;
+                                }
                             } else if (orgPresets.includes("identity")) {
                                 document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                                accurate = true;
                             }
-                            document.getElementById("suggestion_dd").style.display = null;
+                            if (accurate == true) {
+                                document.getElementById("suggestion_dd").style.display = null;
+                            }
                         } else {
                             document.getElementById("suggestion_dd").style.display = "none";
                         }
@@ -142,7 +155,7 @@
                                 document.getElementById("suggestion_dd").style.display = "none";
                             } else if (orgPresets == "domain") {
                                 document.getElementById("queryfield").value = "{{suggestion[2]}}";
-                                var SubDomains = "{{suggestion[3] | safe}}"";
+                                var SubDomains = JSON.parse("{{suggestion[3] | safe}}".replace(/'/g, '"'));
                                 if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
                                     document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
                                     document.getElementById("suggestion_dd").style.display = "none";
@@ -620,16 +633,29 @@
                     }
                     var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
                     if (orgPresets) {
+                        var accurate = false;
                         if (orgPresets == "name") {
-                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                            if ("{{suggestion[0]}}" != "") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                                accurate = true;
+                            }
                         } else if (orgPresets == "website") {
-                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                            if ("{{suggestion[1]}}" != "") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                                accurate = true;
+                            }
                         } else if (orgPresets == "domain") {
-                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                            if ("{{suggestion[2]}}" != "") {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                                accurate = true;
+                            }
                         } else if (orgPresets.includes("identity")) {
                             document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                            accurate = true;
                         }
-                        document.getElementById("suggestion_dd").style.display = null;
+                        if (accurate == true) {
+                            document.getElementById("suggestion_dd").style.display = null;
+                        }
                     } else {
                         document.getElementById("suggestion_dd").style.display = "none";
                     }
@@ -647,7 +673,7 @@
                             document.getElementById("suggestion_dd").style.display = "none";
                         } else if (orgPresets == "domain") {
                             document.getElementById("queryfield").value = "{{suggestion[2]}}";
-                            var SubDomains = "{{suggestion[3] | safe}}";
+                            var SubDomains = JSON.parse("{{suggestion[3] | safe}}".replace(/'/g, '"'));
                             if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
                                 document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
                                 document.getElementById("suggestion_dd").style.display = "none";
