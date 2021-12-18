@@ -599,71 +599,71 @@
                     <p class="error">The page you were looking for does not exist.</p>
                 {% endif %}
             </div>
-            {% endif %}
-        </main>
-        <script type="text/javascript">
-            var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
-            var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
+            <script type="text/javascript">
+                var Plugins_without_Limit = {{Plugins_without_Limit | safe}};
+                var Valid_Plugins_Full = JSON.parse('{{Valid_Plugins_Full | tojson | safe}}');
 
-            function advise(element) {
-                document.getElementById("queryfield").readOnly = false;
-                if (Plugins_without_Limit.includes(element.value) == false) {
-                    document.getElementById("limitfield").style.display = null;
-                    document.getElementById("limitdd").style.display = null;
-                } else {
-                    document.getElementById("limitfield").style.display = "none";
-                    document.getElementById("limitdd").style.display = "none";
-                }
-                var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
-                if (orgPresets) {
-                    if (orgPresets == "name") {
-                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
-                    } else if (orgPresets == "website") {
-                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
-                    } else if (orgPresets == "domain") {
-                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
-                    } else if (orgPresets.includes("identity")) {
-                        document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                function advise(element) {
+                    document.getElementById("queryfield").readOnly = false;
+                    if (Plugins_without_Limit.includes(element.value) == false) {
+                        document.getElementById("limitfield").style.display = null;
+                        document.getElementById("limitdd").style.display = null;
+                    } else {
+                        document.getElementById("limitfield").style.display = "none";
+                        document.getElementById("limitdd").style.display = "none";
                     }
-                    document.getElementById("suggestion_dd").style.display = null;
-                } else {
+                    var orgPresets = Valid_Plugins_Full[element.value]["Organisation_Presets"];
+                    if (orgPresets) {
+                        if (orgPresets == "name") {
+                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's name: {{suggestion[0]}}?";
+                        } else if (orgPresets == "website") {
+                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's website: {{suggestion[1]}}?";
+                        } else if (orgPresets == "domain") {
+                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for your organisation's domain: {{suggestion[2]}}?";
+                        } else if (orgPresets.includes("identity")) {
+                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you like to search for all identities in the identity database?";
+                        }
+                        document.getElementById("suggestion_dd").style.display = null;
+                    } else {
+                        document.getElementById("suggestion_dd").style.display = "none";
+                    }
+                }
+
+                function acceptsuggestion() {
+                    var currenttask = document.getElementById("textarea").value;
+                    var orgPresets = Valid_Plugins_Full[currenttask]["Organisation_Presets"];
+                    if (orgPresets) {
+                        if (orgPresets == "name") {
+                            document.getElementById("queryfield").value = "{{suggestion[0]}}";
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        } else if (orgPresets == "website") {
+                            document.getElementById("queryfield").value = "{{suggestion[1]}}";
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        } else if (orgPresets == "domain") {
+                            document.getElementById("queryfield").value = "{{suggestion[2]}}";
+                            var SubDomains = {{suggestion[3] | safe}};
+                            if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
+                                document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
+                                document.getElementById("suggestion_dd").style.display = "none";
+                            } else if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length == 0) {
+                                document.getElementById("suggestion_dd").style.display = "none";
+                            } else {
+                                document.getElementById("suggestion").innerHTML = "Suggestion: Would you also like to include the provided subdomains for your organisation?";
+                            }
+                        } else if (orgPresets.includes("identity")) {
+                            document.getElementById("queryfield").value = "[IDENTITIES_DATABASE]";
+                            document.getElementById("queryfield").readOnly = true;
+                            document.getElementById("suggestion_dd").style.display = "none";
+                        }
+                    }
+                }
+
+                function declinesuggestion() {
                     document.getElementById("suggestion_dd").style.display = "none";
                 }
-            }
-
-            function acceptsuggestion() {
-                var currenttask = document.getElementById("textarea").value;
-                var orgPresets = Valid_Plugins_Full[currenttask]["Organisation_Presets"];
-                if (orgPresets) {
-                    if (orgPresets == "name") {
-                        document.getElementById("queryfield").value = "{{suggestion[0]}}";
-                        document.getElementById("suggestion_dd").style.display = "none";
-                    } else if (orgPresets == "website") {
-                        document.getElementById("queryfield").value = "{{suggestion[1]}}";
-                        document.getElementById("suggestion_dd").style.display = "none";
-                    } else if (orgPresets == "domain") {
-                        document.getElementById("queryfield").value = "{{suggestion[2]}}";
-                        var SubDomains = {{suggestion[3] | safe}};
-                        if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length > 0) {
-                            document.getElementById("queryfield").value = "{{suggestion[2]}}, " + SubDomains.join(", ");
-                            document.getElementById("suggestion_dd").style.display = "none";
-                        } else if (document.getElementById("suggestion").innerHTML == "Suggestion: Would you also like to include the provided subdomains for your organisation?" && SubDomains.length == 0) {
-                            document.getElementById("suggestion_dd").style.display = "none";
-                        } else {
-                            document.getElementById("suggestion").innerHTML = "Suggestion: Would you also like to include the provided subdomains for your organisation?";
-                        }
-                    } else if (orgPresets.includes("identity")) {
-                        document.getElementById("queryfield").value = "[IDENTITIES_DATABASE]";
-                        document.getElementById("queryfield").readOnly = true;
-                        document.getElementById("suggestion_dd").style.display = "none";
-                    }
-                }
-            }
-
-            function declinesuggestion() {
-                document.getElementById("suggestion_dd").style.display = "none";
-            }
-        </script>
+            </script>
+            {% endif %}
+        </main>
         {% endif %}
         {% endblock %}
     </body>

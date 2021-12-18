@@ -27,12 +27,16 @@
             <p class="left_title_top">Input Management</p><br />
             <a class="left_button" onclick="window.location.reload();">Reload Page</a>
             <a class="left_button" onclick="sendRequest('config')">Configure Inputs</a>
+            <a class="left_button" onclick="sendRequest('checkoutput')">Check Outputs</a>
         </div>
     </div></div></div>
     <script type="text/javascript">
         function sendRequest(typeOfRequest) {
             if (arguments[0] === "config") {
                 var uri = "{{ url_for('configure', configtype='inputs') }}";
+                window.location.assign(uri);
+            } else if (arguments[0] === "checkoutput") {
+                var uri = "{{ url_for('check_output') }}";
                 window.location.assign(uri);
             }
         }
