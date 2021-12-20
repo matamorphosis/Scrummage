@@ -195,21 +195,35 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
 
         if Use_DOCX:
             File_Dir = os.path.dirname(os.path.realpath('__file__'))
-            Complete_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
+            Template_File = f"{File_Dir}/plugins/common/templates/Scrummage_Report_Template.docx"
+            Output_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
 
-            if os.path.exists(Complete_File):
-                document = Document(Complete_File)
+            if os.path.exists(Output_File):
+                document = Document(Output_File)
+                Finding_Style = document.styles['Finding Sub Heading']
 
             else:
-                from docx.shared import Inches
                 from docx.enum.text import WD_ALIGN_PARAGRAPH
-                document = Document()
-                h1 = document.add_heading(f'Scrummage Finding Report for {Plugin_Name} Plugin', 0)
-                h1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                image = document.add_picture(f"{File_Dir}/static/images/search.png", width=Inches(2.00))
-                last_paragraph = document.paragraphs[-1]
-                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                Document_Title = f"Scrummage Finding Report for the {Plugin_Name} Plugin"
+                document = Document(Template_File)
+                Title_Style = document.styles['Title']
+                Finding_Style = document.styles['Finding Sub Heading']
+                p = document.add_paragraph(Document_Title, style=Title_Style)
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 document.add_page_break()
+                header = document.sections[0].header
+                h = header.paragraphs[0]
+                h.text = Document_Title
+                h.style = document.styles["Normal"]
+                document.add_heading("About", 1)
+                document.add_paragraph("Scrummage is an Open-Source Intelligence (OSINT) gathering tool. It helps individuals and organisations alike to measure their online security posture by correlating information offered by various, third-party, services. Scrummage is under the GNU Public Licence, version 3, which provides no warranty for the software. Scrummage is Free, Open-Source, Software (FOSS).\n\nIf assistance is needed, the Scrummage project offers focused support in the form of sponsorship on the main GitHub page, the level of support depends on the level of sponsorship. Any issues with the product or this report, that are not unique to you or your organisation can also be raised as an issue on GitHub.")
+                document.add_heading("Overview", 1)
+                document.add_paragraph(f"This report highlights findings produced by the {Plugin_Name} plugin, that is part of the Scrummage project.")
+                document.add_page_break()
+                document.add_heading("Detailed Technical Findings", 1)
+                document.add_paragraph("\n")
+
+            document.add_heading(Title, 2)
 
             Document_Data = (
                 ('Plugin', Plugin_Name),
@@ -221,20 +235,14 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
                 ('Associated Task ID', str(Task_ID))
             )
 
-            table = document.add_table(rows=1, cols=2)
-            hdr_cells = table.rows[0].cells
-            hdr_cells[0].text = 'Title'
-            hdr_cells[1].text = Title
-
             for name, data in Document_Data:
-                row_cells = table.add_row().cells
-                row_cells[0].text = name
-                row_cells[1].text = data
+                document.add_paragraph(name, style=Finding_Style)
+                document.add_paragraph(data)
 
             document.add_page_break()
-            document.save(Complete_File)
-            logging.info(f"{Date()} - Common Library - Exported to DOCX file located at {str(Complete_File)}.")
-            return Complete_File
+            document.save(Output_File)
+            logging.info(f"{Date()} - Common Library - Exported to DOCX file located at {str(Output_File)}.")
+            return Output_File
 
         else:
             return None

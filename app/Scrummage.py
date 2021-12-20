@@ -48,7 +48,7 @@ if __name__ == '__main__':
         except:
             sys.exit(f'{Common.Date()} Error setting the working directory.')
 
-        Valid_Plugins = plugin_definitions.Get_Definitions()
+        Valid_Plugins = plugin_definitions.Valid_Plugins
 
         def No_Limit_Plugins():
             Plugin_Names = []
@@ -1398,42 +1398,6 @@ if __name__ == '__main__':
                     dup_task(taskid)
 
                 return redirect(url_for('tasks'))
-
-            except Exception as e:
-                app.logger.error(e)
-                return redirect(url_for('tasks'))
-
-        @app.route('/tasks/return/<tasktype>', methods=['POST'])
-        @login_requirement
-        @admin_requirement
-        def return_task(tasktype):
-
-            try:
-
-                if tasktype in ["new", "edit"]:
-
-                    if session.get('task_form_step') == 1:
-                        return redirect(url_for('tasks'))
-
-                    elif session.get('task_form_step') == 2:
-                        session['task_form_step'] = 1
-
-                        if tasktype == "new":
-                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), new_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=list(Valid_Plugins.keys()), Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
-
-                        elif tasktype == "edit":
-                            Cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (session.get('task_id'),))
-                            result = Cursor.fetchone()
-                            return render_template('tasks.html', username=session.get('user'), form_type=session.get('task_form_type'), is_admin=session.get('is_admin'), form_step=session.get('task_form_step'), edit_task=True, frequency_field=session.get('task_frequency'), description_field=session.get('task_description'), task_type_field=session.get('task_form_type'), Valid_Plugins=list(Valid_Plugins.keys()), results=result, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
-
-                        else:
-                            return redirect(url_for('tasks'))
-
-                    else:
-                        return redirect(url_for('tasks'))
-
-                else:
-                    return redirect(url_for('tasks'))
 
             except Exception as e:
                 app.logger.error(e)
