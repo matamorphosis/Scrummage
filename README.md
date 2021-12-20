@@ -7,6 +7,7 @@
 
 **VERSION 3.6**
 - Check out the [discussions](https://github.com/matamorphosis/Scrummage/discussions) section of the repo to raise general questions and feature requests!
+- Beautified DOCX Reporting
 - Code efficiency enhancements and bug fixes for plugins, and improved logging.
 - Significant UI/UX enhancements.
 - Organisation specific settings and configurations, allowing for predefined searches based on your organisation and it's users.
