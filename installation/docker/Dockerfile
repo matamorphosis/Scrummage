@@ -26,7 +26,6 @@ RUN apt install -y ./google-chrome-stable_current_amd64.deb
 #----------------------------------------------------------------------------------------------------
 WORKDIR /
 RUN git clone https://github.com/matamorphosis/Scrummage
-RUN mkdir /Scrummage/app/static/protected
 RUN mkdir /Scrummage/app/static/protected/output
 RUN mkdir /Scrummage/app/static/protected/screenshots
 RUN chown $SUDO_USER:$SUDO_USER /Scrummage/app/static/protected

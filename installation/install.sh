@@ -37,7 +37,10 @@ else
     LINE=`printf %"$COLUMNS"s |tr " " "-"`
 
     echo "[+] Creating protected directory."
-    mkdir ../app/static/protected
+    if [ ! -d "../app/static/protected" ]
+    then
+        mkdir ../app/static/protected
+    fi
     mkdir ../app/static/protected/output
     mkdir ../app/static/protected/screenshots
     echo "[+] Changing owner of protected directory to user $SUDO_USER."
