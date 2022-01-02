@@ -16,7 +16,7 @@
 - API Enhancements and new endpoints for identity management.
 - Please note versions 3.3 - 3.6 entail a major overhaul of a lot of backend and frontend code for improved efficiency. Please don't hesitate to reach out about any code stability issues.
   
-Scrummage is an OSINT tool that centralises search functionality from powerful, yet simple OSINT sites. This project draws inspiration mainly from two other projects, including:  
+Scrummage is an OSINT tool that centralises search functionality from a bounty of powerful, publicly-available, third-party, OSINT websites. This project draws inspiration mainly from two other, open-source projects, including:  
 - The [Scumblr](https://github.com/Netflix-Skunkworks/Scumblr) project, which while is now deprecated, inspired this concept.
 - The [OSINT Framework](https://osintframework.com/) project, which is a visualisation tool, depicting a range of sites that can be used to search for a variety of things.
 
