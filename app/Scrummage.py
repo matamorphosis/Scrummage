@@ -37,6 +37,7 @@ if __name__ == '__main__':
 
         try:
             Scrummage_Working_Directory = pathlib.Path(__file__).parent.absolute()
+            print(Scrummage_Working_Directory)
 
             if str(Scrummage_Working_Directory) != str(os.getcwd()):
                 print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(Scrummage_Working_Directory)}.")
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         except:
             sys.exit(f'{Common.Date()} Error setting the working directory.')
 
-        Valid_Plugins = plugin_definitions.Valid_Plugins
+        Valid_Plugins = plugin_definitions.Get(Scrummage_Working_Directory)
 
         def No_Limit_Plugins():
             Plugin_Names = []

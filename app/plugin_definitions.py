@@ -1,5 +1,6 @@
 import json, os
 
-File_Dir = os.path.dirname(os.path.realpath('__file__'))
-JSON_File = open(os.path.join(File_Dir, "static/protected/json/plugin_definitions.json"), "r")
-Valid_Plugins = json.load(JSON_File)
+def Get(Scrummage_Working_Directory):
+    JSON_File = open(os.path.join(Scrummage_Working_Directory, "static/protected/json/plugin_definitions.json"), "r")
+    Valid_Plugins = json.load(JSON_File)
+    return Valid_Plugins
