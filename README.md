@@ -1,3 +1,5 @@
+[![Github Sponsorship](/installation/images_dark_theme/github_sponsor_btn.svg)](https://github.com/sponsors/matamorphosis)
+
 # Scrummage  
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
 
