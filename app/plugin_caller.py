@@ -1,4 +1,4 @@
-import plugin_verifier, plugin_definitions, plugins.common.General as General, plugins.common.Common as Common
+import plugin_verifier, plugin_definitions, plugins.common.Common as Common
 
 class Plugin_Caller:
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         Parser = argparse.ArgumentParser(description='Plugin Caller calls Scrummage plugins.')
         Parser.add_argument('-t', '--task', type=int, required=True, help='This option is used to specify a task ID to run. ./plugin_caller.py -t 1')
         Arguments = Parser.parse_args()
-        Scrummage_Working_Directory = pathlib.Path(__file__).parent.absolute()
+        Scrummage_Working_Directory = pathlib.Path(sys.argv[0]).parent.absolute()
         os.chdir(Scrummage_Working_Directory)
         Task_ID = 0
 
