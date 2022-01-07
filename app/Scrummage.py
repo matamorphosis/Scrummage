@@ -36,8 +36,7 @@ if __name__ == '__main__':
         Version = "3.6"
 
         try:
-            Scrummage_Working_Directory = pathlib.Path(__file__).parent.absolute()
-            print(Scrummage_Working_Directory)
+            Scrummage_Working_Directory = pathlib.Path(os.getcwd()).absolute()
 
             if str(Scrummage_Working_Directory) != str(os.getcwd()):
                 print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(Scrummage_Working_Directory)}.")
@@ -1557,6 +1556,7 @@ if __name__ == '__main__':
         @admin_requirement
         def run_task(taskid):
             global Thread_In_Use
+            global Scrummage_Working_Directory
 
             try:
                 Plugin_ID = int(taskid)
@@ -1605,7 +1605,7 @@ if __name__ == '__main__':
 
                     def Threaded_Task_Runner():
                         global Thread_In_Use
-                        
+
                         if Thread_In_Use and Thread_In_Use.is_alive():
                             Previous_Thread = Thread_In_Use
                             Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID, Query))

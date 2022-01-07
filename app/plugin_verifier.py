@@ -1,5 +1,4 @@
-import importlib, plugin_definitions, plugins.common.General as General, plugins.common.Common as Common
-# from typing import Dict
+import importlib, plugin_definitions, plugins.common.Common as Common
 
 class Plugin_Verifier:
 
@@ -11,7 +10,7 @@ class Plugin_Verifier:
         self.task_id = Task_ID
 
     def Verify_Plugin(self, Scrummage_Working_Directory, Load_Config_Only=False):
-    
+
         try:
             Plugins_Dictionary = plugin_definitions.Get(Scrummage_Working_Directory)
 
