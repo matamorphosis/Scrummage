@@ -269,7 +269,7 @@ if __name__ == '__main__':
                 for API_Key, API_Value in Valid_Plugins.items():
 
                     if API_Value["Requires_Configuration"]:
-                        Result = plugin_verifier.Plugin_Verifier(API_Key, 0, "", 0).Verify_Plugin(Load_Config_Only=True)
+                        Result = plugin_verifier.Plugin_Verifier(API_Key, 0, "", 0).Verify_Plugin(Scrummage_Working_Directory, Load_Config_Only=True)
                         Full_List[API_Key] = Result
 
                 if len(Full_List) > 0:
@@ -1516,7 +1516,7 @@ if __name__ == '__main__':
                     if result[6] == "Running":
                         return jsonify({"Error": "Task is already running."}), 500
 
-                    Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin()
+                    Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin(Scrummage_Working_Directory)
 
                     if not Plugin or not all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
                         return jsonify({"Error": f"The task type {result[2]} has not been configured. Please update its configuration in the config.json file or via the admin settings page."}), 500
@@ -1524,7 +1524,7 @@ if __name__ == '__main__':
                     else:
 
                         def Task_Runner(Result_Inner, Plugin_ID_Inner):
-                            plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner).Call_Plugin()
+                            plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner).Call_Plugin(Scrummage_Working_Directory)
 
                         def Threaded_Task_Runner():
                             global Thread_In_Use
@@ -1592,7 +1592,7 @@ if __name__ == '__main__':
                 else:
                     Query = None
 
-                Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin()
+                Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin(Scrummage_Working_Directory)
 
                 if not Plugin or not all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
                     session["task_api_check"] = "Failed"
@@ -1601,7 +1601,7 @@ if __name__ == '__main__':
                 else:
 
                     def Task_Runner(Result_Inner, Plugin_ID_Inner, Inner_Query):
-                        plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner, Custom_Query=Inner_Query).Call_Plugin()
+                        plugin_caller.Plugin_Caller(Result=Result_Inner, Task_ID=Plugin_ID_Inner, Custom_Query=Inner_Query).Call_Plugin(Scrummage_Working_Directory)
 
                     def Threaded_Task_Runner():
                         global Thread_In_Use
@@ -1813,30 +1813,30 @@ if __name__ == '__main__':
                         if request.form['query']:
                             Frequency_Error = ""
                             session['task_query'] = request.form['query']
+                            Current_Query_List = General.Convert_to_List(session['task_query'])
 
-                            if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+                            for Current_Query in Current_Query_List:
 
-                                if (any(char in session.get('task_query') for char in Bad_Characters) and session.get('task_query') != "[IDENTITIES_DATABASE]"):
-                                    return render_template('tasks.html', username=session.get('user'),
+                                if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+
+                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        return render_template('tasks.html', username=session.get('user'),
+                                                                    form_type=session.get('task_form_type'),
+                                                                    form_step=session.get('task_form_step'), suggestion=Suggestion,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                    is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+
+                                    try:
+                                        session['task_limit'] = int(request.form['limit'])
+
+                                    except:
+                                        return render_template('tasks.html', username=session.get('user'),
                                                                 form_type=session.get('task_form_type'),
                                                                 form_step=session.get('task_form_step'), suggestion=Suggestion,
                                                                 Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
 
-                                try:
-                                    session['task_limit'] = int(request.form['limit'])
-
-                                except:
-                                    return render_template('tasks.html', username=session.get('user'),
-                                                            form_type=session.get('task_form_type'),
-                                                            form_step=session.get('task_form_step'), suggestion=Suggestion,
-                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                            is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
-
-                            else:
-                                Current_Query_List = General.Convert_to_List(session['task_query'])
-
-                                for Current_Query in Current_Query_List:
+                                else:
 
                                     if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
                                         return render_template('tasks.html', username=session.get('user'),
@@ -1855,7 +1855,7 @@ if __name__ == '__main__':
                                                                 is_admin=session.get('is_admin'),
                                                                 error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
-                                    if any(char in Current_Query for char in Bad_Characters):
+                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                         return render_template('tasks.html', username=session.get('user'),
                                                                     form_type=session.get('task_form_type'),
                                                                     form_step=session.get('task_form_step'), new_task=True,
@@ -2166,56 +2166,56 @@ if __name__ == '__main__':
                         if request.form['query']:
                             Frequency_Error = ""
                             session['task_query'] = request.form['query']
+                            Current_Query_List = General.Convert_to_List(session['task_query'])
 
-                            if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+                            for Current_Query in Current_Query_List:
 
-                                if any(char in session.get('task_query') for char in Bad_Characters):
-                                    return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
-                                                               results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
-                                                               form_type=session.get('task_form_type'),
-                                                               error="Invalid query specified, please provide a valid query with no special characters.")
+                                if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
-                                try:
-                                    session['task_limit'] = int(request.form['limit'])
+                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        return render_template('tasks.html', username=session.get('user'),
+                                                                form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
+                                                                results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
+                                                                form_type=session.get('task_form_type'),
+                                                                error="Invalid query specified, please provide a valid query with no special characters.")
 
-                                except:
-                                    return render_template('tasks.html', username=session.get('user'),
-                                                           form_step=session.get('task_form_step'), edit_task=True,
-                                                           form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                           Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                           is_admin=session.get('is_admin'),
-                                                           error="Invalid limit specified, please provide a valid limit represented by a number.")
+                                    try:
+                                        session['task_limit'] = int(request.form['limit'])
 
-                            else:
-                                Current_Query_List = General.Convert_to_List(session['task_query'])
+                                    except:
+                                        return render_template('tasks.html', username=session.get('user'),
+                                                            form_step=session.get('task_form_step'), edit_task=True,
+                                                            form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                            is_admin=session.get('is_admin'),
+                                                            error="Invalid limit specified, please provide a valid limit represented by a number.")
 
-                                for Current_Query in Current_Query_List:
+                                else:
 
                                     if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), edit_task=True,
-                                                               form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                               Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                               is_admin=session.get('is_admin'),
-                                                               error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+                                                                form_step=session.get('task_form_step'), edit_task=True,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                is_admin=session.get('is_admin'),
+                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
 
                                     elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
                                         sess_form_type = session["task_form_type"]
                                         return render_template('tasks.html', username=session.get('user'),
-                                                               form_step=session.get('task_form_step'), edit_task=True,
-                                                               form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                               Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                               is_admin=session.get('is_admin'),
-                                                               error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+                                                                form_step=session.get('task_form_step'), edit_task=True,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                is_admin=session.get('is_admin'),
+                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
-                                    if any(char in Current_Query for char in Bad_Characters):
+                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                         return render_template('tasks.html', username=session.get('user'),
-                                                                   form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                   form_step=session.get('task_form_step'), edit_task=True,
-                                                                   is_admin=session.get('is_admin'),
-                                                                   Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                   error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                    form_step=session.get('task_form_step'), edit_task=True,
+                                                                    is_admin=session.get('is_admin'),
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
 
                             Update_Cron = False
 

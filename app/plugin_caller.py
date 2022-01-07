@@ -38,12 +38,12 @@ class Plugin_Caller:
         except Exception as e:
             print(f'{Common.Date()} - Plugin Caller - {e}')
 
-    def Call_Plugin(self):
+    def Call_Plugin(self, Scrummage_Working_Directory):
 
         try:
             Object = Common.Configuration(Output=True)
             self.Starter(Object)
-            Plugin = plugin_verifier.Plugin_Verifier(self.plugin_name, self.task_id, self.query, self.limit, Custom_Query=self.custom_query).Verify_Plugin()
+            Plugin = plugin_verifier.Plugin_Verifier(self.plugin_name, self.task_id, self.query, self.limit, Custom_Query=self.custom_query).Verify_Plugin(Scrummage_Working_Directory)
 
             if Plugin and all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
                 getattr(Plugin["Object"], Plugin["Search Option"])(**Plugin["Function Kwargs"])
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
             try:
                 Task_ID = int(Arguments.task)
-                Valid_Plugins = plugin_definitions.Valid_Plugins
+                Valid_Plugins = plugin_definitions.Get(Scrummage_Working_Directory)
                 Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
                 cursor = Connection.cursor()
                 PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                     else:
                         Query = None
 
-                    Plugin_Caller(Result=result, Task_ID=Task_ID, Custom_Query=Query).Call_Plugin()
+                    Plugin_Caller(Result=result, Task_ID=Task_ID, Custom_Query=Query).Call_Plugin(Scrummage_Working_Directory)
 
             except:
                 sys.exit("[-] Invalid Task ID.")
