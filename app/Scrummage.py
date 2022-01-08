@@ -421,6 +421,17 @@ if __name__ == '__main__':
             else:
                 return redirect(url_for('no_session'))
 
+        @app.errorhandler(400)
+        @login_requirement
+        def bad_request(e):
+
+            try:
+                return render_template('bad_request.html'), 400
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('index'))
+
         @app.errorhandler(404)
         @login_requirement
         def page_not_found(e):
@@ -443,6 +454,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('index'))
 
+        app.register_error_handler(400, bad_request)
         app.register_error_handler(404, page_not_found)
         app.register_error_handler(405, no_method)
 

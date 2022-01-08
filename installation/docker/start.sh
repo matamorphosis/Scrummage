@@ -79,6 +79,7 @@ then
             fi
             echo "[i] Cleaning up."
             rm ./$Linux64ChromeDriverZIP
+            break
         fi
     done
 fi

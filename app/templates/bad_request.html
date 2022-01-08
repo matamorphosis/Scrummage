@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Google Drive Access Governance 404 Not Found Page.">
+        <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
+      <title>Google Drive Access Governance Page Not Found</title>
+   </head>
+   <body>
+      {% extends "template.html" %}
+      {% block content %}
+      <main>
+         <div class="unpredicted_page">
+            <td style="padding-bottom: 5px;"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" />
+              <path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" />
+            </svg></td>
+         </div>
+         <p class="error">Bad request.</p>
+      </main>
+      {% endblock %}
+   </body>
+</html>
