@@ -53,6 +53,7 @@ class Plugin_Caller:
 
         except Exception as e:
             print(f'{Common.Date()} - Plugin Caller - {e}')
+
         finally:
             self.Stopper(Object)
         

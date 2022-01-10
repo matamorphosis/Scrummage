@@ -51,7 +51,7 @@ class Plugin_Search:
         except:
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to resolve hostname {Query} to an IP address.")
 
-    def Character_Switch(self, Alphabets, Comprehensive_Search=False):
+    def Character_Switch(self, Alphabets, Comprehensive=False):
 
         try:
             Local_Plugin_Name = self.Plugin_Name + " Character Switch"
@@ -86,7 +86,7 @@ class Plugin_Search:
 
                 if Alphabets == "Latin":
 
-                    if not Comprehensive_Search:
+                    if not Comprehensive:
 
                         if len(self.URL_Body) > Non_Comprehensive_Latin_Limit:
                             logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Non_Comprehensive_Latin_Limit)} characters in length. Condensed punycode domain fuzzing only allows a maximum of {str(Non_Comprehensive_Latin_Limit)} characters.")
