@@ -3,6 +3,7 @@
 # Homograph Enumerator v2.0 (A.K.A Punycode Domain Fuzzer)
 
 import itertools, logging, string, sys, plugins.common.Common as Common
+from typing import List
 
 class Iterator:
 
@@ -71,7 +72,7 @@ class Iterator:
 
         def Merger(Dict_to_Merge, Lists):
 
-            for List_Key, List_Value in Lists.items():
+            for List_Key in Lists.keys():
 
                 if List_Key in Dict_to_Merge:
                     Lists[List_Key].extend(Dict_to_Merge[List_Key])
@@ -148,6 +149,11 @@ class Iterator:
 
             if self.English_Upper:
                 Lists[Alphabet_Letter].append(Alphabet_Letter.upper())
+
+        for Number in list(range(0,10)):
+            Lists[str(Number)] = [str(Number)]
+
+        Lists = Merger({"0": ["O", "o"], "1": ["l", "i", "I"], "2": ["Z", "z"], "3": ["E"], "4": ["A"], "5": ["S", "s"], "6": ["b"], "7": ["l", "T", "t", "Z", "z"], "8": ["B"], "9": ["q"]}, Lists)
 
         if self.Numbers:
             Lists = Merger({"a": ["4", u"Ꮞ"], "b": ["8", "6", u"Ꮾ", u"ꖉ", u"ꖊ"], "e": ["3", u"з", u"З", u"Ӡ", u"ဒ", u"ვ", u"ჳ", u"Ꮌ"], "i": ["1"], "l": ["1", u"ߗ"], "o": ["0", u"θ", u"០", u"៙", u"߀"], "s": ["5"], "t": ["7"], "z": ["2", u"ㄹ"]}, Lists)
