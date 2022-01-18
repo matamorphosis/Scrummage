@@ -723,12 +723,13 @@ if __name__ == '__main__':
         def apply_caching(response):
 
             try:
-                response.headers["X-Frame-Options"] = "SAMEORIGIN"
+                response.headers["X-Frame-Options"] = "DENY"
                 response.headers["X-XSS-Protection"] = "1; mode=block"
                 response.headers["X-Content-Type"] = "nosniff"
                 response.headers["Server"] = ""
                 response.headers["Pragma"] = "no-cache"
                 response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                response.headers["Expires"] = "0"
                 return response
 
             except Exception as e:
