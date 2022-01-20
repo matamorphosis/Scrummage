@@ -474,6 +474,7 @@ if __name__ == '__main__':
                 sys.exit("[-] Failed to initialise index.html file.")
 
         @app.route('/login', methods=['GET', 'POST'])
+        @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         def login():
 
             try:
