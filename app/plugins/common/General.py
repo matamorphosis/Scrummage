@@ -214,8 +214,10 @@ class Cache:
         try:
 
             if os.path.exists(self.Complete_File):
+
                 with open(self.Complete_File, "r") as File_Input:
                     self.Cached_Data = File_Input.read()
+                    
             else:
                 logging.info(f"{Common.Date()} - General Library - No cache file found, caching will not be used for this session.")
                 self.Cached_Data = []
@@ -247,10 +249,13 @@ def Convert_to_List(String):
 
         if ', ' in String:
             return String.split(', ')
+
         elif ',' in String:
             return String.split(',')
+
         else:
             return [String]
+
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to convert the provided query to a list. {e}.')
 
@@ -432,6 +437,7 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
                 Query = Query.replace(Character, "-")
 
             if Character in Query_Result_Name:
+
                 if Character not in ["https://", "http://", "www."]:
                     Query_Result_Name = Query_Result_Name.replace(Character, "-")
 
