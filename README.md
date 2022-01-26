@@ -34,7 +34,6 @@ Any feedback is welcome.
 * Blockchain Search
 * Domain Fuzzer
 * Twitter Scraper
-* Instagram Search
 * Have I Been Pwned Search
 * Ahmia Darkweb Search
 * IP Stack Search
