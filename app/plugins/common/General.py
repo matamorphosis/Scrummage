@@ -8,32 +8,15 @@ from selenium.webdriver.chrome.options import Options
 Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
 Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
-class Screenshot:
+def Selenium():
+    global Current_User_Agent
 
-    def __init__(self, File_Path, Internally_Requested=False, Append_Mode=False, **kwargs):
-        self.Internally_Requested = Internally_Requested
-        self.Chrome_Config = Common.Configuration(Core=True).Load_Configuration(Object="google_chrome", Details_to_Load=["application_path", "chromedriver_path"])
-        self.File_Path = File_Path
-        self.Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
-        self.Cursor = self.Connection.cursor()
+    try:
+        Chrome_Config = Common.Configuration(Core=True).Load_Configuration(Object="google_chrome", Details_to_Load=["application_path", "chromedriver_path"])
 
-        if not self.Internally_Requested and kwargs.get('Screenshot_ID') and kwargs.get('Screenshot_User'):
-            self.Screenshot_ID = kwargs['Screenshot_ID']
-            self.Screenshot_User = kwargs['Screenshot_User']
-            self.Append_Mode = Append_Mode
-
-        elif self.Internally_Requested and kwargs.get('Screenshot_Link'):
-            self.Screenshot_ID = False
-            self.Screenshot_User = False
-            self.Screenshot_Link = kwargs['Screenshot_Link']
-            self.Append_Mode = Append_Mode
-
-    def Screenshot_Checker(self):
-        logging.info(f"{Common.Date()} Performing verification for screenshot capability.")
-
-        if all(os.path.exists(Config) for Config in self.Chrome_Config): 
-            CHROME_PATH = self.Chrome_Config[0]
-            CHROMEDRIVER_PATH = self.Chrome_Config[1]
+        if all(os.path.exists(Config) for Config in Chrome_Config): 
+            CHROME_PATH = Chrome_Config[0]
+            CHROMEDRIVER_PATH = Chrome_Config[1]
             Chrome_Options = Options()
             Chrome_Options.add_argument("--headless")
             Chrome_Options.add_argument('--no-sandbox')
@@ -41,125 +24,135 @@ class Screenshot:
             Chrome_Options.binary_location = CHROME_PATH
 
             try:
-                driver = webdriver.Chrome(
-                    executable_path=CHROMEDRIVER_PATH,
-                    options=Chrome_Options
-                )
-                return True
+                driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, options=Chrome_Options)
+                return driver
 
             except Exception as e:
                 logging.warning(f'{Common.Date()} - General Library - {e}.')
+                
                 if 'session not created' in str(e):
-                    logging.warning(
-                        '\x1b[0;31mPlease run the "Fix_ChromeDriver.sh" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. Screenshot functionality has been disabled in the meantime until this issue is resolved.\x1b[0m\n'
-                    )
+                    logging.warning('\x1b[0;31mPlease run the "Fix_ChromeDriver.sh" script in the installation directory to upgrade the Google Chrome Driver to be in-line with the current version of Google Chrome on this operating system, or replace it manually with the latest version from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system. Screenshot functionality has been disabled in the meantime until this issue is resolved.\x1b[0m\n')
 
-                    return False
+                return False
+
         else:
             logging.warning("\033[0;31mOne or more of the values provided to the google chrome configuration in the config.json file do not reflect real files. Screenshot functionality has been disabled in the meantime. To correct this please accurately fill out the following section in the config.json file (Example values included, please ensure these reflect real files on your system)\n\n    \"google_chrome\": {\n        \"application_path\": \"/usr/bin/google-chrome\",\n        \"chromedriver_path\": \"/usr/bin/chromedriver\"\n    },\n\033[0m")
             return False
 
+    except Exception as e:
+        logging.warning(f'{Common.Date()} - General Library - {e}.')
+
+class Screenshot:
+
+    def __init__(self, File_Path, Internally_Requested=False, Append_Mode=False, **kwargs):
+
+        try:
+            self.Internally_Requested = Internally_Requested
+            self.File_Path = File_Path
+            self.Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
+            self.Cursor = self.Connection.cursor()
+
+            if not self.Internally_Requested and kwargs.get('Screenshot_ID') and kwargs.get('Screenshot_User'):
+                self.Screenshot_ID = kwargs['Screenshot_ID']
+                self.Screenshot_User = kwargs['Screenshot_User']
+                self.Append_Mode = Append_Mode
+
+            elif self.Internally_Requested and kwargs.get('Screenshot_Link'):
+                self.Screenshot_ID = False
+                self.Screenshot_User = False
+                self.Screenshot_Link = kwargs['Screenshot_Link']
+                self.Append_Mode = Append_Mode
+
+        except Exception as e:
+            logging.warning(f'{Common.Date()} - General Library - {e}.')
+
+    def Screenshot_Checker(self):
+
+        try:
+            logging.info(f"{Common.Date()} Performing verification for screenshot capability.")
+            Driver = Selenium()
+
+            if Driver:
+                return True
+
+            else:
+                return False
+
+        except Exception as e:
+            logging.warning(f'{Common.Date()} - General Library - {e}.')
+
     def Grab_Screenshot(self):
 
         try:
-            Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:', 'nameapi.org']
+            Driver = Selenium()
 
-            if not self.Internally_Requested:
-                self.Cursor.execute('SELECT link FROM results WHERE result_id = %s', (self.Screenshot_ID,))
-                Result = self.Cursor.fetchone()
-                self.Screenshot_Link = Result[0]
-                Message = f'Screenshot requested for result number {self.Screenshot_ID} by {self.Screenshot_User}.'
+            if Driver:
+                Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:', 'nameapi.org']
 
-                logging.warning(Message)
-                self.Create_Event(Message)
-                self.Cursor.execute('UPDATE results SET screenshot_requested = %s, updated_at = %s WHERE result_id = %s', (True, str(Common.Date()), self.Screenshot_ID,))
+                if not self.Internally_Requested:
+                    self.Cursor.execute('SELECT link FROM results WHERE result_id = %s', (self.Screenshot_ID,))
+                    Result = self.Cursor.fetchone()
+                    self.Screenshot_Link = Result[0]
+                    Message = f'Screenshot requested for result number {self.Screenshot_ID} by {self.Screenshot_User}.'
+
+                    logging.warning(Message)
+                    self.Create_Event(Message)
+                    self.Cursor.execute('UPDATE results SET screenshot_requested = %s, updated_at = %s WHERE result_id = %s', (True, str(Common.Date()), self.Screenshot_ID,))
+                    self.Connection.commit()
+
+                if any(String in self.Screenshot_Link for String in Bad_Link_Strings):
+                    return None
+
+                Screenshot_File = self.Screenshot_Link.replace("http://", "")
+                Screenshot_File = Screenshot_File.replace("https://", "")
+
+                if Screenshot_File.endswith('/'):
+                    Screenshot_File = Screenshot_File[:-1]
+
+                if '?' in Screenshot_File:
+                    Screenshot_File_List = Screenshot_File.split('?')
+                    Screenshot_File = Screenshot_File_List[0]
+
+                for Replaceable_Item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
+                    Screenshot_File = Screenshot_File.replace(Replaceable_Item, '-')
+
+                if self.Append_Mode:
+                    i = 0
+                    Current_File = f"{Screenshot_File}.png"
+
+                    while os.path.isfile(os.path.join(self.File_Path, "static/protected/screenshots", Current_File)):
+                        Current_File = f'{Screenshot_File}_{i}.png'
+                        i += 1
+
+                    Screenshot_File = Current_File
+
+                else:
+                    Screenshot_File = f"{Screenshot_File}.png"
+
+                Driver.get(self.Screenshot_Link)
+                Driver.implicitly_wait(10)
+                time.sleep(10)
+                Total_Height = Driver.execute_script("return document.body.scrollHeight")
+                Driver.set_window_size(1920, Total_Height)
+                Driver.save_screenshot(os.path.join(self.File_Path, "static/protected/screenshots", Screenshot_File))
+                Driver.close()
+
+                if self.Internally_Requested:
+                    return Screenshot_File
+
+                if self.Append_Mode:
+                    self.Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (self.Screenshot_ID,))
+                    Existing_URLs = self.Cursor.fetchone()
+                    Screenshot_File = Existing_URLs[0] + ", " + Screenshot_File
+
+                self.Cursor.execute('UPDATE results SET screenshot_url = %s, screenshot_requested = %s, updated_at = %s WHERE result_id = %s', (Screenshot_File, False, str(Common.Date()), self.Screenshot_ID,))
                 self.Connection.commit()
-
-            if any(String in self.Screenshot_Link for String in Bad_Link_Strings):
-                return None
-
-            Screenshot_File = self.Screenshot_Link.replace("http://", "")
-            Screenshot_File = Screenshot_File.replace("https://", "")
-
-            if Screenshot_File.endswith('/'):
-                Screenshot_File = Screenshot_File[:-1]
-
-            if '?' in Screenshot_File:
-                Screenshot_File_List = Screenshot_File.split('?')
-                Screenshot_File = Screenshot_File_List[0]
-
-            for Replaceable_Item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
-                Screenshot_File = Screenshot_File.replace(Replaceable_Item, '-')
-
-            CHROME_PATH = self.Chrome_Config[0]
-            CHROMEDRIVER_PATH = self.Chrome_Config[1]
-
-            if self.Append_Mode:
-                i = 0
-                Current_File = f"{Screenshot_File}.png"
-
-                while os.path.isfile(os.path.join(self.File_Path, "static/protected/screenshots", Current_File)):
-                    Current_File = f'{Screenshot_File}_{i}.png'
-                    i += 1
-
-                Screenshot_File = Current_File
 
             else:
-                Screenshot_File = f"{Screenshot_File}.png"
-
-            Chrome_Options = Options()
-            Chrome_Options.add_argument("--headless")
-            Chrome_Options.add_argument('--no-sandbox')
-            Chrome_Options.add_argument('--disable-dev-shm-usage')
-            Chrome_Options.binary_location = CHROME_PATH
+                logging.warning(f'{Common.Date()} - General Library - Chrome driver error prevented screenshot from continuing.')
 
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - {e}.')
-        try:
-            Driver = webdriver.Chrome(
-                executable_path=CHROMEDRIVER_PATH,
-                options=Chrome_Options
-            )
-
-        except Exception as e:
-            logging.warning(f'{Common.Date()} - General Library - {e}.')
-            if 'session not created' in str(e) and not self.Internally_Requested:
-                e = str(e).strip('\n')
-                Message = f'Screenshot request terminated for result number {self.Screenshot_ID} by application, please refer to the log.'
-
-                Message_E = e.replace('Message: session not created: ', '')
-                Message_E = Message_E.replace('This version of', 'The installed version of')
-                logging.warning(f'Screenshot Request Error: {Message_E}.')
-                logging.warning(
-                    'Kindly replace the Chrome Web Driver, with the latest one from http://chromedriver.chromium.org/downloads that matches the version of Chrome installed on your system.'
-                )
-
-                self.Create_Event(Message)
-                self.Cursor.execute(
-                    'UPDATE results SET screenshot_requested = %s WHERE result_id = %s',
-                    (False, self.Screenshot_ID),
-                )
-
-                self.Connection.commit()
-            return None
-        Driver.get(self.Screenshot_Link)
-        Driver.implicitly_wait(10)
-        time.sleep(10)
-        Total_Height = Driver.execute_script("return document.body.scrollHeight")
-        Driver.set_window_size(1920, Total_Height)
-        Driver.save_screenshot(os.path.join(self.File_Path, "static/protected/screenshots", Screenshot_File))
-        Driver.close()
-
-        if self.Internally_Requested:
-            return Screenshot_File
-
-        if self.Append_Mode:
-            self.Cursor.execute('SELECT screenshot_url FROM results WHERE result_id = %s', (self.Screenshot_ID,))
-            Existing_URLs = self.Cursor.fetchone()
-            Screenshot_File = Existing_URLs[0] + ", " + Screenshot_File
-
-        self.Cursor.execute('UPDATE results SET screenshot_url = %s, screenshot_requested = %s, updated_at = %s WHERE result_id = %s', (Screenshot_File, False, str(Common.Date()), self.Screenshot_ID,))
-        self.Connection.commit()
 
     def Create_Event(self, Description):
 
@@ -179,9 +172,7 @@ def Get_Limit(Limit):
         return Limit
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to set provided limit, returning default - {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to set provided limit, returning default - {e}.')
 
         return 10
 
@@ -195,9 +186,7 @@ def Logging(Directory, Plugin_Name):
             return os.path.join(General_Directory_Search.group(1), Main_File)
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to initialise logging. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to initialise logging. {e}.')
 
 def Get_Plugin_Logging_Name(Plugin_Name):
 
@@ -234,23 +223,23 @@ class Cache:
             return self.Cached_Data
 
         except Exception as e:
-            logging.warning(
-                f'{Common.Date()} - General Library - Failed to read file. {e}.'
-            )
+            logging.warning(f'{Common.Date()} - General Library - Failed to read file. {e}.')
 
     def Write_Cache(self, Data_to_Cache):
 
         if not Data_to_Cache:
-            return
+            return None
+
         Open_File_Type = "a" if self.Cached_Data else "w"
+
         try:
+
             with open(self.Complete_File, Open_File_Type) as File_Output:
                 Current_Output_Data = "\n".join(Data_to_Cache) + "\n"
                 File_Output.write(Current_Output_Data)
+
         except Exception as e:
-            logging.warning(
-                f'{Common.Date()} - General Library - Failed to create file. {e}.'
-            )
+            logging.warning(f'{Common.Date()} - General Library - Failed to create file. {e}.')
 
 def Convert_to_List(String):
 
@@ -263,9 +252,7 @@ def Convert_to_List(String):
         else:
             return [String]
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to convert the provided query to a list. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to convert the provided query to a list. {e}.')
 
 class Connections:
 
@@ -280,9 +267,7 @@ class Connections:
             self.Concat_Plugin_Name = str(Concat_Plugin_Name)
 
         except Exception as e:
-            logging.warning(
-                f'{Common.Date()} - General Library - Error setting initial variables. {e}.'
-            )
+            logging.warning(f'{Common.Date()} - General Library - Error setting initial variables. {e}.')
 
     def Output(self, Complete_File_List, Link, DB_Title, Directory_Plugin_Name, Dump_Types=[]):
 
@@ -305,9 +290,7 @@ class Connections:
                     self.Ticket_Text = f"Results were identified for the search {self.Input} performed by the Scrummage plugin {self.Plugin_Name}. Please ensure these results do not pose a threat to your organisation, and take the appropriate action necessary if they pose a security risk.\n\nResult data can be found in the following output files:\n- {Text_Complete_Files}."
 
             except Exception as e:
-                logging.warning(
-                    f'{Common.Date()} - General Library - Error setting unique variables. {e}.'
-                )
+                logging.warning(f'{Common.Date()} - General Library - Error setting unique variables. {e}.')
 
             logging.info(f"{Common.Date()} - General Library - Adding item to Scrummage database and other configured outputs.")
             Connector_Object = Common.Configuration(Output=True)
@@ -345,9 +328,7 @@ class Connections:
             Common.Slack_Main(Connector_Object, self.Ticket_Text)
 
         except Exception as e:
-            logging.warning(
-                f'{Common.Date()} - General Library - Error handling outputs. {e}.'
-            )
+            logging.warning(f'{Common.Date()} - General Library - Error handling outputs. {e}.')
 
 def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension):
     Main_File = f"Main-file-for-{Plugin_Name}-query-{Query}{Main_File_Extension}"
@@ -393,9 +374,7 @@ def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension)
         return Complete_File
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to create main file. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to create main file. {e}.')
 
 def Data_Type_Discovery(Data_to_Search):
     # Function responsible for determining the type of data found. Examples: Hash_Type, Credentials, Email, or URL.
@@ -439,9 +418,7 @@ def Data_Type_Discovery(Data_to_Search):
         return Dump_Types
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to determine data type. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to determine data type. {e}.')
 
 def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data, Query_Result_Name, The_File_Extension):
 
@@ -484,14 +461,10 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
             return Complete_File
 
         except Exception as e:
-            logging.warning(
-                f'{Common.Date()} - General Library - Failed to create query file. {e}.'
-            )
+            logging.warning(f'{Common.Date()} - General Library - Failed to create query file. {e}.')
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to initialise query file. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to initialise query file. {e}.')
 
 def Make_Directory(Plugin_Name):
     Today = Common.Date(Full_Timestamp=True)
@@ -537,9 +510,7 @@ def Get_Title(URL, Requests=False):
             logging.warning(f"{Common.Date()} - General Library - Invalid URL provided.")
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to get title. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to get title. {e}.')
 
 def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
 
@@ -568,9 +539,7 @@ def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
             return None
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to convert provided JSON data to HTML. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to convert provided JSON data to HTML. {e}.')
 
 def CSV_to_HTML(CSV_Data, Title):
 
@@ -604,9 +573,7 @@ def CSV_to_HTML(CSV_Data, Title):
             return None
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to convert provided CSV data to HTML. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to convert provided CSV data to HTML. {e}.')
 
 def CSV_to_JSON(Query, CSV_Data):
 
@@ -628,9 +595,7 @@ def CSV_to_JSON(Query, CSV_Data):
             return None
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to convert provided CSV data to JSON. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to convert provided CSV data to JSON. {e}.')
 
 def Encoder(To_Encode, URLSafe=False, Type="Base64"):
     # Currently just handles b64 encoding as no other encoding types are required; however, this function can be scaled with future demand.
@@ -647,6 +612,4 @@ def Encoder(To_Encode, URLSafe=False, Type="Base64"):
                 return base64.b64encode(To_Encode.encode()).decode()
 
     except Exception as e:
-        logging.warning(
-            f'{Common.Date()} - General Library - Failed to encode data. {e}.'
-        )
+        logging.warning(f'{Common.Date()} - General Library - Failed to encode data. {e}.')
