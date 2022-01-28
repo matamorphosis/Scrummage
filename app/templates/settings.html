@@ -9,12 +9,63 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/qrcode.min.js') }}"></script>
         <title>Scrummage Account Settings</title>
     </head>
     <body onload="pageLoad()">
         {% extends "template.html" %}
         {% block content %}
-        {% if Configure and is_admin %}
+        {% if mfa_form %}
+            <main>
+                <div class="field-container">
+                    <div id="outer_form_div">
+                        <div class="form_div" style="padding: 0px;">
+                            <p class="form_title">Configure Item</p>
+                            <div id="form_loader">&nbsp;</div>
+                            <noscript>
+                            <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
+                            </noscript>
+                            <div class="inner_form_div">
+                                <form class="form_prv" action="{{ url_for('account') }}" method=get autocomplete="off">
+                                    <input style="display: inline-block;" class="button_prv" name="return" type="submit" value="< Return to Settings">
+                                </form>
+                                <form class="form" action="{{ url_for('get_account_mfa_token') }}" method=post autocomplete="off">
+                                    <dl>
+                                        <dd class="nopadding">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        </dd>
+                                        <dd id="qrcodedd">
+                                            <div id="qrcode"></div>
+                                            <script type="text/javascript">
+                                                new QRCode(document.getElementById("qrcode"), "{{MFA_URL}}");
+                                            </script>
+                                        </dd>
+                                        <dd>
+                                            <input class="field_textarea" id="textarea" name="mfa_token" placeholder="* MFA Token">
+                                        </dd>
+                                        <dd id="fin_input">
+                                            <input class="button" name="set_input" onclick="ShowLoader()" type="submit" value="Verify">
+                                        </dd>
+                                    </dl>
+                                </form>
+                                <script type="text/javascript">
+                                    function ShowLoader() {
+                                    document.getElementById("form_loader").style.display = "block";
+                                    setTimeout(HideLoader, 3000);
+                                    }
+                                    function HideLoader() {
+                                    document.getElementById("form_loader").style.display = "none";
+                                    }
+                                </script>
+                            </div>
+                            {% if verification_error %}
+                                <p class="message_form"><strong>Error:</strong> {{ verification_error }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        {% elif Configure and is_admin %}
             {% if form_step == 0 %}
                 <main>
                     <div class="field-container">
@@ -194,6 +245,14 @@
                     <div><p class="left_title">Organisation Management</p><br />
                         <a id="createuser" onclick="sendRequest('identitiessettings')" class="left_button">Identity Settings</a>
                     </div>
+                    <br />
+                    <div><p class="left_title">MFA</p><br />
+                        {% if not mfainuse %}
+                        <a id="createuser" onclick="sendRequest('configmfa')" class="left_button">Enable MFA</a>
+                        {% else %}
+                        <a id="createuser" onclick="return confirm('Performing this action will instantly invalidate your existing MFA token. Are you sure you want to continue?') && sendRequest('configmfa');" class="left_button">Update MFA</a>
+                        {% endif %}
+                    </div>
                 </div></div></div>
                 <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
                     <table id="paginate">
@@ -367,6 +426,10 @@
                         use_xhr = false;
                     } else if (arguments[0] === "identitiessettings") {
                         var uri = "{{ url_for('identities') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "configmfa") {
+                        var uri = "{{ url_for('get_account_mfa_token') }}";
                         window.location.assign(uri);
                         use_xhr = false;
                     } else if (arguments[0] === "identitiesconfig") {
@@ -586,11 +649,17 @@
             {% else %}
                 <div id="api_bar_outer">
                     <div id="api_bar">
-                        <p class="api_key_message">&nbsp;API Key Management:&nbsp;</p>
-                        <button id="copy" onclick="copyTextFunc()" class="button">Copy Key</button>
+                        <button id="copy" onclick="copyTextFunc()" class="button">Copy API Key</button>
                         <form id="getapikey" class="form_left" action="{{ url_for('get_account_apikey') }}" method="post" autocomplete="off">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <input class="button" name="getapikey" type="submit" value="Reload Key">
+                            <input class="button" name="getapikey" type="submit" value="Reload API Key">
+                        </form>
+                        <form id="getmfakey" class="form_left" action="{{ url_for('get_account_mfa_token') }}" method="get" autocomplete="off">
+                            {% if mfainuse %}
+                            <input class="button" name="" type="submit" value="Update MFA" onclick="return confirm('Performing this action will instantly invalidate your existing MFA token. Are you sure you want to continue?');">
+                            {% else %}
+                            <input class="button" name="" type="submit" value="Enable MFA">
+                            {% endif %}
                         </form>
                         <script type="text/javascript">
                         function copyTextFunc() {
@@ -620,7 +689,7 @@
                         }
 
                         function closeWindow() {
-                            var close_item = document.getElementById("api_window");
+                            var close_item = document.getElementById("api_window_centre");
                             close_item.style.display = "none";
                         }
                     </script>

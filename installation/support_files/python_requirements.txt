@@ -5,11 +5,9 @@ jira
 pyhibp
 ebaysdk
 google-api-python-client
-facebook-sdk
 selenium
 flask
 python-crontab
-instagramy
 slackclient
 vulners
 defectdojo_api
@@ -32,3 +30,4 @@ timeout_decorator
 py1337x
 wikipedia
 pillow
+pyotp

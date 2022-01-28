@@ -693,6 +693,13 @@ table.dataTable td {
     padding: 0px;
 }
 
+#qrcodedd {
+    padding: 20px 0px 20px 0px;
+    background-color: #fff;
+    width: 300px;
+    border-radius: 2px;
+}
+
 #expand {
     text-align: right;
 }
@@ -1579,7 +1586,7 @@ table.dataTable td {
 
 #api_bar {
     background-color: #303030;
-    width: 295px;
+    width: 290px;
     border-radius: 2px;
 }
 
@@ -1591,6 +1598,10 @@ table.dataTable td {
 }
 
 #getapikey {
+    display: inline-block;
+}
+
+#getmfakey {
     display: inline-block;
 }
 

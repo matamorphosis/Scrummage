@@ -12,12 +12,10 @@ if __name__ == '__main__':
         from functools import wraps
         from datetime import datetime, timedelta
         from werkzeug.security import generate_password_hash, check_password_hash
-        from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
         from crontab import CronTab
         from logging.handlers import RotatingFileHandler
         from ratelimiter import RateLimiter
-        import os, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, importlib, plugins.common.General as General, plugins.common.Common as Common
+        import os, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, pyotp, plugins.common.General as General, plugins.common.Common as Common
 
         Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
         Finding_Types = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
@@ -164,7 +162,8 @@ if __name__ == '__main__':
                             self.authenticated = True
                             self.admin = User_Details[4]
                             self.API = User_Details[5]
-                            return {"ID": self.ID, "Username": User_Details[1], "Admin": self.admin, "API": self.API, "Status": True}
+                            self.MFA = User_Details[7]
+                            return {"ID": self.ID, "Username": User_Details[1], "Admin": self.admin, "API": self.API, "MFA": self.MFA, "Status": True}
 
                         else:
                             Message = f"Login attempted by user ID {str(User_Details[0])} who is currently blocked."
@@ -491,28 +490,35 @@ if __name__ == '__main__':
 
                         Current_User = User(request.form['username'], request.form['password']).authenticate()
 
-                        if Current_User and 'Username' in Current_User and 'Status' in Current_User:
-                            session['dashboard-refresh'] = 0
-                            session['user_id'] = Current_User.get('ID')
-                            session['user'] = Current_User.get('Username')
-                            session['is_admin'] = Current_User.get('Admin')
-                            session['api_key'] = Current_User.get('API')
-                            session['task_frequency'] = ""
-                            session['task_description'] = ""
-                            session['task_limit'] = 0
-                            session['task_query'] = ""
-                            session['task_id'] = ""
-                            Message = f"Successful login from {Current_User.get('Username')}."
-                            app.logger.warning(Message)
-                            Create_Event(Message)
+                        if Current_User and all(User_Item in Current_User for User_Item in ['Username', 'Status', 'MFA']):
+                            print(Current_User)
 
-                            if session.get("next_page"):
-                                Redirect = session.get("next_page")
-                                session["next_page"] == ""
-                                return redirect(Redirect)
+                            if Current_User.get('MFA'):
+                                session['user_id'] = Current_User.get('ID')
+                                return redirect(url_for('mfa_login'))
 
                             else:
-                                return redirect(url_for('dashboard'))
+                                session['dashboard-refresh'] = 0
+                                session['user_id'] = Current_User.get('ID')
+                                session['user'] = Current_User.get('Username')
+                                session['is_admin'] = Current_User.get('Admin')
+                                session['api_key'] = Current_User.get('API')
+                                session['task_frequency'] = ""
+                                session['task_description'] = ""
+                                session['task_limit'] = 0
+                                session['task_query'] = ""
+                                session['task_id'] = ""
+                                Message = f"Successful login from {Current_User.get('Username')}."
+                                app.logger.warning(Message)
+                                Create_Event(Message)
+
+                                if session.get("next_page"):
+                                    Redirect = session.get("next_page")
+                                    session["next_page"] == ""
+                                    return redirect(Redirect)
+
+                                else:
+                                    return redirect(url_for('dashboard'))
 
                         elif Current_User and 'Message' in Current_User:
                             return render_template('index.html', error='Login Unsuccessful.')
@@ -524,7 +530,59 @@ if __name__ == '__main__':
                         return render_template('index.html')
 
                 else:
+                    session['user_id'] = ""
                     return render_template('index.html')
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('index'))
+
+        @app.route('/login/mfa', methods=['POST', 'GET'])
+        @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
+        def mfa_login():
+
+            try:
+
+                if request.method == 'POST':
+                    time.sleep(1)
+                    user_id = int(session.get('user_id'))
+                    Cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
+                    User_Info = Cursor.fetchone()
+                    TOTP = pyotp.TOTP(User_Info[7])
+
+                    if request.form.get("mfa_token") and (request.form["mfa_token"] == TOTP.now()):
+                        session['dashboard-refresh'] = 0
+                        session['user_id'] = User_Info[0]
+                        session['user'] = User_Info[1]
+                        session['is_admin'] = User_Info[4]
+                        session['api_key'] = User_Info[5]
+                        session['task_frequency'] = ""
+                        session['task_description'] = ""
+                        session['task_limit'] = 0
+                        session['task_query'] = ""
+                        session['task_id'] = ""
+                        Message = f"Successful login from {User_Info[1]}."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+
+                        if session.get("next_page"):
+                            Redirect = session.get("next_page")
+                            session["next_page"] == ""
+                            return redirect(Redirect)
+
+                        else:
+                            return redirect(url_for('dashboard'))
+
+                    else:
+                        return render_template('index.html', mfa_form=True, error="Invalid MFA token.")
+
+                else:
+
+                    if session.get('user_id'):
+                        return render_template('index.html', mfa_form=True)
+
+                    else:
+                        return redirect(url_for('index'))
 
             except Exception as e:
                 app.logger.error(e)
@@ -3442,6 +3500,46 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
+        @app.route('/settings/account/mfa/token', methods=['POST', 'GET'])
+        @login_requirement
+        def get_account_mfa_token():
+
+            try:
+
+                if request.method == "GET":
+                    user_id = int(session.get('user_id'))
+                    Cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
+                    User_Info = Cursor.fetchone()
+                    Base32_Secret = pyotp.random_base32()
+                    TOTP = pyotp.totp.TOTP(Base32_Secret).provisioning_uri(name=User_Info[1], issuer_name='Scrummage')
+                    Cursor.execute('UPDATE users SET mfa_token = %s, mfa_confirmed = %s WHERE user_id = %s', (Base32_Secret, False, User_Info[0],))
+                    Connection.commit()
+                    Cursor.execute('SELECT * FROM users ORDER BY user_id')
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), mfa_form=True, MFA_URL=TOTP)
+
+                elif request.method == "POST":
+                    user_id = int(session.get('user_id'))
+                    Cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
+                    User_Info = Cursor.fetchone()
+                    TOTP = pyotp.TOTP(User_Info[7])
+
+                    if request.form.get("mfa_token") and (request.form["mfa_token"] == TOTP.now()):
+                        Cursor.execute('UPDATE users SET mfa_confirmed = %s WHERE user_id = %s', (True, User_Info[0],))
+                        Connection.commit()
+                        session['apigen_settings_message'] = "MFA successfully set up."
+                        return redirect(url_for('account'))
+
+                    else:
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), mfa_form=True, MFA_URL=TOTP, verification_error="Failed to verify supplied token.")
+
+                else:
+                    return redirect(url_for('account'))
+
+            except Exception as e:
+                raise e
+                app.logger.error(e)
+                return redirect(url_for('account'))
+
         @app.route('/api/account/delete/<accountid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -3717,13 +3815,27 @@ if __name__ == '__main__':
         def account():
 
             try:
-                Cursor.execute('SELECT * FROM users ORDER BY user_id')
+
+                if session.get('is_admin'):
+                    Cursor.execute('SELECT * FROM users ORDER BY user_id')
+                    Admin_Results = Cursor.fetchall()
+
+                else:
+                    Admin_Results = ()
+
+                Cursor.execute('SELECT * FROM users WHERE user_id = %s', (session.get("user_id"),))
+                User_Details = Cursor.fetchone()
             
                 if session.get('apigen_settings_message'):
                     Settings_Message = session.get('apigen_settings_message')
                     session['apigen_settings_message'] = ""
-                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
-                
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
+
+                elif session.get('mfa_error') and session.get('is_admin'):
+                    MFA_Error = session.get('mfa_error')
+                    session['mfa_error'] = ""
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), error=MFA_Error)
+
                 else:
                     Settings_Message = ""
 
@@ -3733,19 +3845,22 @@ if __name__ == '__main__':
                             Settings_Message = session.get('settings_message')
 
                         session['settings_message'] = ""
+                        session['mfa_error'] = ""
                         session['settings_form_step'] = 0
                         session['settings_form_type'] = ""
                         session['other_user_id'] = 0
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
 
                     else:
                         Form_Settings_Message = session.get('na_settings_message')
                         Form_Settings_Error = session.get('na_settings_error')
                         Req_Error = session.get('na_req_settings_error')
+                        MFA_Error = session.get('mfa_error')
                         session['na_settings_error'] = ""
                         session['na_req_settings_error'] = []
                         session['na_settings_message'] = ""
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message)
+                        session['mfa_error'] = ""
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message, MFA_Error=MFA_Error)
 
             except Exception as e:
                 app.logger.error(e)
@@ -4713,4 +4828,5 @@ if __name__ == '__main__':
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
 
     except Exception as e:
+        raise e
         exit(str(e))

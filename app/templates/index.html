@@ -15,6 +15,8 @@
       <main>
          {% if loggedout %}
          <p id="logintitle" class="loginscreentitle">Successfully logged out. Please log in to continue</p>
+         {% elif mfa_form %}
+         <p id="logintitle" class="loginscreentitle">Please enter your MFA token to complete authentication</p>
          {% else %}
          <p id="logintitle" class="loginscreentitle">Welcome to Scrummage! Please log in to continue</p>
          {% endif %}
@@ -26,6 +28,7 @@
                </noscript>
                <div class="login_div">
                   <div style="padding-bottom: 10px;"><div id="login_logo"><div id="loader_circular_logo_login"></div></div></div>
+                  {% if not mfa_form %}
                   <form class="form" action="{{url_for('login')}}" method=post autocomplete="off">
                      <dl>
                         <dt>
@@ -43,6 +46,21 @@
                      </dl>
                      <p style="padding-top: 10px;"><input class="button-run" onclick="ShowLoader()" type=submit value=Login></p>
                   </form>
+                  {% elif mfa_form %}
+                  <form class="form" action="{{url_for('mfa_login')}}" method=post autocomplete="off">
+                     <dl>
+                        <dt>
+                           <dd class="nopadding">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                           </dd>
+                           <dd>
+                              <input class="textarea" type=text name=mfa_token placeholder="MFA Token">
+                           </dd>
+                        </dt>
+                     </dl>
+                     <p style="padding-top: 10px;"><input class="button-run" onclick="ShowLoader()" type=submit value=Login></p>
+                  </form>
+                  {% endif %}
                   <script type="text/javascript">
                      function ShowLoader() {
                         document.getElementById("login_loader").style.display = "block";

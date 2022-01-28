@@ -38,7 +38,9 @@ try:
           blocked BOOLEAN NOT NULL,
           is_admin BOOLEAN NOT NULL,
           api_key TEXT,
-          api_generated_time TEXT);'''
+          api_generated_time TEXT,
+          mfa_token TEXT,
+          mfa_confirmed TEXT);'''
 
     create_events_query = '''CREATE TABLE IF NOT EXISTS events
           (event_id SERIAL PRIMARY KEY NOT NULL,
