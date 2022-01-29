@@ -490,8 +490,7 @@ def Email_Main(Object, Email_Subject, Email_Body):
 def Set_Configuration_File():
 
     try:
-        File_Dir = os.path.dirname(os.path.realpath('__file__'))
-        return os.path.join(File_Dir, 'plugins/common/config/config.json')
+        return os.path.join(os.path.dirname(os.path.realpath('__file__')), 'plugins/common/config/config.json')
 
     except Exception as e:
         logging.warning(f"DATE FUNCTION ERROR - Common Library - {str(e)}.")

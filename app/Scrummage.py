@@ -3536,7 +3536,6 @@ if __name__ == '__main__':
                     return redirect(url_for('account'))
 
             except Exception as e:
-                raise e
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
@@ -4828,5 +4827,4 @@ if __name__ == '__main__':
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
 
     except Exception as e:
-        raise e
         exit(str(e))
