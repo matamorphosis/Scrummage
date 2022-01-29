@@ -3827,12 +3827,12 @@ if __name__ == '__main__':
                 if session.get('apigen_settings_message'):
                     Settings_Message = session.get('apigen_settings_message')
                     session['apigen_settings_message'] = ""
-                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
 
                 elif session.get('mfa_error') and session.get('is_admin'):
                     MFA_Error = session.get('mfa_error')
                     session['mfa_error'] = ""
-                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), error=MFA_Error)
+                    return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), error=MFA_Error)
 
                 else:
                     Settings_Message = ""
@@ -3847,7 +3847,7 @@ if __name__ == '__main__':
                         session['settings_form_step'] = 0
                         session['settings_form_type'] = ""
                         session['other_user_id'] = 0
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
 
                     else:
                         Form_Settings_Message = session.get('na_settings_message')
@@ -3858,7 +3858,7 @@ if __name__ == '__main__':
                         session['na_req_settings_error'] = []
                         session['na_settings_message'] = ""
                         session['mfa_error'] = ""
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=User_Details[8], api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message, MFA_Error=MFA_Error)
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message, MFA_Error=MFA_Error)
 
             except Exception as e:
                 app.logger.error(e)
