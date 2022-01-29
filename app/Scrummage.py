@@ -162,7 +162,7 @@ if __name__ == '__main__':
                             self.authenticated = True
                             self.admin = User_Details[4]
                             self.API = User_Details[5]
-                            self.MFA = User_Details[7]
+                            self.MFA = User_Details[8]
                             return {"ID": self.ID, "Username": User_Details[1], "Admin": self.admin, "API": self.API, "MFA": self.MFA, "Status": True}
 
                         else:
@@ -491,9 +491,8 @@ if __name__ == '__main__':
                         Current_User = User(request.form['username'], request.form['password']).authenticate()
 
                         if Current_User and all(User_Item in Current_User for User_Item in ['Username', 'Status', 'MFA']):
-                            print(Current_User)
 
-                            if Current_User.get('MFA'):
+                            if Current_User.get('MFA') and Current_User['MFA'] == "true":
                                 session['user_id'] = Current_User.get('ID')
                                 return redirect(url_for('mfa_login'))
 
@@ -1098,7 +1097,7 @@ if __name__ == '__main__':
                 username = session.get('user')
                 session.pop('user', None)
                 session.pop('is_admin', False)
-                Message = f"Session for user: {username} terminated."
+                Message = f"Session for user {username} terminated."
                 app.logger.warning(Message)
                 Create_Event(Message)
                 return render_template('index.html', loggedout=True)
