@@ -7,16 +7,11 @@
   <img width="172" height="203" src="/app/static/images/main.png">
 </p>
 
-**VERSION 3.6**
-- Check out the [discussions](https://github.com/matamorphosis/Scrummage/discussions) section of the repo to raise general questions and feature requests!
-- Beautified DOCX Reporting
-- Code efficiency enhancements and bug fixes for plugins, and improved logging.
+**VERSION 3.7**
+- Code efficiency enhancements and bug fixes for plugins.
 - Significant UI/UX enhancements.
-- Organisation specific settings and configurations, allowing for predefined searches based on your organisation and it's users.
-- Due to the above change, if you are upgrading from version 3.4, a major update has been made to the config.json file. In the installation directory, there is a file called "3.6_Upgrade.py", please copy your config.json file to this directory and run the script to update it to the latest standard. Running it will create a file called "config_new.json", please keep a backup of your old config.json file, and then rename the "config_new.json" file to "config.json" and move it to the config directory.
-- Over 20 new plugins!
-- API Enhancements and new endpoints for identity management.
-- Please note versions 3.3 - 3.6 entail a major overhaul of a lot of backend and frontend code for improved efficiency. Please don't hesitate to reach out about any code stability issues.
+- Implementation of MFA.
+- Due to the above change, if you are upgrading from version 3.6, an update has been made to the backend database. In the installation directory, there is a file called "3.7_Upgrade.py", please copy your `config.json` file to this directory and run the script to update it to the latest standard. Running it will update the `users` table to be inline with the new version.
   
 Scrummage is an OSINT tool that centralises search functionality from a bounty of powerful, publicly-available, third-party, OSINT websites. This project draws inspiration mainly from two other, open-source projects, including:  
 - The [Scumblr](https://github.com/Netflix-Skunkworks/Scumblr) project, which while is now deprecated, inspired this concept.
