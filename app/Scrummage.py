@@ -31,7 +31,7 @@ if __name__ == '__main__':
         Identity_Filters = ["Identity ID", "Firstname", "Middlename", "Surname", "Fullname", "Username", "Email", "Phone"]
         Thread_In_Use = None
         SS_Thread_In_Use = None
-        Version = "3.6"
+        Version = "3.7"
 
         try:
             Scrummage_Working_Directory = pathlib.Path(sys.argv[0]).parent.absolute()

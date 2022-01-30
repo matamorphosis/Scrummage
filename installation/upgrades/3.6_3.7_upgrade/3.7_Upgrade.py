@@ -1,22 +1,6 @@
 #!/usr/bin/python3
 import psycopg2, sys, json, datetime
 
-def Update_Config():
-
-    try:
-        print(str(datetime.datetime.now()) + " Updating config.json file.")
-        File = open("config.json", "r")
-        JSON_Data = json.load(File)
-        JSON_Data["core"]["organisation"] = {"name": "", "website": "", "domain": "", "subdomains": []}
-        JSON_Data["inputs"]["github"] = {"username": "", "token": ""}
-        New_File = open("config_new.json", "w")
-        New_File.write(json.dumps(JSON_Data, indent=2))
-        New_File.close()
-        print(str(datetime.datetime.now()) + " Successfully updated config.json file.")
-
-    except Exception as e:
-        sys.exit(str(datetime.datetime.now()) + f" Failed to update config.json file. {str(e)}.")
-
 def Load_Main_Database():
 
     try:
@@ -47,28 +31,14 @@ def Load_Main_Database():
 if __name__ == "__main__":
 
     try:
-        Update_Config()
         connection = Load_Main_Database()
         cursor = connection.cursor()
-
-        create_org_query = '''CREATE TABLE IF NOT EXISTS org_identities
-            (identity_id SERIAL PRIMARY KEY NOT NULL,
-            firstname TEXT NOT NULL,
-            middlename TEXT,
-            surname TEXT NOT NULL,
-            fullname TEXT NOT NULL,
-            username TEXT,
-            email TEXT NOT NULL,
-            phone TEXT NOT NULL);'''
-        
-        cursor.execute(create_org_query)
-        print(str(datetime.datetime.now()) + " Organisation Identities table created successfully in PostgreSQL.")
-        cursor.execute("SELECT result_id FROM results WHERE result_type = 'Virus';")
-        results = cursor.fetchall()
-
-        for result in results:
-            cursor.execute("UPDATE results SET result_type = %s WHERE result_id = %s;", ("Malware", result[0]))
-        
+        update_users_query = '''ALTER TABLE users
+        ADD COLUMN mfa_token TEXT,
+        ADD COLUMN mfa_confirmed TEXT;
+        '''
+        cursor.execute(update_users_query)
+        print(str(datetime.datetime.now()) + " Users table created updated in PostgreSQL.")    
         connection.commit()
         print(str(datetime.datetime.now()) + " Scrummage Database successfully updated in PostgreSQL.")
 

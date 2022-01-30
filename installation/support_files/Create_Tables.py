@@ -15,7 +15,7 @@ def Load_Main_Database():
             DB_Database = DB_Info['database']
 
     except:
-    	sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")        
+        sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")        
 
     try:
         return psycopg2.connect(user=DB_Username,
