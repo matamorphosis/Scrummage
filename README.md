@@ -105,7 +105,7 @@ Identities can be created one of three ways:
 
 ## Developers
 ***Contributions Welcome!!***  
-We welcome and encourage you to contribute to the Scrummage project through creation of new plugins. If you are insterested please refer to the plugin development guide [here](https://github.com/matamorphosis/Scrummage/wiki/Plugin-Development-Guide), this will give you a run through of how to develop a Scrummage plugin, using the custom libraries provided.
+We welcome and encourage you to contribute to the Scrummage project through creation of new plugins. If you are interested please refer to the plugin development guide [here](https://github.com/matamorphosis/Scrummage/wiki/Plugin-Development-Guide), this will give you a run through of how to develop a Scrummage plugin, using the custom libraries provided.
 
 # List of Current Monthly Sponsors
 [Endure Secure Pty Ltd](https://endsec.com.au/)
