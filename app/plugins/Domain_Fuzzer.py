@@ -63,7 +63,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             self.Cached_Data = Cached_Data_Object.Get_Cache()
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Character Switching Selected.")
 
@@ -196,7 +196,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             self.Cached_Data = Cached_Data_Object.Get_Cache()
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Regular Extensions Selected.")
 
@@ -264,7 +264,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             self.Cached_Data = Cached_Data_Object.Get_Cache()
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Global Suffixes Selected.")
 
@@ -332,7 +332,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             self.Cached_Data = Cached_Data_Object.Get_Cache()
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Expired Global Suffixes Selected.")
 
@@ -400,7 +400,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             self.Cached_Data = Cached_Data_Object.Get_Cache()
             logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - All Extensions Selected.")
 

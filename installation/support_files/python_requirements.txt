@@ -24,6 +24,7 @@ shodan
 builtwith
 pyhunter
 pytumblr
+requests_oauthlib
 emailrep
 bs4
 timeout_decorator

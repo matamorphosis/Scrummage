@@ -48,7 +48,7 @@ class Plugin_Search:
 
             if self.Type == "Email":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+                Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:
@@ -78,7 +78,7 @@ class Plugin_Search:
 
             elif self.Type == "Breach":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+                Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:
@@ -107,7 +107,7 @@ class Plugin_Search:
 
             elif self.Type == "Password":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+                Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:
@@ -134,7 +134,7 @@ class Plugin_Search:
 
             elif self.Type == "Account":
                 Local_Plugin_Name = self.Plugin_Name + " " + self.Type
-                Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+                Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
                 Cached_Data = Cached_Data_Object.Get_Cache()
 
                 for Query in self.Query_List:

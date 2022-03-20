@@ -3,14 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Scrummage Output Methods Checks">
+        <meta name="description" content="Scrummage Input Methods Check">
         <link rel="icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/main.ico') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}"/>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-        <title>Scrummage Verify Output</title>
+        <title>Scrummage Manage Cache</title>
     </head>
     <body onload="pageLoad()">
     {% extends "template.html" %}
@@ -21,49 +21,48 @@
         <p class="message">Please enable JavaScript to render this page. Otherwise it won't load.</p>
     </noscript>
     <div id="loader_logo_outer"><div id="login_logo"><div id="loader_circular_logo"></div></div></div>
-    <p id="loader-message" class="loaderabout">Checking Full List of Scrummage Task Output Statuses...</p>
-    <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;">
-        <div>
-            <p class="left_title_top">Output Management</p><br />
-            <a class="left_button" onclick="window.location.reload();">Reload Page</a>
-            <a class="left_button" onclick="sendRequest('config')">Configure Outputs</a>
-            <a class="left_button" onclick="sendRequest('checkinput')">Check Inputs</a>
-        </div>
-    </div></div></div>
+    <p id="loader-message" class="loaderabout">Loading Scrummage Plugin Cache...</p>
+    {% if message %}
+    <div style="display: none;" id="api_window"><div id="loader_timeout_green" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg></div><p class="api_message">{{message}}</p></div></div></div>
     <script type="text/javascript">
-        function sendRequest(typeOfRequest) {
-            if (arguments[0] === "config") {
-                var uri = "{{ url_for('configure', configtype='outputs') }}";
-                window.location.assign(uri);
-            } else if (arguments[0] === "checkinput") {
-                var uri = "{{ url_for('check_input') }}";
-                window.location.assign(uri);
-            }
+        autoClose();
+
+        function autoClose() {
+            setTimeout(closeWindow, 10000);
+        }
+
+        function closeWindow() {
+            var close_item = document.getElementById("api_window");
+            close_item.style.display = "none";
         }
     </script>
+    {% endif %}
+    <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;">
+        <div>
+            <p class="left_title_top">Cache Management</p><br />
+            <a class="left_button" onclick="window.location.reload();">Reload Page</a>
+            <a class="left_button" onclick="return confirm('This action will clear cache of all Scrummage plugins. Do you still want to proceed?') && sendRequest('Clearall')">Clear All</a>
+        </div>
+    </div></div></div>
+    
     <div style="display: none;" style="margin:0;" id="fc" class="field-container-settings">
         <table id="paginate" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>Output</th>
-                    <th>Verification Check Result</th>
+                    <th>Plugin Directory</th>
+                    <th>Functions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for Configuration in Configurations %}
+                {% for Cache_Dir in List_of_Cache_Directories %}
                 <tr>
-                    <td style="padding: 0px 0px 0px 10px;" class="nonscreenshottab">{{Configuration[0]}}</td>
-                    {% if Configuration[1] %}
-                    <td style="padding: 5px 0px 5px 0px;"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                    </svg></td>
-                    {% else %}
-                    <td style="padding: 5px 0px 5px 0px;"><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                      <circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" />
-                      <path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" />
-                    </svg></td>
-                    {% endif %}
+                    <td style="padding: 0px 0px 0px 10px;" class="nonscreenshottab">{{Cache_Dir}}</td>
+                    <td style="text-align: center" id="resultsbuttons">
+                        <form class="task_buttons" action="{{url_for('clear_cache', plugin=Cache_Dir)}}" method=post autocomplete="off">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input class="button" type=submit value="Clear Cache">
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -81,10 +80,20 @@
             document.getElementById("paginate").style.display = null;
             document.getElementById("fc").style.display = null;
             document.getElementById("outerleftpop").style.display = null;
+            {% if message %}
+                document.getElementById("api_window").style.display = null;
+            {% endif %}
             document.getElementsByTagName("INPUT")[0].placeholder='Quick Search';
             document.getElementsByTagName("INPUT")[0].className='js_search';
             var table = $('#paginate').DataTable();
             table.columns.adjust().draw();
+        }
+
+        function sendRequest(typeOfRequest) {
+            if (arguments[0] === 'Clearall') {
+                var uri = "{{url_for('clear_cache', plugin='*')}}";
+                window.location.assign(uri);
+            }
         }
     </script>
     {% endif %}

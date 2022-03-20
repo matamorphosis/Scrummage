@@ -5,6 +5,7 @@ class Plugin_Search:
 
     def __init__(self, Query_List, Task_ID, Type):
         self.Plugin_Name = "Alienvault OTX"
+        self.Concat_Plugin_Name = "alienvaultotx"
         self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
@@ -16,11 +17,10 @@ class Plugin_Search:
 
         try:
             Data_to_Cache = []
-            Directory = General.Make_Directory(self.Plugin_Name.lower())
+            Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
-            Log_File = General.Logging(Directory, self.Plugin_Name)
-            handler = logging.FileHandler(os.path.join(Directory, Log_File), "w")
+            handler = logging.FileHandler(os.path.join(Directory, General.Logging(Directory, self.Concat_Plugin_Name)), "w")
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
@@ -50,7 +50,7 @@ class Plugin_Search:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
-                                    Output_Connections.Output([Main_File, Output_file], Search_URL, Title, self.Plugin_Name.lower())
+                                    Output_Connections.Output([Main_File, Output_file], Search_URL, Title, self.Concat_Plugin_Name)
                                     Data_to_Cache.append(Query)
 
                                 else:
@@ -83,7 +83,7 @@ class Plugin_Search:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
-                                    Output_Connections.Output([Main_File, Output_file], Search_URL, Title, self.Plugin_Name.lower())
+                                    Output_Connections.Output([Main_File, Output_file], Search_URL, Title, self.Concat_Plugin_Name)
                                     Data_to_Cache.append(Query)
 
                                 else:

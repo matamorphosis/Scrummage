@@ -31,7 +31,7 @@ if __name__ == '__main__':
         Identity_Filters = ["Identity ID", "Firstname", "Middlename", "Surname", "Fullname", "Username", "Email", "Phone"]
         Thread_In_Use = None
         SS_Thread_In_Use = None
-        Version = "3.7"
+        Version = "3.8"
 
         try:
             Scrummage_Working_Directory = pathlib.Path(sys.argv[0]).parent.absolute()
@@ -47,6 +47,7 @@ if __name__ == '__main__':
             sys.exit(f'{Common.Date()} Error setting the working directory.')
 
         Valid_Plugins = plugin_definitions.Get(Scrummage_Working_Directory)
+        Org_Preset_to_Regex_Mapping = {"domain": "Domain", "website": "URL", "identity_phones": "Phone", "identity_emails": "Email", "identity_usernames": "Username", "IP": "IP"}
 
         def No_Limit_Plugins():
             Plugin_Names = []
@@ -778,7 +779,7 @@ if __name__ == '__main__':
                 return redirect(url_for('results'))
 
         @app.after_request
-        def apply_caching(response):
+        def apply_response_headers(response):
 
             try:
                 response.headers["X-Frame-Options"] = "DENY"
@@ -909,79 +910,216 @@ if __name__ == '__main__':
                     app.logger.warning("Screenshots currently disabled due to a mismatch between Google Chrome and Chrome Driver versions on the server.")
 
                 session["result_ss_request_message"] = f"Screenshot requested for result {str(resultid)}."
-                time.sleep(1)
+                time.sleep(1.5)
                 return redirect(url_for('result_details', resultid=resultid))
 
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('result_details', resultid=resultid))
 
-        @app.route('/dashboard', methods=['GET'])
-        @login_requirement
-        def dashboard():
-
+        def dashboard_colours():
+            
             try:
-                labels = Finding_Types
                 colors_blue = ["#00162b", "#001f3f", "#002952", "#003366", "#003d7a", "#00478d", "#0050a1", "#005ab4", "#0064c8", "#006edc", "#0078ef", "#0481ff", "#188bff", "#2b95ff", "#3f9fff", "#52a9ff", "#66b3ff", "#7abcff", "#8dc6ff", "#a1d0ff", "#b4daff", "#c8e4ff", "#dcedff", "#eff7ff"]
                 colors_red = ["#2b0000", "#3f0000", "#520000", "#660000", "#7a0000", "#8d0000", "#a10000", "#b40000", "#c80000", "#dc0000", "#ef0000", "#ff0404", "#ff1818", "#ff2b2b", "#ff3f3f", "#ff5252", "#ff6666", "#ff7a7a", "#ff8d8d", "#ffa1a1"]
-                colors_original = colors_blue + list(reversed(colors_red))
+                return colors_blue + list(reversed(colors_red))
+
+            except Exception as e:
+                app.logger.error(e)
+                return None
+
+        @app.route('/dashboard/tasks', methods=['GET'])
+        @login_requirement
+        def tasks_dashboard():
+
+            try:
+                colors_original = dashboard_colours()
+                most_common_tasks_labels = []
+                most_common_tasks_values = []
+                most_common_queries_labels = []
+                most_common_queries_values = []
+                most_common_frequencies_labels = []
+                most_common_frequencies_values = []
+                Cursor.execute("SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;")
+                most_common_tasks = Cursor.fetchall()
+                Cursor.execute("SELECT query, COUNT(*) AS counted FROM tasks WHERE query IS NOT NULL GROUP BY query ORDER BY counted DESC, query LIMIT 10;")
+                most_common_queries = Cursor.fetchall()
+                Cursor.execute("SELECT frequency, COUNT(*) AS counted FROM tasks WHERE frequency IS NOT NULL AND frequency != '' GROUP BY frequency ORDER BY counted DESC, frequency LIMIT 10;")
+                most_common_frequencies = Cursor.fetchall()
+
+                for mc_task in most_common_tasks:
+                    most_common_tasks_labels.append(mc_task[0])
+                    most_common_tasks_values.append(mc_task[1])
+
+                for mc_query in most_common_queries:
+                    most_common_queries_labels.append(mc_query[0])
+                    most_common_queries_values.append(mc_query[1])
+
+                for mc_frequency in most_common_frequencies:
+                    most_common_frequencies_labels.append(mc_frequency[0])
+                    most_common_frequencies_values.append(mc_frequency[1])
+
+                common_task_types = [most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]]
+                common_frequency_types = [most_common_frequencies_labels, most_common_frequencies_values, colors_original[:len(most_common_frequencies_values)]]
+                common_query_types = [most_common_queries_labels, most_common_queries_values, colors_original[:len(most_common_queries_values)]]
+                return render_template('dashboard.html', tasksdash=True, is_admin=session.get('is_admin'), username=session.get('user'), common_task_types=common_task_types, common_frequency_types=common_frequency_types, common_query_types=common_query_types, refreshrate=session.get('dashboard-refresh'), version=Version)
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('dashboard'))
+
+        @app.route('/dashboard/results', methods=['GET', 'POST'])
+        @login_requirement
+        def results_dashboard():
+
+            try:
+                Status = ""
+                Review_Results = True
+                Closed_Results = True
+
+                if request.method == "POST":
+                    
+                    if request.form.get("reviewresults") and not request.form.get("closedresults"):
+                        Status = "status != 'Closed'"
+                        Closed_Results = False
+
+                    elif not request.form.get("reviewresults") and request.form.get("closedresults"):
+                        Status = "status != 'Reviewing'"
+                        Review_Results = False
+
+                    elif not request.form.get("reviewresults") and not request.form.get("closedresults"):
+                        Status = "status = 'Open'"
+                        Closed_Results = False
+                        Review_Results = False
+
+                labels = Finding_Types
+                colors_original = dashboard_colours()
                 colors = colors_original[:len(labels)]
-                Mixed_Options = ['Inspecting', 'Reviewing']
-                PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
-                PSQL_Select_Query_2 = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
+                PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
+                Dendogram_Query_1 = 'SELECT DISTINCT query FROM tasks;'
+                Dendogram_Query_2 = 'SELECT task_id FROM tasks WHERE query ILIKE %s;'
+
+                if Status != "":
+                    Dendogram_Query_3 = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s' + f' AND {Status};'
+                    Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s' + f' AND {Status};'
+
+                else:
+                    Dendogram_Query_3 = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s;'
+                    Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s;'
+
+                Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s;'
+                Dendogram_Data = {"children": [], "name": "Scrummage"}
                 open_values = []
                 closed_values = []
                 mixed_values = []
                 Use_Open = True
                 Use_Closed = True
                 Use_Mixed = True
+                Task_ID_Dict = {}
+
+                Cursor.execute(Dendogram_Query_1)
+                Dendogram_Main_Results = Cursor.fetchall()
+                Dendogram_Condensed_Query_Dict = {}
+                Condensed_List = []
+
+                for Query in Dendogram_Main_Results:
+                    Query = Query[0]
+                    Extracted_List = General.Convert_to_List(Query)
+
+                    for Extracted_Item in Extracted_List:
+                        Extracted_Item = Extracted_Item.replace("https://", "").replace("http://", "").replace("/", "")
+
+                        if Extracted_Item not in Condensed_List:
+                            Condensed_List.append(Extracted_Item)
+
+                    if Query not in Task_ID_Dict:
+                        Task_ID_Dict[Query] = []
+
+                    Like_Query = f"%{Query}%"
+                    Cursor.execute(Dendogram_Query_2, (Like_Query,))
+                    Results = Cursor.fetchall()
+                    Task_ID_Dict[Query].extend(Results)
+
+                for Inner_Query in Condensed_List:
+                    Task_IDs = []
+
+                    if Inner_Query not in Dendogram_Condensed_Query_Dict:
+                        Dendogram_Condensed_Query_Dict[Inner_Query] = {}
+
+                    if Inner_Query in Task_ID_Dict:
+                        New_Result_Types = []
+
+                        for Task_ID in Task_ID_Dict[Inner_Query]:
+                            Task_ID = Task_ID[0]
+
+                            if Task_ID not in Task_IDs:
+                                Task_IDs.append(Task_ID)
+
+                        for New_Task_ID in Task_IDs:
+                            Cursor.execute(Dendogram_Query_3, (New_Task_ID,))
+                            Result_Types = Cursor.fetchall()
+
+                            for Result_Type in Result_Types:
+                                Result_Type = Result_Type[0]
+
+                                if Result_Type not in New_Result_Types:
+                                    New_Result_Types.append(Result_Type)
+
+                        for Result_Type in New_Result_Types:
+                            Cursor.execute(Dendogram_Query_4, (Result_Type,))
+                            Domains_and_Links = Cursor.fetchall()
+                            Domain_Links_Dict = {}
+
+                            for DL in Domains_and_Links:
+
+                                if DL[0] not in Domain_Links_Dict:
+                                    Domain_Links_Dict[DL[0]] = [DL[1]]
+
+                                else:
+                                    Domain_Links_Dict[DL[0]].append(DL[1])
+
+                            if Result_Type not in Dendogram_Condensed_Query_Dict[Inner_Query]:
+                                Dendogram_Condensed_Query_Dict[Inner_Query][Result_Type] = {"URL": url_for("results_filtered") + f"?Result+ID=&Task+ID=&Title=&Plugin=&Status=&Domain=&Link=&Created+At=&Updated+At=&Result+Type={Result_Type}&setfilter=Set+Filter", "Domain_Links": Domain_Links_Dict}
+
+                        if len(Dendogram_Condensed_Query_Dict[Inner_Query]) == 0:
+                            Dendogram_Condensed_Query_Dict[Inner_Query]["No Results"] = ""
+
+                for Key in Dendogram_Condensed_Query_Dict.keys():
+                    Child_List = []
+
+                    for Child_Key, Child_Value in Dendogram_Condensed_Query_Dict[Key].items():
+
+                        if Child_Key != "No Results":
+                            Current_Dict = {"name": Child_Key, "url": Child_Value["URL"], "children": []}
+
+                            for Domain, Links in Child_Value["Domain_Links"].items():
+                                Current_Inner_Dict = {"name": Domain, "url": url_for("results_filtered") + f"?Result+ID=&Task+ID=&Title=&Plugin=&Status=&Domain={Domain}&Link=&Created+At=&Updated+At=&Result+Type={Child_Key}&setfilter=Set+Filter", "children": []}
+
+                                for Link in Links:
+                                    Current_Inner_Dict["children"].append({"name": Link, "url": url_for("results_filtered") + f"?Result+ID=&Task+ID=&Title=&Plugin=&Status=&Domain={Domain}&Link={Link}&Created+At=&Updated+At=&Result+Type={Child_Key}&setfilter=Set+Filter"})
+
+                                Current_Dict["children"].append(Current_Inner_Dict)
+
+                            Child_List.append(Current_Dict)
+
+                        else:
+                            Child_List.append({"name": Child_Key, "children": [{"name": "No Domains", "children": [{"name": "No Links"}]}]})
+
+                    URL = url_for("tasks_filtered") + f"?Task+ID=&Query={Key}&Plugin=&Description=&Frequency=&Task+Limit=&Status=&Created+At=&Updated+At=&setfilter=Set+Filter"
+                    Dendogram_Data["children"].append({"name": Key, "url": URL, "children": Child_List})
+
+                Dendogram_Data = Common.JSON_Handler(Dendogram_Data).Dump_JSON(Indentation=0)
 
                 for Finding_Type in Finding_Types:
-                    Cursor.execute(PSQL_Select_Query_1, ("Open", Finding_Type,))
+                    Cursor.execute(PSQL_Select_Query, ("Open", Finding_Type,))
                     current_open_results = Cursor.fetchall()
                     open_values.append([current_open_results[0][0]])
-                    Cursor.execute(PSQL_Select_Query_1, ("Closed", Finding_Type,))
+                    Cursor.execute(PSQL_Select_Query, ("Closed", Finding_Type,))
                     current_closed_results = Cursor.fetchall()
                     closed_values.append([current_closed_results[0][0]])
-                    Cursor.execute(PSQL_Select_Query_2, (Finding_Type, Mixed_Options,))
+                    Cursor.execute(PSQL_Select_Query, ("Reviewing", Finding_Type,))
                     current_mixed_results = Cursor.fetchall()
                     mixed_values.append([current_mixed_results[0][0]])
-
-                Dates = Common.Date(Additional_Last_Days=5, Date_Only=True)
-                Successful_User_Dates_Count = []
-                Unsuccessful_User_Dates_Count = []
-                Cursor.execute('SELECT username FROM users;')
-                Current_Users = Cursor.fetchall()
-                Current_Index = 2
-
-                for Current_User in Current_Users:
-                    Current_User = Current_User[0]
-                    Successful_User_Dates = []
-                    Unsuccessful_User_Dates = []
-
-                    for Date in Dates:
-                        SQL_Date = Date + "%"
-                        SQL_User_Success = "Successful login from " + Current_User + "%"
-                        SQL_User_Fail = "Failed login attempt for user " + Current_User + "%"
-                        Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Success,))
-                        Current_Date_Count = Cursor.fetchall()
-                        Successful_User_Dates.append(Current_Date_Count[0][0])
-                        Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Fail,))
-                        Current_Date_Count = Cursor.fetchall()
-                        Unsuccessful_User_Dates.append(Current_Date_Count[0][0])
-
-                    Successful_User_Dates_Count.append({"label": Current_User, "data": Successful_User_Dates, "fill": False, "backgroundColor": colors_original[Current_Index], "borderColor": colors_original[Current_Index], "lineTension": 0.5})
-                    Unsuccessful_User_Dates_Count.append({"label": Current_User, "data": Unsuccessful_User_Dates, "fill": False, "backgroundColor": colors_original[Current_Index], "borderColor": colors_original[Current_Index], "lineTension": 0.5})
-                    Current_Index += 2
-
-                most_common_tasks_labels = []
-                most_common_tasks_values = []
-                Cursor.execute("SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;")
-                most_common_tasks = Cursor.fetchall()
-
-                for mc_task in most_common_tasks:
-                    most_common_tasks_labels.append(mc_task[0])
-                    most_common_tasks_values.append(mc_task[1])
 
                 if all(open_item == [0] for open_item in open_values):
                     Use_Open = False
@@ -992,14 +1130,72 @@ if __name__ == '__main__':
                 if all(mixed_item == [0] for mixed_item in mixed_values):
                     Use_Mixed = False
 
+                return render_template('dashboard.html', resultsdash=True, is_admin=session.get('is_admin'), username=session.get('user'), open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version, Dendogram_Data=Dendogram_Data, Review_Results=Review_Results, Closed_Results=Closed_Results)
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('dashboard'))
+
+        @app.route('/dashboard/events', methods=['GET'])
+        @admin_requirement
+        @login_requirement
+        def events_dashboard():
+
+            try:
+
+                def Dict_Setter(User, Dates, Orig_Colors, Index):
+                    return {"label": User, "data": Dates, "fill": False, "backgroundColor": Orig_Colors[Index], "borderColor": Orig_Colors[Index], "lineTension": 0.5}
+
+                colors_original = dashboard_colours()
+                Dates = Common.Date(Additional_Last_Days=5, Date_Only=True)
+                Successful_User_Dates_Count = []
+                Unsuccessful_User_Dates_Count = []
+                Users_Created_Dates_Count = []
+                Cursor.execute('SELECT username FROM users;')
+                Current_Users = Cursor.fetchall()
+                Current_Index = 2
+
+                for Current_User in Current_Users:
+                    Current_User = Current_User[0]
+                    Successful_User_Dates = []
+                    Unsuccessful_User_Dates = []
+                    Users_Created_Dates = []
+
+                    for Date in Dates:
+                        SQL_Date = Date + "%"
+                        SQL_User_Success = "Successful login from " + Current_User + "%"
+                        SQL_User_Fail = "Failed login attempt for user " + Current_User + "%"
+                        SQL_New_User = "%" + "user created by " + Current_User + "%"
+                        Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Success,))
+                        Current_Date_Count = Cursor.fetchall()
+                        Successful_User_Dates.append(Current_Date_Count[0][0])
+                        Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Fail,))
+                        Current_Date_Count = Cursor.fetchall()
+                        Unsuccessful_User_Dates.append(Current_Date_Count[0][0])
+                        Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_New_User,))
+                        Current_Date_Count = Cursor.fetchall()
+                        Users_Created_Dates.append(Current_Date_Count[0][0])
+
+                    Successful_User_Dates_Count.append(Dict_Setter(Current_User, Successful_User_Dates, colors_original, Current_Index))
+                    Unsuccessful_User_Dates_Count.append(Dict_Setter(Current_User, Unsuccessful_User_Dates, colors_original, Current_Index))
+                    Users_Created_Dates_Count.append(Dict_Setter(Current_User, Users_Created_Dates, colors_original, Current_Index))
+                    Current_Index += 2
+
                 Successful_User_Dates_Count = Common.JSON_Handler(Successful_User_Dates_Count).Dump_JSON(Indentation=0)
                 Unsuccessful_User_Dates_Count = Common.JSON_Handler(Unsuccessful_User_Dates_Count).Dump_JSON(Indentation=0)
+                Users_Created_Dates_Count = Common.JSON_Handler(Users_Created_Dates_Count).Dump_JSON(Indentation=0)
+                return render_template('dashboard.html', eventsdash=True, is_admin=session.get('is_admin'), username=session.get('user'), successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], new_users=[Dates, Users_Created_Dates_Count], refreshrate=session.get('dashboard-refresh'), version=Version)
 
-                if most_common_tasks:
-                    return render_template('dashboard.html', is_admin=session.get('is_admin'), username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], bar_set=[most_common_tasks_labels, most_common_tasks_values, colors_original[:len(most_common_tasks_values)]], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
-            
-                else:
-                    return render_template('dashboard.html', is_admin=session.get('is_admin'), username=session.get('user'), max=17000, open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], successful_line_set=[Dates, Successful_User_Dates_Count], unsuccessful_line_set=[Dates, Unsuccessful_User_Dates_Count], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version)
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('dashboard'))
+
+        @app.route('/dashboard', methods=['GET'])
+        @login_requirement
+        def dashboard():
+
+            try:
+                return render_template('dashboard.html', is_admin=session.get('is_admin'), username=session.get('user'), version=Version)
 
             except Exception as e:
                 app.logger.error(e)
@@ -1033,9 +1229,7 @@ if __name__ == '__main__':
         def api_dashboard():
 
             try:
-                PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s'
-                PSQL_Select_Query_2 = 'SELECT count(*) FROM results WHERE result_type = %s AND status = ANY (%s);'
-                Mixed_Options = ['Inspecting', 'Reviewing']
+                PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
                 open_values = {}
                 closed_values = {}
                 mixed_values = {}
@@ -1047,13 +1241,13 @@ if __name__ == '__main__':
                     Cursor.execute(PSQL_Select_Query_1, ("Closed", Finding_Type,))
                     current_closed_results = Cursor.fetchall()
                     closed_values[Finding_Type] = current_closed_results[0][0]
-                    Cursor.execute(PSQL_Select_Query_2, (Finding_Type, Mixed_Options,))
+                    Cursor.execute(PSQL_Select_Query_1, ("Reviewing", Finding_Type,))
                     current_mixed_results = Cursor.fetchall()
                     mixed_values[Finding_Type] = current_mixed_results[0][0]
 
                 Cursor.execute("SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;")
                 most_common_tasks = Cursor.fetchall()
-                data = {"Open Issues": open_values, "Closed Issues": closed_values, "Issues Under Review or inspection": mixed_values, "Most Common Tasks": [{}], "Successful Logins in the Last 5 Days": [], "Failed Login Attempts in the Last 5 Days": []}
+                data = {"Open Issues": open_values, "Closed Issues": closed_values, "Issues Under Review": mixed_values, "Most Common Tasks": [{}], "Successful Logins in the Last 5 Days": [], "Failed Login Attempts in the Last 5 Days": []}
                 
                 for mc_task in most_common_tasks:
                     data["Most Common Tasks"][0][mc_task[0]] = mc_task[1]
@@ -1107,6 +1301,7 @@ if __name__ == '__main__':
                 return redirect(url_for('index'))
 
         @app.route('/events', methods=['GET'])
+        @admin_requirement
         @login_requirement
         def events():
 
@@ -1120,6 +1315,7 @@ if __name__ == '__main__':
                 return redirect(url_for('events'))
 
         @app.route('/events/filtered', methods=['GET', 'POST'])
+        @admin_requirement
         @login_requirement
         def events_filtered():
 
@@ -1169,6 +1365,7 @@ if __name__ == '__main__':
         @app.route('/api/events')
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
         @api_auth_requirement
+        @api_admin_requirement
         def api_event_details():
 
             try:
@@ -1259,9 +1456,9 @@ if __name__ == '__main__':
                     if Authentication_Verified["Admin"]:
                         Auth_Endpoint = {'POST': {"Obtain API Key": {"Endpoint": "/api/auth", "Admin rights required": False, "Fields": {"Username": {"Attributes": {"Required": True, "Type": "String"}}, "Password": {"Attributes": {"Required": True, "Type": "String"}}}}}}
                         Dashboard_Endpoints = {"GET": {"Retrieve dashboard statistics": {"Endpoint": "api/dashboard", "Admin rights required": False}}}
-                        Result_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/results", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Associated Task ID": "Integer", "Title": "String", "Plugin": "String", "Domain": "String", "Link": "String", "Screenshot URL": "String", "Status": "String", "Output Files": "String", "Result Type": "String", "Screenshot Requested": "String", "Created At": "String - Timestamp", "Updated At": "String - Timestamp"}}}, "POST": {"Create a new manual result": {"Endpoint": "/api/result/new", "Admin rights required": True, "Fields": {"Name": {"Attributes": {"Required": True, "Type": "String"}}, "URL": {"Attributes": {"Required": True, "Type": "String"}}, "Type": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete a result": {"Endpoint": "/api/result/delete/<result_id>", "Admin rights required": True}, "Re-open a result": {"Endpoint": "/api/result/changestatus/open/<result_id>", "Admin rights required": True}, "Label a result as under inspection": {"Endpoint": "/api/result/changestatus/inspect/<result_id>", "Admin rights required": True}, "Label a result as under review": {"Endpoint": "/api/result/changestatus/review/<result_id>", "Admin rights required": True}, "Close a result": {"Endpoint": "/api/result/changestatus/close/<result_id>", "Admin rights required": True}}}
+                        Result_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/results", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Associated Task ID": "Integer", "Title": "String", "Plugin": "String", "Domain": "String", "Link": "String", "Screenshot URL": "String", "Status": "String", "Output Files": "String", "Result Type": "String", "Screenshot Requested": "String", "Created At": "String - Timestamp", "Updated At": "String - Timestamp"}}}, "POST": {"Create a new manual result": {"Endpoint": "/api/result/new", "Admin rights required": True, "Fields": {"Name": {"Attributes": {"Required": True, "Type": "String"}}, "URL": {"Attributes": {"Required": True, "Type": "String"}}, "Type": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete a result": {"Endpoint": "/api/result/delete/<result_id>", "Admin rights required": True}, "Re-open a result": {"Endpoint": "/api/result/changestatus/open/<result_id>", "Admin rights required": True}, "Label a result as under review": {"Endpoint": "/api/result/changestatus/review/<result_id>", "Admin rights required": True}, "Close a result": {"Endpoint": "/api/result/changestatus/close/<result_id>", "Admin rights required": True}}}
                         Task_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/tasks", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Query": "String", "Plugin": "String", "Description": "String", "Frequency": "String - Cronjob", "Limit": "Integer", "Status": "String", "Created At": "String - Timestamp", "Updated At": "String - Timestamp"}}, "Shows which task apis are configured": {"Endpoint": "/api/tasks/inputs/check", "Admin rights required": True}, "Shows which output options are enabled for tasks to export their results to": {"Endpoint": "/api/tasks/outputs/check", "Admin rights required": True}}, "POST": {"Create a new task": {"Endpoint": "/api/task/new", "Admin rights required": True, "Fields": {"Task Type": {"Required": True, "Type": "String"}, "Query": {"Required": True, "Type": "String"}, "Frequency": {"Required": False, "Type": "String - Cronjob"}, "Description": {"Required": False, "Type": "String"}, "Limit": {"Required": False, "Type": "Integer"}}}, "Edit a task": {"Endpoint": "/api/task/edit/<task_id>", "Admin rights required": True, "Fields": {"Task Type": {"Required": True, "Type": "String"}, "Query": {"Required": True, "Type": "String"}, "Frequency": {"Required": False, "Type": "String - Cronjob"}, "Description": {"Required": False, "Type": "String"}, "Limit": {"Required": False, "Type": "Integer"}}}, "Run a task": {"Endpoint": "/api/task/run/<task_id>", "Admin rights required": True}, "Duplicate a task": {"Endpoint": "/api/task/duplicate/<task_id>", "Admin rights required": True}, "Delete a task": {"Endpoint": "/api/task/delete/<task_id>", "Admin rights required": True}}}
-                        Event_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/events", "Admin rights required": False, "Optional Search Filters": {"ID": "Integer", "Description": "String", "Created At": "String - Timestamp"}}}}
+                        Event_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/events", "Admin rights required": True, "Optional Search Filters": {"ID": "Integer", "Description": "String", "Created At": "String - Timestamp"}}}}
                         Account_Endpoints = {"GET": {"Retrieve account data": {"Endpoint": "/api/accounts", "Admin rights required": True, "Optional Search Filters": {"ID": "Integer", "Username": "String", "Blocked": "Boolean", "Administrative Rights": "Boolean"}}}, "POST": {"Create new account": {"Endpoint": "/api/account/new", "Admin rights required": True, "Fields": {"Username": {"Attributes": {"Required": True, "Type": "String"}}, "Password": {"Attributes": {"Required": True, "Type": "String"}}, "Password Retype": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete account": {"Endpoint": "/api/account/delete/<account_id>", "Admin rights required": True}, "Disable account": {"Endpoint": "/api/account/disable/<account_id>", "Admin rights required": True}, "Enable account": {"Endpoint": "/api/account/enable/<account_id>", "Admin rights required": True}, "Give account administrative rights": {"Endpoint": "/api/account/promote/<account_id>", "Admin rights required": True}, "Strip account of administrative rights": {"Endpoint": "/api/account/demote/<account_id>", "Admin rights required": True}, "Change any user's password": {"Endpoint": "/api/account/password/change/<account_id>", "Admin rights required": True, "Fields": {"Password": {"Attributes": {"Required": True, "Type": "String"}}, "Password Retype": {"Attributes": {"Required": True, "Type": "String"}}}}}}
                         Identity_Endpoints = {"GET": {"Retrieve identity data": {"Endpoint": "/api/identities", "Admin rights required": True, "Optional Search Filters": {"Identity ID": "Integer", "Firstname": "String", "Middlename": "String", "Surname": "String", "Fullname": "String", "Username": "String", "Email": "String", "Phone": "String"}}, "POST": {"Create new identity": {"Endpoint": "/api/identity/new", "Admin rights required": True, "Fields": {"First": {"Attributes": {"Required": True, "Type": "String"}}, "Middle": {"Attributes": {"Required": False, "Type": "String"}}, "Surname": {"Attributes": {"Required": True, "Type": "String"}}, "Username": {"Attributes": {"Required": False, "Type": "String"}}, "Email": {"Attributes": {"Required": True, "Type": "String"}}, "Phone": {"Attributes": {"Required": True, "Type": "String"}}}}, "Edit identity": {"Endpoint": "/api/identity/edit/<identity_id>", "Admin rights required": True, "Fields": {"First": {"Attributes": {"Required": True, "Type": "String"}}, "Middle": {"Attributes": {"Required": False, "Type": "String"}}, "Surname": {"Attributes": {"Required": True, "Type": "String"}}, "Username": {"Attributes": {"Required": False, "Type": "String"}}, "Email": {"Attributes": {"Required": True, "Type": "String"}}, "Phone": {"Attributes": {"Required": True, "Type": "String"}}}}, "Delete identity": {"Endpoint": "/api/identity/delete/<identity_id>", "Admin rights required": True}}}}
                         Settings_Endpoints = {'GET': {'Retrieve configuration data': {'Endpoint': '/api/settings/configurations/<type_of_configuration>', 'Admin rights required': True}}, 'POST': {'Update configuration': {'Endpoint': '/api/settings/configure/<type_of_configuration>', 'Admin rights required': True, 'Fields': {'object': {'Required': True, 'Type': 'String'}, 'data': {'Required': True, 'Type': 'Dictionary', 'Notes': 'This data depends on the configuration you are updating.'}}}}}
@@ -1368,6 +1565,65 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('tasks'))
+
+        @app.route('/tasks/plugins/cache/clear', methods=['GET'])
+        @login_requirement
+        @admin_requirement
+        def clear_cache_main():
+
+            try:
+                File_Path = os.path.dirname(os.path.realpath('__file__'))
+                Output_Directory = os.path.join(File_Path, 'static/protected/output')
+                List_of_Cache_Directories = os.listdir(Output_Directory)
+                return render_template('clear_cache.html', is_admin=session.get('is_admin'), username=session.get('user'), List_of_Cache_Directories=List_of_Cache_Directories)
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('tasks'))
+
+        @app.route('/tasks/plugins/cache/clear/<plugin>', methods=['GET', 'POST'])
+        @login_requirement
+        @admin_requirement
+        def clear_cache(plugin):
+
+            try:
+                File_Path = os.path.dirname(os.path.realpath('__file__'))
+                Output_Directory = os.path.join(File_Path, 'static/protected/output')
+                List_of_Cache_Directories = os.listdir(Output_Directory)
+                Message = "Cache already cleared."
+                
+                if plugin in List_of_Cache_Directories:
+                    Cache_Directory = os.path.join(Output_Directory, plugin)
+                    Directory_Files = os.listdir(Cache_Directory)
+
+                    for File in Directory_Files:
+                        
+                        if Common.Regex_Handler(File, Custom_Regex=".+\-cache\.txt"):
+                            os.remove(os.path.join(Cache_Directory, File))
+                            Message = f"Cache cleared for plugin {plugin}."
+
+                    return render_template('clear_cache.html', is_admin=session.get('is_admin'), username=session.get('user'), List_of_Cache_Directories=List_of_Cache_Directories, message=Message)
+                        
+                elif plugin == "*":
+
+                    for Dir in List_of_Cache_Directories:
+                        Cache_Directory = os.path.join(Output_Directory, Dir)
+                        Directory_Files = os.listdir(Cache_Directory)
+
+                        for File in Directory_Files:
+                            
+                            if Common.Regex_Handler(File, Custom_Regex=".+\-cache\.txt"):
+                                os.remove(os.path.join(Cache_Directory, File))
+                                Message = "All cache cleared."
+
+                    return render_template('clear_cache.html', is_admin=session.get('is_admin'), username=session.get('user'), List_of_Cache_Directories=List_of_Cache_Directories, message=Message)
+                
+                else:
+                    return render_template('clear_cache.html', is_admin=session.get('is_admin'), username=session.get('user'), List_of_Cache_Directories=List_of_Cache_Directories)
+
+            except Exception as e:
+                app.logger.error(e)
+                return redirect(url_for('clear_cache_main'))
 
         @app.route('/api/task/duplicate/<taskid>')
         @csrf.exempt
@@ -1692,7 +1948,7 @@ if __name__ == '__main__':
                         Thread_In_Use.start()
                     
                     session["task_api_check"] = "Passed"
-                    time.sleep(1)
+                    time.sleep(1.5)
                     return redirect(url_for('tasks'))
 
             except Exception as e:
@@ -1733,6 +1989,10 @@ if __name__ == '__main__':
 
                             if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
+
+                            if Valid_Plugins[Content['Task Type']].get("Organisation_Presets") and not Common.Regex_Handler(Content['Query'], Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]]):
+                                Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]].lower()
+                                return jsonify({"Error": f"The query provided was invalid for the type of query expected. Please enter a valid {Type}."}), 500
 
                             if 'Frequency' in Content:
                                 task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
@@ -1888,51 +2148,62 @@ if __name__ == '__main__':
 
                             for Current_Query in Current_Query_List:
 
-                                if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+                                if (Valid_Plugins[session['task_form_type']].get("Organisation_Presets") and Common.Regex_Handler(Current_Query, Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]])) or not Valid_Plugins[session['task_form_type']].get("Organisation_Presets"):
 
-                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
-                                        return render_template('tasks.html', username=session.get('user'),
+                                    if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+
+                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                        form_type=session.get('task_form_type'),
+                                                                        form_step=session.get('task_form_step'), suggestion=Suggestion,
+                                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                        is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+
+                                        try:
+                                            session['task_limit'] = int(request.form['limit'])
+
+                                        except:
+                                            return render_template('tasks.html', username=session.get('user'),
                                                                     form_type=session.get('task_form_type'),
                                                                     form_step=session.get('task_form_step'), suggestion=Suggestion,
                                                                     Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                    is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                    is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
 
-                                    try:
-                                        session['task_limit'] = int(request.form['limit'])
+                                    else:
 
-                                    except:
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_type=session.get('task_form_type'),
-                                                                form_step=session.get('task_form_step'), suggestion=Suggestion,
-                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                is_admin=session.get('is_admin'), new_task=True, error="Invalid limit specified, please provide a valid limit represented by a number.")
+                                        if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                    form_step=session.get('task_form_step'), new_task=True,
+                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                    is_admin=session.get('is_admin'),
+                                                                    error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+
+                                        elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
+                                            sess_form_type = session["task_form_type"]
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                    form_step=session.get('task_form_step'), new_task=True,
+                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                    is_admin=session.get('is_admin'),
+                                                                    error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+
+                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                        form_type=session.get('task_form_type'),
+                                                                        form_step=session.get('task_form_step'), new_task=True,
+                                                                        is_admin=session.get('is_admin'), suggestion=Suggestion,
+                                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                        error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 else:
-
-                                    if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_step=session.get('task_form_step'), new_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                is_admin=session.get('is_admin'),
-                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
-
-                                    elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
-                                        sess_form_type = session["task_form_type"]
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_step=session.get('task_form_step'), new_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                is_admin=session.get('is_admin'),
-                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
-
-                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                    form_type=session.get('task_form_type'),
-                                                                    form_step=session.get('task_form_step'), new_task=True,
-                                                                    is_admin=session.get('is_admin'), suggestion=Suggestion,
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
+                                    Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]].lower()
+                                    return render_template('tasks.html', username=session.get('user'),
+                                                                        form_type=session.get('task_form_type'),
+                                                                        form_step=session.get('task_form_step'), new_task=True,
+                                                                        is_admin=session.get('is_admin'), suggestion=Suggestion,
+                                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
+                                                                        error=f"The query provided was invalid for the type of query expected. Please enter a valid {Type}.")
 
                             Current_Timestamp = Common.Date()
                             Cursor.execute('INSERT INTO tasks (query, plugin, description, frequency, task_limit, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (
@@ -2039,6 +2310,10 @@ if __name__ == '__main__':
 
                             if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
+
+                            if Valid_Plugins[Content['Task Type']].get("Organisation_Presets") and not Common.Regex_Handler(Content['Query'], Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]]):
+                                Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]].lower()
+                                return jsonify({"Error": f"The query provided was invalid for the type of query expected. Please enter a valid {Type}."}), 500
 
                             if 'Frequency' in Content:
                                 task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
@@ -2241,52 +2516,63 @@ if __name__ == '__main__':
 
                             for Current_Query in Current_Query_List:
 
-                                if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
+                                if (Valid_Plugins[session['task_form_type']].get("Organisation_Presets") and Common.Regex_Handler(Current_Query, Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]])) or not Valid_Plugins[session['task_form_type']].get("Organisation_Presets"):
 
-                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
-                                                                results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
-                                                                form_type=session.get('task_form_type'),
-                                                                error="Invalid query specified, please provide a valid query with no special characters.")
+                                    if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
-                                    try:
-                                        session['task_limit'] = int(request.form['limit'])
+                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                    form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
+                                                                    results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
+                                                                    form_type=session.get('task_form_type'),
+                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
 
-                                    except:
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                            form_step=session.get('task_form_step'), edit_task=True,
-                                                            form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                            Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                            is_admin=session.get('is_admin'),
-                                                            error="Invalid limit specified, please provide a valid limit represented by a number.")
+                                        try:
+                                            session['task_limit'] = int(request.form['limit'])
+
+                                        except:
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                form_step=session.get('task_form_step'), edit_task=True,
+                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                is_admin=session.get('is_admin'),
+                                                                error="Invalid limit specified, please provide a valid limit represented by a number.")
+
+                                    else:
+
+                                        if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                    form_step=session.get('task_form_step'), edit_task=True,
+                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                    is_admin=session.get('is_admin'),
+                                                                    error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
+
+                                        elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
+                                            sess_form_type = session["task_form_type"]
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                    form_step=session.get('task_form_step'), edit_task=True,
+                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                    is_admin=session.get('is_admin'),
+                                                                    error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
+
+                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                            return render_template('tasks.html', username=session.get('user'),
+                                                                        form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                        form_step=session.get('task_form_step'), edit_task=True,
+                                                                        is_admin=session.get('is_admin'),
+                                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                        error="Invalid query specified, please provide a valid query with no special characters.")
 
                                 else:
-
-                                    if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_step=session.get('task_form_step'), edit_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                is_admin=session.get('is_admin'),
-                                                                error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
-
-                                    elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
-                                        sess_form_type = session["task_form_type"]
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                form_step=session.get('task_form_step'), edit_task=True,
-                                                                form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                is_admin=session.get('is_admin'),
-                                                                error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
-
-                                    if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
-                                        return render_template('tasks.html', username=session.get('user'),
-                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                    form_step=session.get('task_form_step'), edit_task=True,
-                                                                    is_admin=session.get('is_admin'),
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
+                                    Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]].lower()
+                                    return render_template('tasks.html', username=session.get('user'),
+                                                                        form_type=session.get('task_form_type'), suggestion=Suggestion,
+                                                                        form_step=session.get('task_form_step'), edit_task=True,
+                                                                        is_admin=session.get('is_admin'),
+                                                                        Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
+                                                                        error=f"The query provided was invalid for the type of query expected. Please enter a valid {Type}.")
 
                             Update_Cron = False
 
@@ -2803,7 +3089,7 @@ if __name__ == '__main__':
 
             try:
 
-                if status in ["open", "close", "inspect", "review"]:
+                if status in ["open", "close", "review"]:
 
                     def change_status_inner(resultid):
 
@@ -2814,10 +3100,6 @@ if __name__ == '__main__':
                         elif status == "close":
                             Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Closed", str(Common.Date()), resultid,))
                             Message = f"Result ID {str(resultid)} closed by {session.get('user')}."
-
-                        elif status == "inspect":
-                            Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Inspecting", str(Common.Date()), resultid,))
-                            Message = f"Result ID {str(resultid)} now under inspection by {session.get('user')}."
 
                         elif status == "review":
                             Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Reviewing", str(Common.Date()), resultid,))
@@ -2857,25 +3139,21 @@ if __name__ == '__main__':
                     result_id = int(resultid)
 
                     if status == "open":
-                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Open", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} re-opened."
+                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Open", str(Common.Date()), result_id,))
+                        Message = f"Result ID {str(result_id)} re-opened."
 
                     elif status == "close":
-                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Closed", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} closed."
-
-                    elif status == "inspect":
-                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Inspecting", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} now under inspection."
+                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Closed", str(Common.Date()), result_id,))
+                        Message = f"Result ID {str(result_id)} closed."
 
                     elif status == "review":
-                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Reviewing", str(Common.Date()), resultid,))
-                        Message = f"Result ID {str(resultid)} now under review."
+                        Cursor.execute('UPDATE results SET status = %s, updated_at = %s WHERE result_id = %s', ("Reviewing", str(Common.Date()), result_id,))
+                        Message = f"Result ID {str(result_id)} now under review."
 
                     Connection.commit()
                     app.logger.warning(Message)
                     Create_Event(Message)
-                    return jsonify({"Message": f"Successfully changed the status for result ID {resultid}."}), 500
+                    return jsonify({"Message": f"Successfully changed the status for result ID {result_id}."}), 500
 
                 else:
                     return jsonify({"Error": "Method not allowed."}), 500
@@ -2966,11 +3244,7 @@ if __name__ == '__main__':
 
                         elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
 
-                            if Result_Filter == "Status" and Current_Filter_Value == "Mixed":
-                                Mixed_Options = ['Inspecting', 'Reviewing']
-                                SQL_Query_Args.append(f'status = ANY (ARRAY{str(Mixed_Options)})')
-
-                            elif Current_Filter_Value == "*":
+                            if Current_Filter_Value == "*":
                                 SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
 
                             else:

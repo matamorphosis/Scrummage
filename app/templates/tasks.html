@@ -55,7 +55,7 @@
                                                 </div>
                                             </dd>
                                             <dd>
-                                                <input class="field_textarea" id="queryfield" type="text" name=query placeholder="* Query, you can use commas (,) to enter multiple queries." value="{{results[1]}}">
+                                                <textarea name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries.">{{results[1]}}</textarea>
                                             </dd>
                                             <dd>
                                                 <input class="field_textarea" type="text" name=frequency placeholder="Frequency" value="{{results[4]}}">
@@ -204,23 +204,24 @@
             <div style="display: none;" id="api_window"><div id="loader_timeout" style="display: block;">&nbsp;</div><div id="api_outer_div"><div id="close_x_div"><a id="close_x" onclick="closeWindow()">×</a></div><div id="inner_api_window"><div><svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" /></svg></div><p class="message"><strong>Error:</strong> {{ error }}</p></div></div></div>
             {% endif %}
             {% if message or error or api_check in ["Passed", "Failed"] %}
-                <script type="text/javascript">
-                    autoClose();
+            <script type="text/javascript">
+                autoClose();
 
-                    function autoClose() {
-                        setTimeout(closeWindow, 10000);
-                    }
+                function autoClose() {
+                    setTimeout(closeWindow, 10000);
+                }
 
-                    function closeWindow() {
-                        var close_item = document.getElementById("api_window");
-                        close_item.style.display = "none";
-                    }
-                </script>
+                function closeWindow() {
+                    var close_item = document.getElementById("api_window");
+                    close_item.style.display = "none";
+                }
+            </script>
             {% endif %}
             <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Task Management</p><br />
                     <a id="createtask" onclick="sendRequest('Create')" class="left_button">Create New Task</a>
                     <a id="checkoutputs" onclick="sendRequest('checkinput')" class="left_button">Check Inputs</a>
                     <a id="checkoutputs" onclick="sendRequest('checkoutput')" class="left_button">Check Outputs</a>
+                    <a id="checkoutputs" onclick="sendRequest('managecache')" class="left_button">Manage Cache</a>
                     <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected task items: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</a>
                     <a id="bottom_duplicate_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to duplicate the selected task items: ' + getSelectValues() + '?') && sendRequest('Duplicate');" disabled="true">Duplicate</a>
                 </div>
@@ -324,6 +325,9 @@
                 </script>
                 {% endif %}
                 <div id="filter_box">
+                    {% if Task_Filter_Values %}
+                    <button type="button" id="applied_filter">x Filter Applied</button>
+                    {% endif %}
                     <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
                     <div class="collapsible_filter_content">
                         <form id="collapsible_filter_form" action="{{ url_for ('tasks_filtered') }}" method="get" autocomplete="off">
@@ -349,23 +353,25 @@
                     </div>
                     <script type="text/javascript">
                         var coll = document.getElementsByClassName("collapsible_filter");
+                        var clear = document.getElementById("applied_filter");
                         var i;
 
                         for (i = 0; i < coll.length; i++) {
                             coll[i].addEventListener("click", function() {
-                                this.classList.toggle("active");
                                 var content = this.nextElementSibling;
                                 if (content.style.display === "block") {
                                     content.style.display = "none";
                                     document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
-                                    document.getElementById("collapsible_filter_button").style.width = null;
                                 } else {
                                     content.style.display = "block";
                                     document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
-                                    document.getElementById("collapsible_filter_button").style.width = "100%";
                                 }
                             });
                         }
+
+                        clear.addEventListener("click", function() {
+                            window.location.assign("{{ url_for('tasks') }}");
+                        });
                     </script>
                 </div>
             </div>
@@ -438,6 +444,10 @@
                         use_xhr = false;
                     } else if (arguments[0] === "checkinput") {
                         var uri = "{{ url_for('check_input') }}";
+                        window.location.assign(uri);
+                        use_xhr = false;
+                    } else if (arguments[0] === "managecache") {
+                        var uri = "{{ url_for('clear_cache_main') }}";
                         window.location.assign(uri);
                         use_xhr = false;
                     }
@@ -563,7 +573,7 @@
                                         </div>
                                     </dd>
                                     <dd>
-                                        <input class="field_textarea" id="queryfield" type="text" name="query" placeholder="* Query, you can use commas (,) to enter multiple queries.">
+                                        <textarea name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries."></textarea>
                                     </dd>
                                     <dd>
                                         {% if frequency_field %}

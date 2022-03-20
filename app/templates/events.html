@@ -15,6 +15,7 @@
     <body onload="pageLoad()" style="margin:0;">
         {% extends "template.html" %}
         {% block content %}
+        {% if is_admin %}
         <main>
             <section>
                 <div id="loader">&nbsp;</div>
@@ -43,6 +44,9 @@
                         </tbody>
                     </table>
                     <div id="filter_box">
+                        {% if Event_Filter_Values %}
+                        <button type="button" id="applied_filter">× Filter Applied</button>
+                        {% endif %}
                         <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
                         <div class="collapsible_filter_content">
                             <form id="collapsible_filter_form" action="{{ url_for ('events_filtered') }}" method=get autocomplete="off">
@@ -68,27 +72,29 @@
                         </div>
                         <script type="text/javascript">
                             var coll = document.getElementsByClassName("collapsible_filter");
+                            var clear = document.getElementById("applied_filter");
                             var i;
-
+    
                             for (i = 0; i < coll.length; i++) {
                                 coll[i].addEventListener("click", function() {
-                                    this.classList.toggle("active");
                                     var content = this.nextElementSibling;
                                     if (content.style.display === "block") {
                                         content.style.display = "none";
                                         document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
-                                        document.getElementById("collapsible_filter_button").style.width = null;
                                     } else {
                                         content.style.display = "block";
                                         document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
-                                        document.getElementById("collapsible_filter_button").style.width = "100%";
                                     }
                                 });
                             }
+    
+                            clear.addEventListener("click", function() {
+                                window.location.assign("{{ url_for('events') }}");
+                            });
                         </script>
                     </div>
                 </div>
-                <script>
+                <script type="text/javascript">
                     function pageLoad() {
                         setTimeout(showPage, 1000);
                     }
@@ -107,6 +113,7 @@
                 </script>
             </section>
         </main>
+        {% endif %}
         {% endblock %}
     </body>
 </html>

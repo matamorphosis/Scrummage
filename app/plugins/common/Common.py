@@ -490,7 +490,8 @@ def Email_Main(Object, Email_Subject, Email_Body):
 def Set_Configuration_File():
 
     try:
-        return os.path.join(os.path.dirname(os.path.realpath('__file__')), 'plugins/common/config/config.json')
+        File_Dir = os.path.dirname(os.path.realpath('__file__'))
+        return os.path.join(File_Dir, 'plugins/common/config/config.json')
 
     except Exception as e:
         logging.warning(f"DATE FUNCTION ERROR - Common Library - {str(e)}.")
@@ -740,7 +741,7 @@ def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Compon
     try:
 
         if Type != "":
-            Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?(\/)?$", "URL_Wild": r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?(\/)?.*", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*"}
+            Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]+)(\.[a-z]+)?(\.[a-z]+)?(\/)?$", "URL_Wild": r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?(\/)?.*", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*", "Username": r"^[\s]+"}
 
             for Key, Value in Predefined_Regex_Patterns.items():
 

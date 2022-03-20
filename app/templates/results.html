@@ -39,7 +39,6 @@
             <div id="outerleftpop" class="left_pop_out_outer"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Manage Result</p><br />
                     <a id="bottom_delete_button" class="left_button" onclick="return confirm('Are you sure you want to delete this result?') && sendRequest('delete', '{{results[0]}}');">Delete Result</a>
                     <a id="bottom_open_button" class="left_button" onclick="return confirm('Are you sure you want to open this result?') && sendRequest('open', '{{results[0]}}');">Open Result</a>
-                    <a id="bottom_inspect_button" class="left_button" onclick="return confirm('Are you sure you want to change the status of this result to under inspection?') && sendRequest('inspect', '{{results[0]}}');">Inspect Result</a>
                     <a id="bottom_review_button" class="left_button" onclick="return confirm('Are you sure you want to change the status of this result to under review?') && sendRequest('review', '{{results[0]}}');">Review Result</a>
                     <a id="bottom_close_button" class="left_button" onclick="return confirm('Are you sure you want to close this result?') && sendRequest('close', '{{results[0]}}');">Close Result</a>
 
@@ -238,10 +237,8 @@
                     <a id="uploadtask" onclick="sendRequest('Bulk')" class="left_button">Bulk Upload Results</a>
                     <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected result items: ' + getSelectValues() + '?') && sendRequest('delete');" disabled="true">Delete</a>
                     <a id="bottom_open_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to open the selected result items: ' + getSelectValues() + '?') && sendRequest('open');" disabled="true">Open</a>
-                    <a id="bottom_inspect_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to inspect the selected result items: ' + getSelectValues() + '?') && sendRequest('inspect');" disabled="true">Inspect</a>
                     <a id="bottom_review_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to review the selected result items: ' + getSelectValues() + '?') && sendRequest('review');" disabled="true">Review</a>
                     <a id="bottom_close_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to close the selected result items: ' + getSelectValues() + '?') && sendRequest('close');" disabled="true">Close</a>
-
                 </div>
             </div></div></div>
             <div style="display: none;" id="fc" class="field-container-settings">
@@ -332,6 +329,9 @@
                 </script>
                 {% endif %}
                 <div id="filter_box">
+                    {% if Result_Filter_Values %}
+                    <button type="button" id="applied_filter">× Filter Applied</button>
+                    {% endif %}
                     <button type="button" id="collapsible_filter_button" class="collapsible_filter">+ Expand Filter Options</button>
                     <div class="collapsible_filter_content">
                         <form id="collapsible_filter_form" action="{{ url_for ('results_filtered') }}" method=get autocomplete="off">
@@ -357,28 +357,30 @@
                     </div>
                     <script type="text/javascript">
                         var coll = document.getElementsByClassName("collapsible_filter");
+                        var clear = document.getElementById("applied_filter");
                         var i;
 
                         for (i = 0; i < coll.length; i++) {
                             coll[i].addEventListener("click", function() {
-                                this.classList.toggle("active");
                                 var content = this.nextElementSibling;
                                 if (content.style.display === "block") {
                                     content.style.display = "none";
                                     document.querySelector('#collapsible_filter_button').innerText = "+ Expand Filter Options";
-                                    document.getElementById("collapsible_filter_button").style.width = null;
                                 } else {
                                     content.style.display = "block";
                                     document.querySelector('#collapsible_filter_button').innerText = "× Collapse Filter Options";
-                                    document.getElementById("collapsible_filter_button").style.width = "100%";
                                 }
                             });
                         }
+
+                        clear.addEventListener("click", function() {
+                            window.location.assign("{{ url_for('results') }}");
+                        });
                     </script>
                 </div>
                 {% if is_admin %}
                 <script type="text/javascript">
-                    var ButtonArr = [['bottom_delete_button', 'Delete'], ['bottom_open_button', 'Open'], ['bottom_inspect_button', 'Inspect'], ['bottom_review_button', 'Review'], ['bottom_close_button', 'Close']];
+                    var ButtonArr = [['bottom_delete_button', 'Delete'], ['bottom_open_button', 'Open'], ['bottom_review_button', 'Review'], ['bottom_close_button', 'Close']];
 
                     function pageLoad() {
                         setTimeout(showPage, 1000);

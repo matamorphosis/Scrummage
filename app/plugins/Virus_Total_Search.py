@@ -51,7 +51,7 @@ class Plugin_Search:
                             JSON_Output_Response = JSON_Object.Dump_JSON()
                             Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Domain Information", self.Task_ID, self.Plugin_Name.lower())
-                            Link = f"https://www.{self.Domain}/gui/self.Domain/{Query}/detection"
+                            Link = f"https://www.{self.Domain}/gui/domain/{Query}/detection"
                             Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
                             Title = f"{self.Plugin_Name} Domain | {Query}"
@@ -65,9 +65,6 @@ class Plugin_Search:
 
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
-
-                        else:
-                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 elif self.Type == "IP":
 
@@ -94,9 +91,6 @@ class Plugin_Search:
 
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
-
-                        else:
-                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
                 elif self.Type == "URL":
 
@@ -125,9 +119,6 @@ class Plugin_Search:
                                 else:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
-                        else:
-                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
-
                 elif self.Type == "Hash":
                     Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/files/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
@@ -136,7 +127,7 @@ class Plugin_Search:
                         JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
-                        Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Malware", self.Task_ID, self.Plugin_Name.lower())
+                        Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Virus", self.Task_ID, self.Plugin_Name.lower())
                         Link = f"https://www.{self.Domain}/gui/file/{Query}/detection"
                         Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
                         Main_URL_Response = Main_URL_Responses["Filtered"]
@@ -151,9 +142,6 @@ class Plugin_Search:
 
                             else:
                                 logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
-
-                    else:
-                        logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Invalid response.")
 
             Cached_Data_Object.Write_Cache(Data_to_Cache)
 

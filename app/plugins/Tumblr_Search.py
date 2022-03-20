@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import plugins.common.General as General, plugins.common.Common as Common, os, logging, pytumblr
+from requests_oauthlib import OAuth1Session
 
 class Plugin_Search:
 
@@ -38,7 +39,9 @@ class Plugin_Search:
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
-                API_Client = pytumblr.TumblrRestClient(Tumblr_Details[0], Tumblr_Details[1], Tumblr_Details[2], Tumblr_Details[3])
+                Tumblr = OAuth1Session(Tumblr_Details[0], client_secret=Tumblr_Details[1], callback_uri='http://www.tumblr.com/dashboard')
+                OAuth_Details = Tumblr.fetch_request_token("http://www.tumblr.com/oauth/request_token")
+                API_Client = pytumblr.TumblrRestClient(Tumblr_Details[0], Tumblr_Details[1], OAuth_Details["oauth_token"], OAuth_Details["oauth_token_secret"])
                 Response = API_Client.blog_info(Query)
                 JSON_Output_Response = Common.JSON_Handler(Response).Dump_JSON()
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])

@@ -7,11 +7,11 @@
   <img width="172" height="203" src="/app/static/images/main.png">
 </p>
 
-**VERSION 3.7**
-- Code efficiency enhancements and bug fixes for plugins.
-- Significant UI/UX enhancements.
-- Implementation of MFA.
-- Due to the above change, if you are upgrading from version 3.6, an update has been made to the backend database. In the installation directory, there is a file called "3.7_Upgrade.py", please copy your `config.json` file to this directory and run the script to update it to the latest standard. Running it will update the `users` table to be inline with the new version.
+**VERSION 3.8**
+- Categorised dashboards.
+- Web-based task cache management.
+- Improved task-specific input validation.
+- New plugins, i.e. GitLab Search.
   
 Scrummage is an OSINT tool that centralises search functionality from a bounty of powerful, publicly-available, third-party, OSINT websites. This project draws inspiration mainly from two other, open-source projects, including:  
 - The [Scumblr](https://github.com/Netflix-Skunkworks/Scumblr) project, which while is now deprecated, inspired this concept.
@@ -43,9 +43,15 @@ Any feedback is welcome.
 ---
 
 ## Dashboard
-The dashboard is the home screen which the application directs a user to when they log in. It provides a high-level chart which shows the amount of each results based on their result type. It does this for each kind of finding. However, if a graph doesn’t load, this is most likely due to none of the results being in that category, I.e if there are no closed results, no graph will appear under “Overview of Closed Results”.  
+The dashboard is the home screen which the application directs a user to when they log in. It provides a high-level chart which shows the amount of each results based on their result type. It does this for each kind of finding. However, if a graph doesn’t load, this is most likely due to none of the results being in that category, I.e if there are no closed results, no graph will appear under “Closed Results by Type”.  
 
-![Dashboard](/installation/images_dark_theme/Dashboard.png)
+![Dashboard](/installation/images_dark_theme/Dashboard_Main.png)
+
+![Dashboard](/installation/images_dark_theme/Dashboard_Tasks.png)
+
+![Dashboard](/installation/images_dark_theme/Dashboard_Results.png)
+
+![Dashboard](/installation/images_dark_theme/Dashboard_Events.png)
 
 
 ## Events

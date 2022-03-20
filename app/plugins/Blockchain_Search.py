@@ -41,7 +41,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
@@ -135,7 +135,7 @@ class Plugin_Search:
             handler.setLevel(logging.DEBUG)
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
@@ -211,7 +211,7 @@ class Plugin_Search:
             handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
             logger.addHandler(handler)
             API_Key = self.Load_Configuration()
-            Cached_Data_Object = General.Cache(Directory, Local_Plugin_Name)
+            Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
