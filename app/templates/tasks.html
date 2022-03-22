@@ -55,7 +55,7 @@
                                                 </div>
                                             </dd>
                                             <dd>
-                                                <textarea name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries.">{{results[1]}}</textarea>
+                                                <textarea id="queryfield" name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries.">{{results[1]}}</textarea>
                                             </dd>
                                             <dd>
                                                 <input class="field_textarea" type="text" name=frequency placeholder="Frequency" value="{{results[4]}}">
@@ -573,7 +573,7 @@
                                         </div>
                                     </dd>
                                     <dd>
-                                        <textarea name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries."></textarea>
+                                        <textarea id="queryfield" name="query" rows="2" cols="30" placeholder="* Query, you can use commas (,) to enter multiple queries."></textarea>
                                     </dd>
                                     <dd>
                                         {% if frequency_field %}
