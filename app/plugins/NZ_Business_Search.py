@@ -3,22 +3,22 @@ import os, logging, urllib.parse, plugins.common.General as General, plugins.com
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "NZ Business"
-        self.Concat_Plugin_Name = "nzbusiness"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "NZ Business"
+        self.Concat_Plugin_Name: str = "nzbusiness"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "app.companiesoffice.govt.nz"
-        self.Result_Type = "Company Details"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "app.companiesoffice.govt.nz"
+        self.Result_Type: str = "Company Details"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -35,7 +35,7 @@ class Plugin_Search:
 
                     if self.Type == "NZBN":
                         Main_URL = f'https://{self.Domain}/companies/app/ui/pages/companies/search?q={Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit=1&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                        Responses = Common.Request_Handler(Main_URL, Filter=True, Host=f"https://{self.Domain}")
+                        Responses = Common.Request_Handler(url=Main_URL, Filter=True, Host=f"https://{self.Domain}")
                         Response = Responses["Filtered"]
 
                         try:
@@ -62,7 +62,7 @@ class Plugin_Search:
                         try:
                             URL_Query = urllib.parse.quote(Query)
                             Main_URL = f'https://{self.Domain}/companies/app/ui/pages/companies/search?q={URL_Query}&entityTypes=ALL&entityStatusGroups=ALL&incorpFrom=&incorpTo=&addressTypes=ALL&addressKeyword=&start=0&limit={str(self.Limit)}&sf=&sd=&advancedPanel=true&mode=advanced#results'
-                            Responses = Common.Request_Handler(Main_URL, Filter=True, Host=f"https://{self.Domain}")
+                            Responses = Common.Request_Handler(url=Main_URL, Filter=True, Host=f"https://{self.Domain}")
                             Response = Responses["Filtered"]
                             NZCN_Regex = Common.Regex_Handler(Query, Type="Company_Name")
 
@@ -77,7 +77,7 @@ class Plugin_Search:
                                         Full_NZBN_URL = f'https://{self.Domain}/companies/app/ui/pages/companies/{NZ_ID}?backurl=H4sIAAAAAAAAAEXLuwrCQBCF4bfZNtHESIpBbLQwhWBeYNgddSF7cWai5O2NGLH7zwenyHgjKWwKGaOfSwjZ3ncPaOt1W9bbsmqaamMoqtepnzIJ7Ltu2RdFHeXIacxf9tEmzgdOAZbuExh0jknk%2F17gRNMrsQMjiqxQmsEHr7Aycp3NfY5PjJbcGSMNoDySCckR%2FPwNLgXMiL4AAAA%3D'
 
                                         if Full_NZBN_URL not in Cached_Data and Full_NZBN_URL not in Data_to_Cache:
-                                            Current_Response = Common.Request_Handler(Full_NZBN_URL)
+                                            Current_Response = Common.Request_Handler(url=Full_NZBN_URL)
                                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, str(Current_Response), NZCN.replace(' ', '-'), self.The_File_Extension)
 
                                             if Output_file:

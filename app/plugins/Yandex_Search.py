@@ -3,14 +3,14 @@ import logging, os, xmltodict, plugins.common.General as General, plugins.common
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Yandex"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Yandex"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "yandex.com"
-        self.Result_Type = "Search Result"
+        self.Domain: str = "yandex.com"
+        self.Result_Type: str = "Search Result"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -44,7 +44,7 @@ class Plugin_Search:
                 except:
                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - {str(e)}")
 
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -57,7 +57,7 @@ class Plugin_Search:
             Cached_Data = Cached_Data_Object.Get_Cache()
 
             for Query in self.Query_List:
-                Yandex_Response = Common.Request_Handler(f"https://{self.Domain}/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(self.Limit)}.docs-in-group% 3D1")
+                Yandex_Response = Common.Request_Handler(url=f"https://{self.Domain}/search/xml?user={Yandex_Details[0]}&key={Yandex_Details[1]}&query={Query}&l10n=en&sortby=rlv&filter=none&maxpassages=five&groupby=attr% 3D% 22% 22.mode% 3Dflat.groups-on-page% 3D{str(self.Limit)}.docs-in-group% 3D1")
                 JSON_Response = xmltodict.parse(Yandex_Response)
                 JSON_Output_Response = Common.JSON_Handler(JSON_Response).Dump_JSON()
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
@@ -83,7 +83,7 @@ class Plugin_Search:
                                     Title = f"{self.Plugin_Name} | {Title}"
 
                                 if Yandex_URL not in Cached_Data and Yandex_URL not in Data_to_Cache:
-                                    Yandex_Item_Responses = Common.Request_Handler(Yandex_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://{self.Domain}")
+                                    Yandex_Item_Responses = Common.Request_Handler(url=Yandex_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://{self.Domain}")
                                     Yandex_Item_Response = Yandex_Item_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Yandex_Item_Response, Yandex_URL, self.The_File_Extensions["Query"])
 

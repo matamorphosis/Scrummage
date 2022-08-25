@@ -1,33 +1,181 @@
-import json, os, datetime, urllib, requests, logging, re, csv, smtplib, slack, psycopg2
+import json, os, datetime, urllib, requests, logging, re, csv, smtplib, slack, psycopg2, base64, hashlib, string
+from Crypto.Cipher import AES
+from Crypto import Random
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from docx import Document
 from jira.client import JIRA
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from defectdojo_api import defectdojo
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+Current_User_Agent: str = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+
+def Alnum_List() -> list:
+    Lowercase: list = list(string.ascii_lowercase)
+    Uppercase: list = list(string.ascii_uppercase)
+    Numbers: list = [str(r) for r in range(0, 10)]
+    AlNum: list = Lowercase.copy()
+    AlNum.extend(Uppercase)
+    AlNum.extend(Numbers)
+    return AlNum
+
+class Fang:
+
+    def __init__(self):
+        self.entity_components: dict = {
+            ".": "[.]",
+            "http": "hXXp",
+            "@": "[AT]",
+            "ftp": "fXp",
+            "magnet": "mXgnXt"
+        }
+
+    def Defang(self, entity: str = str()) -> str:
+        
+        for fanged, defanged in self.entity_components.items():
+            entity = entity.replace(fanged, defanged)
+
+        return entity
+
+    def Fang(self, entity: str = str()) -> str:
+
+        for fanged, defanged in self.entity_components.items():
+            entity = entity.replace(defanged, fanged)
+
+        return entity
+
+    def Defang_List(self, entity: list = list()) -> list:
+        iterator: int = int()
+
+        for item in entity:
+        
+            for fanged, defanged in self.entity_components.items():
+                item = item.replace(fanged, defanged)
+
+            entity[iterator] = item
+            iterator += 1
+
+        return entity
+
+    def Fang_List(self, entity: list = list()) -> list:
+        iterator: int = int()
+
+        for item in entity:
+        
+            for fanged, defanged in self.entity_components.items():
+                item = item.replace(defanged, fanged)
+
+            entity[iterator] = item
+            iterator += 1
+
+        return entity
+
+class Coder:
+
+    def __init__(self, to_code):
+        self.to_code = to_code
+
+    def encode_check(self):
+
+        if isinstance(self.to_code, bytes):
+            self.to_code = self.to_code
+
+        else:
+            self.to_code = self.to_code.encode()
+
+    def decode_check(self):
+
+        if isinstance(self.to_code, str):
+            self.to_code = self.to_code
+
+        else:
+            self.to_code = self.to_code.decode()
+
+    def b64_encode(self):
+        self.encode_check()
+        return base64.b64encode(self.to_code).decode()
+
+    def b64_urlsafe_encode(self):
+        self.encode_check()
+        return base64.urlsafe_b64encode(self.to_code).decode()
+
+    def b64_decode(self, decode: bool=True):
+        self.decode_check()
+
+        if decode:
+            return base64.b64decode(self.to_code).decode()
+
+        else:
+            return base64.b64decode(self.to_code)
+
+    def b64_urlsafe_decode(self, decode):
+        self.decode_check()
+
+        if decode:
+            return base64.urlsafe_b64decode(self.to_code).decode()
+
+        else:
+            return base64.urlsafe_b64decode(self.to_code)
+
+class Cryptography:
+
+    def __init__(self):
+        """Initialises cryptography object"""
+        BLOCK_SIZE: int = 16
+        self.pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+        self.unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+        self.filesystem_uuid = os.environ["DISK_UUID"]
+
+        if self.filesystem_uuid is None:
+            Message = "Environment Variables needed for cryptography don't exist."
+            logging.warning(Message)
+            raise ValueError(Message)
+
+    def encrypt(self, raw):
+        """Encrypts data"""
+        private_key = hashlib.sha256(self.filesystem_uuid.encode("utf-8")).digest()
+        raw = self.pad(raw)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(private_key, AES.MODE_CBC, iv)
+        return Coder(iv + cipher.encrypt(raw.encode())).b64_encode()
+
+    def decrypt(self, enc):
+        """Decrypts data"""
+        private_key = hashlib.sha256(self.filesystem_uuid.encode("utf-8")).digest()
+        enc = Coder(enc).b64_decode(decode=False)
+        iv = enc[:16]
+        cipher = AES.new(private_key, AES.MODE_CBC, iv)
+        return self.unpad(cipher.decrypt(enc[16:])).decode()
+
+    def configuration_encrypt(self, configuration: dict() = dict()) -> str:
+        """Encrypts configuration data"""
+        return self.encrypt(JSON_Handler(configuration).Dump_JSON(Sort=False))
+
+    def configuration_decrypt(self, encrypted_configuration: str = str()) -> dict:
+        """Decrypts configuration data"""
+        # Requires double JSON loading.
+        return JSON_Handler(JSON_Handler(self.decrypt(encrypted_configuration)).To_JSON_Loads()).To_JSON_Loads()
 
 class Configuration:
 
-    def __init__(self, Input=False, Output=False, Core=False):
+    def __init__(self, Input: bool = bool(), Output: bool = bool(), Core: bool = bool()):
+        """Initialises configuration class"""
 
         try:
-            self.key = ""
+            self.key: str = str()
 
             if Input:
-                self.key = "inputs"
+                self.key: str = "inputs"
 
             elif Output:
-                self.key = "outputs"
+                self.key: str = "outputs"
 
             elif Core:
-                self.key = "core"
+                self.key: str = "core"
 
-            if self.key != "":
+            if self.key != str():
                 JSON_File = open(Set_Configuration_File(), "r")
-                Configuration_Data = JSON_Handler(JSON_File).To_JSON_Load()
+                Configuration_Data = Cryptography().configuration_decrypt(JSON_File.read())
                 JSON_File.close()
                 self.JSON_Data = Configuration_Data
                 self.JSON_Object_Details = Configuration_Data[self.key]
@@ -39,6 +187,7 @@ class Configuration:
             logging.warning(f"{Date()} - Common Library - Failed to load configuration file - {str(e)}.")
 
     def Load_Keys(self):
+        """Loads only the configuration keys"""
 
         try:
 
@@ -51,11 +200,12 @@ class Configuration:
         except Exception as e:
             logging.warning(f"{Date()} - Common Library - Failed to load keys for section {self.key} - {str(e)}.")
 
-    def Load_Values(self, Object=""):
+    def Load_Values(self, Object: str= str()):
+        """Loads only the configuration values"""
 
         try:
 
-            if self.JSON_Object_Details and Object != "":
+            if self.JSON_Object_Details and Object != str():
                 return self.JSON_Object_Details[Object]
 
             else:
@@ -64,21 +214,23 @@ class Configuration:
         except Exception as e:
             logging.warning(f"{Date()} - Common Library - Failed to load object data - {str(e)}.")
 
-    def Set_Field(self, Object="", Config={}):
+    def Set_Field(self, Object: str= str(), Config: dict = dict()):
+        """Updates configuration values for a given object"""
 
         try:
 
-            if self.JSON_Object_Details and Object != "" and Config != {} and Object in self.JSON_Data[self.key]:
+            if self.JSON_Object_Details and Object != str() and Config != dict() and Object in self.JSON_Data[self.key]:
                 self.JSON_Data[self.key][Object] = Config
                 JSON_File = open(Set_Configuration_File(), "w")
-                JSON_File.write(JSON_Handler(self.JSON_Data).Dump_JSON(Sort=False))
+                JSON_File.write(Cryptography().configuration_encrypt(JSON_Handler(self.JSON_Data).Dump_JSON()))
                 JSON_File.close()
                 return True
 
         except Exception as e:
             logging.warning(f"{Date()} - Common Library - Failed to set field - {str(e)}.")  
 
-    def Load_Configuration(self, Location=False, Postgres_Database=False, Object="", Details_to_Load=[]):
+    def Load_Configuration(self, Location: bool = bool(), Postgres_Database: bool = bool(), Object: str = str(), Details_to_Load: list = list()):
+        """Loads configuration details for plugins to interact with third party sites, and for outputs to export results"""
 
         try:
 
@@ -88,7 +240,7 @@ class Configuration:
             if self.JSON_Object_Details:
                 
                 if Object in self.JSON_Object_Details:
-                    Return_Details = []
+                    Return_Details: list = list()
 
                     for Detail in Details_to_Load:
                         Current_Item = self.JSON_Object_Details[Object]
@@ -121,7 +273,14 @@ class Configuration:
 
                     elif Location and not Postgres_Database:
                         Result_Detail = Return_Details[0]
-                        Valid_Locations = ['ac', 'ac', 'ad', 'ae', 'af', 'af', 'ag', 'ag', 'ai', 'al', 'am', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'az', 'ba', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bi', 'bj', 'bn', 'bo', 'bo', 'br', 'bs', 'bt', 'bw', 'by', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'cn', 'co', 'co', 'co', 'cr', 'cu', 'cv', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ec', 'ee', 'eg', 'es', 'et', 'eu', 'fi', 'fj', 'fm', 'fr', 'ga', 'ge', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gp', 'gp', 'gr', 'gr', 'gt', 'gy', 'gy', 'gy', 'hk', 'hk', 'hn', 'hr', 'ht', 'ht', 'hu', 'hu', 'id', 'id', 'ie', 'il', 'im', 'im', 'in', 'in', 'io', 'iq', 'iq', 'is', 'it', 'je', 'je', 'jm', 'jo', 'jo', 'jp', 'jp', 'ke', 'kg', 'kh', 'ki', 'kr', 'kw', 'kz', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'ma', 'md', 'me', 'mg', 'mk', 'ml', 'mm', 'mn', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'mx', 'my', 'mz', 'na', 'ne', 'nf', 'ng', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pe', 'pf', 'pg', 'ph', 'pk', 'pk', 'pl', 'pl', 'pn', 'pr', 'ps', 'ps', 'pt', 'py', 'qa', 'qa', 're', 'ro', 'rs', 'rs', 'ru', 'ru', 'rw', 'sa', 'sb', 'sc', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sl', 'sm', 'sn', 'so', 'sr', 'st', 'sv', 'sy', 'td', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tt', 'tz', 'ua', 'ua', 'ug', 'uk', 'us', 'us', 'uy', 'uz', 'uz', 'vc', 've', 've', 'vg', 'vi', 'vn', 'vu', 'ws', 'za', 'zm', 'zw']
+                        Valid_Locations: tuple = (
+                            'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'az', 'ba', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bn', 'bo', 'br', 'bs', 'bt', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf',
+                            'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'es', 'et', 'eu', 'fi', 'fj', 'fm', 'fr', 'ga', 'ge', 'gf', 'gg', 'gh', 'gi',
+                            'gl', 'gm', 'gp', 'gr', 'gt', 'gy', 'hk', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'kr', 'kw', 'kz', 'la', 'lb', 'lc', 'li',
+                            'lk', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'md', 'me', 'mg', 'mk', 'ml', 'mm', 'mn', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa',
+                            'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pn', 'pr', 'ps', 'pt', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'st', 'sv', 'sy', 'td', 'tg',
+                            'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tt', 'tz', 'ua', 'ug', 'uk', 'us', 'uy', 'uz', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'ws', 'za', 'zm', 'zw'
+                        )
 
                         if Result_Detail not in Valid_Locations:
                             logging.warning(f"{Date()} - Common Library - An invalid location has been specified, please provide a valid location in the config.json file.")
@@ -146,7 +305,7 @@ class Configuration:
                                 return None
 
                         except Exception as e:
-                            logging.warning(f"{Date()} - Common Library - Failed to connect to database. {str(e)}.")
+                            logging.warning(f"{Date()} - Common Library - Failed to connect to database - {str(e)}.")
                             return None
 
                 else:
@@ -159,14 +318,15 @@ class Configuration:
             logging.warning(f"{Date()} - Common Library - Failed to load details for object {str(Object)} - {str(e)}.")
 
 def CSV_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_File, Task_ID, Directory):
+    """"""
 
     try:
         Use_CSV = Load_Output(Object, "csv")
 
         if Use_CSV:
-            File_Dir = os.path.dirname(os.path.realpath('__file__'))
-            Headings = ["Title", "Plugin", "Domain", "Link", "Created At", "Output Files", "Result Type", "Task ID"]
-            Data = [Title, Plugin_Name, Domain, Link, Date(), Output_File, Result_Type, str(Task_ID)]
+            File_Dir: str = os.path.dirname(os.path.realpath('__file__'))
+            Headings: tuple = ("Title", "Plugin", "Domain", "Link", "Created At", "Output Files", "Result Type", "Task ID")
+            Data: tuple = (Title, Plugin_Name, Domain, Link, Date(), Output_File, Result_Type, str(Task_ID))
             Complete_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.csv"
 
             if not os.path.exists(Complete_File):
@@ -194,9 +354,9 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
         Use_DOCX = Load_Output(Object, "docx")
 
         if Use_DOCX:
-            File_Dir = os.path.dirname(os.path.realpath('__file__'))
-            Template_File = f"{File_Dir}/plugins/common/templates/Scrummage_Report_Template.docx"
-            Output_File = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
+            File_Dir: str = os.path.dirname(os.path.realpath('__file__'))
+            Template_File: str = f"{File_Dir}/plugins/common/templates/Scrummage_Report_Template.docx"
+            Output_File: str = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
 
             if os.path.exists(Output_File):
                 document = Document(Output_File)
@@ -251,36 +411,23 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
         logging.warning(f"{Date()} - Common Library - {str(e)}.")
 
 def Load_Output(Object, Type):
+    Standardised_Outputs: list = ["postgresql", "scumblr"]
+    Defined_Outputs: dict = {
+        "docx": ["use_docx"],
+        "csv": ["use_csv"],
+        "defectdojo": ["ssl", "api_key", "host", "user", "engagement_id", "product_id", "test_id", "user_id"],
+        "rtir": ["ssl", "host", "port", "user", "password", "authenticator"],
+        "jira": ["project_key", "address", "username", "password", "ticket_type"],
+        "slack": ["token", "channel"],
+        "elasticsearch": ["ssl", "host", "port", "index", "use_timestamp"],
+        "email": ["smtp_server", "smtp_port", "from_address", "from_password", "to_address"]
+    }
 
-    if Type == "docx":
-        return Object.Load_Configuration(Object="docx_report", Details_to_Load=["use_docx"])
-
-    elif Type == "csv":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["use_csv"])
-
-    elif Type == "defectdojo":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["ssl", "api_key", "host", "user", "engagement_id", "product_id", "test_id", "user_id"])
-
-    elif Type == "postgresql":
+    if Type in Standardised_Outputs:
         return Object.Load_Configuration(Postgres_Database=True, Object=Type)
 
-    elif Type == "scumblr":
-        return Object.Load_Configuration(Postgres_Database=True, Object=Type)
-
-    elif Type == "rtir":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["ssl", "host", "port", "user", "password", "authenticator"])
-
-    elif Type == "jira":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["project_key", "address", "username", "password", "ticket_type"])
-
-    elif Type == "slack":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["token", "channel"])
-
-    elif Type == "elasticsearch":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["ssl", "host", "port", "index", "use_timestamp"])
-
-    elif Type == "email":
-        return Object.Load_Configuration(Object=Type, Details_to_Load=["smtp_server", "smtp_port", "from_address", "from_password", "to_address"])
+    elif Type in Defined_Outputs:
+        return Object.Load_Configuration(Object=Type, Details_to_Load=Defined_Outputs[Type])
 
 def Defect_Dojo_Output(Object, Title, Description):
     DD_Details = Load_Output(Object, "defectdojo")
@@ -290,20 +437,42 @@ def Defect_Dojo_Output(Object, Title, Description):
         try:
 
             if DD_Details[0]:
-                Service = "https://"
+                Service: str = "https://"
 
             else:
-                Service = "http://"
+                Service: str = "http://"
 
-            Host = Service + DD_Details[2]
-            Impact = 'All Scrummage findings have the potential to cause significant damage to a business\' finances, efficiency and reputation. Therefore, findings should be investigated to assist in reducing this risk.'
-            Mitigation = 'It is recommended that this issue be investigated further by the security team to determine whether or not further action needs to be taken.'
-            DD_Connection = defectdojo.DefectDojoAPI(Host, DD_Details[1], DD_Details[3], debug=False)
-            Finding = DD_Connection.create_finding(Title, Description, 'Low', '', str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')), DD_Details[5], DD_Details[4], DD_Details[6], DD_Details[7], Impact, True, False, Mitigation)
+            Host = f"{Service}{DD_Details[2]}/api/v2/findings/"
+            Impact: str = 'All Scrummage findings have the potential to cause significant damage to a business\' finances, efficiency and reputation. Therefore, findings should be investigated to assist in reducing this risk.'
+            Mitigation: str = 'It is recommended that this issue be investigated further by the security team to determine whether or not further action needs to be taken.'
+            DD_Finding_Payload = {
+                "static_finding": True,
+                "description": Description,
+                "mitigation": Mitigation,
+                "impact": Impact,
+                "false_p": bool(),
+                "date": str(datetime.datetime.now().strftime('%Y-%m-%d')),
+                "severity": "Low",
+                "numerical_severity": "1",
+                "title": Title,
+                "duplicate": bool(),
+                "test": DD_Details[6],
+                "found_by": [
+                    1
+                ],
+                "verified": True,
+                "line": int(),
+                "active": True,
+                "under_review": True,
+                "dynamic_finding": True
+            }
+            Response = Request_Handler(url=Host, method="POST", json=DD_Finding_Payload, Optional_Headers={"Authorization": f"Token {DD_Details[1]}"}, Full_Response=True)
+            
+            if Response.status_code != 201:
+                logging.info(f"{Date()} - Common Library - Failed to create DefectDojo finding. {str(e)}.")
 
             try:
-                Finding = str(int(str(Finding)))
-                logging.info(f"{Date()} - Common Library - DefectDojo finding {Finding} created.")
+                logging.info(f"{Date()} - Common Library - DefectDojo finding created.")
 
             except Exception as e:
                 logging.info(f"{Date()} - Common Library - Failed to create DefectDojo finding. {str(e)}.")
@@ -354,9 +523,8 @@ def Scumblr_Main(Object, Link, Domain, Title):
             # Create connection cursor.
             Cursor = Connection.cursor()
             Cursor.execute("SELECT * FROM results WHERE url like %s", (Link,))
-            Item_Already_in_Database = Cursor.fetchone()
 
-            if Item_Already_in_Database is None:
+            if Cursor.fetchone() is None:
                 # Execute statement.
                 Cursor.execute("INSERT INTO results (title, url, created_at, updated_at, domain) VALUES(%s, %s, %s, %s, %s)", (Title, Link, Date(), Date(), Domain))
 
@@ -381,17 +549,17 @@ def RTIR_Main(Object, Ticket_Subject, Ticket_Text):
         try:
 
             if RTIR_Details[0]:
-                Service = "https://"
+                Service: str = "https://"
 
             else:
-                Service = "http://"
+                Service: str = "http://"
 
             Request_Data = f"content=id: ticket/new\nQueue: 1\nSubject: {Ticket_Subject}\nText: {Ticket_Text}"
 
             if RTIR_Details[5] != "cookie_based":
                 logging.info(f"{Date()} - Common Library - No Authenticator specified, using the default which is cookie-based authentication.")
 
-            RTIR_Response = Request_Handler(f"{Service}://{RTIR_Details[1]}:{RTIR_Details[2]}/REST/1.0/ticket/new?user={RTIR_Details[3]}&pass={RTIR_Details[4]}", Method="POST", Data=Request_Data)
+            RTIR_Response = Request_Handler(url=f"{Service}://{RTIR_Details[1]}:{RTIR_Details[2]}/REST/1.0/ticket/new?user={RTIR_Details[3]}&pass={RTIR_Details[4]}", method="POST", Data=Request_Data)
 
             if RTIR_Response.status_code == 200:
                 logging.info(f"{Date()} - Common Library - New RTIR ticket created.")
@@ -420,7 +588,6 @@ def Slack_Main(Object, Description):
     Slack_Details = Load_Output(Object, "slack")
 
     if Slack_Details:
-        print(Slack_Details)
 
         try:
             client = slack.WebClient(token=Slack_Details[0])
@@ -445,15 +612,15 @@ def Elasticsearch_Main(Object, Title, Plugin_Name, Domain, Link, Result_Type, Ou
                 Index = Elasticsearch_Details[3] + "-" + Concat_Plugin_Name
 
             if Elasticsearch_Details[0]:
-                Service = "https://"
+                Service: str = "https://"
 
             else:
-                Service = "http://"
+                Service: str = "http://"
 
             URI = Service + Elasticsearch_Details[1] + ":" + str(Elasticsearch_Details[2]) + Index
             data = {"title": Title, "plugin": Plugin_Name, "domain": Domain, "link": Link, "output_file": Output_File, "result_type": Result_Type, "created_at": Date(), "associated_task_id": str(Task_ID)}
             data = JSON_Handler(data).Dump_JSON()
-            resp = Request_Handler(URI, Method="POST", Application_JSON_CT=True, Full_Response=True, Data=data)
+            resp = Request_Handler(URI, method="POST", Application_JSON_CT=True, Full_Response=True, Data=data)
 
             if resp.status_code == 200:
                 logging.info(f"{Date()} - Common Library - New result created in Elasticsearch, using the URI {URI}.")
@@ -491,12 +658,12 @@ def Set_Configuration_File():
 
     try:
         File_Dir = os.path.dirname(os.path.realpath('__file__'))
-        return os.path.join(File_Dir, 'plugins/common/config/config.json')
+        return os.path.join(File_Dir, 'plugins/common/config/config.config')
 
     except Exception as e:
         logging.warning(f"DATE FUNCTION ERROR - Common Library - {str(e)}.")
 
-def Date(Additional_Last_Days=0, Date_Only=False, Elastic=False, Full_Timestamp=False):
+def Date(Additional_Last_Days=0, Date_Only: bool = bool(), Elastic: bool = bool(), Full_Timestamp=False):
 
     try:
 
@@ -513,7 +680,7 @@ def Date(Additional_Last_Days=0, Date_Only=False, Elastic=False, Full_Timestamp=
 
         if Additional_Last_Days > 0:
             Additional_Last_Days_Range = Additional_Last_Days - 1
-            Real_Dates = []
+            Real_Dates: list = list()
 
             while Additional_Last_Days_Range < Additional_Last_Days and Additional_Last_Days_Range >= 0:
                 Today = datetime.datetime.now()
@@ -544,7 +711,7 @@ class JSON_Handler:
         try:
             json_object = json.loads(self.json_data)
 
-        except ValueError as e:
+        except ValueError:
             return False
 
         return json_object
@@ -582,78 +749,56 @@ class JSON_Handler:
         except Exception as e:
             logging.error(f"{Date()} - Common Library - {str(e)}.")
 
-def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=False, Application_JSON_CT=False, Application_Form_CT=False, Accept_XML=False, Accept_Language_EN_US=False, Filter=False, Risky_Plugin=False, Full_Response=False, Content_Response=False, Host="", Data={}, Params={}, JSON_Data={}, Optional_Headers={}, Scrape_Regex_URL="", Proxies={}, Certificate_Verification=True):
+def Request_Handler(User_Agent=True, Application_JSON_Accept: bool = bool(), Application_JSON_CT: bool = bool(), Application_Form_CT: bool = bool(), Accept_XML: bool = bool(), Accept_Language_EN_US: bool = bool(), Filter: bool = bool(), Risky_Plugin: bool = bool(), Full_Response: bool = bool(), Content_Response: bool = bool(), Host: str= str(), Data: dict = dict(), Params: dict = dict(), JSON_Data: dict = dict(), Optional_Headers: dict = dict(), Scrape_Regex_URL: str= str(), Proxies: dict = dict(), **kwargs):
 
     try:
-        Headers = {}
+        Headers: dict = dict()
 
-        if type(Data) == dict or type(Data) == str:
-            Result =  Configuration(Core=True).Load_Configuration(Object="proxy", Details_to_Load=["http", "https", "use_system_proxy"])
+        if not kwargs.get("method"):
+            kwargs["method"] = "GET"
+
+        if type(Data) in [dict, str]:
+            Result = Configuration(Core=True).Load_Configuration(Object="proxy", Details_to_Load=["http", "https", "use_system_proxy"])
 
             if Result:
+                Proxies: dict = dict()
                 
                 if Result[2]:
                     Proxies = urllib.request.getproxies()
 
-                elif Result[0] != "" and Result[1] != "":
+                elif Result[0] != str() and Result[1] != str():
                     Proxies = {"http": Result[0], "https": Result[1]}
+                
+                if Proxies != dict():
+                    kwargs["proxies"]: dict = Proxies
 
             if User_Agent:
                 Headers['User-Agent'] = Current_User_Agent
 
             if Application_JSON_Accept:
-                Headers['Accept'] = 'application/json'
+                Headers['Accept']: str = 'application/json'
             
             if Application_JSON_CT:
-                Headers['Content-Type'] = 'application/json'
+                Headers['Content-Type']: str = 'application/json'
 
             if Accept_XML:
-                Headers['Accept'] = 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                Headers['Accept']: str = 'ext/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 
             if Accept_Language_EN_US:
-                Headers['Accept-Language'] = 'en-US,en;q=0.5'
+                Headers['Accept-Language']: str = 'en-US,en;q=0.5'
 
             if Application_Form_CT:
-                Headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                Headers['Content-Type']: str = 'application/x-www-form-urlencoded'
 
             if type(Optional_Headers) == dict and len(Optional_Headers) > 0:
 
                 for Header_Key, Header_Value in Optional_Headers.items():
                     Headers[Header_Key] = Header_Value
+
+            kwargs["headers"]: dict = Headers
                     
             try:
-            
-                if Method == "GET":
-
-                    if Data:
-                        Response = requests.get(URL, headers=Headers, data=Data, proxies=Proxies, verify=Certificate_Verification)
-
-                    elif JSON_Data:
-                        Response = requests.get(URL, headers=Headers, json=JSON_Data, proxies=Proxies, verify=Certificate_Verification)
-
-                    elif Params:
-                        Response = requests.get(URL, headers=Headers, params=Params, proxies=Proxies, verify=Certificate_Verification)
-
-                    else:
-                        Response = requests.get(URL, headers=Headers, proxies=Proxies, verify=Certificate_Verification)
-
-                elif Method == "POST":
-
-                    if Data:
-                        Response = requests.post(URL, headers=Headers, data=Data, proxies=Proxies, verify=Certificate_Verification)
-
-                    elif JSON_Data:
-                        Response = requests.post(URL, headers=Headers, json=JSON_Data, proxies=Proxies, verify=Certificate_Verification)
-
-                    elif Params:
-                        Response = requests.post(URL, headers=Headers, params=Params, proxies=Proxies, verify=Certificate_Verification)
-
-                    else:
-                        Response = requests.post(URL, headers=Headers, proxies=Proxies, verify=Certificate_Verification)
-
-                else:
-                    logging.warning(f"{Date()} - Common Library - The supplied method is not supported.")
-                    return None
+                Response = requests.request(**kwargs)
                     
             except requests.exceptions.ConnectionError:
                 return None
@@ -666,10 +811,10 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=
                 else:
                     Response = Response.content
 
-            Response_Dict = {}
+            Response_Dict: dict = dict()
 
-            if Scrape_Regex_URL != "":
-                Scrape_URLs = []
+            if Scrape_Regex_URL != str():
+                Scrape_URLs: list = list()
 
                 try:
                     Scrape_URLs_Raw = Regex_Handler(str(Response), Custom_Regex=Scrape_Regex_URL, Findall=True)
@@ -685,7 +830,7 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=
                 Response_Dict["Regular"] = Response
                 Response_Dict["Scraped"] = Scrape_URLs
 
-            if Filter and str(Host) != "":
+            if Filter and str(Host) != str():
                 Filtered_Response = Response_Filter(Response, str(Host), Risky_Plugin=Risky_Plugin)
 
                 if not Response_Dict.get("Regular"):
@@ -693,7 +838,7 @@ def Request_Handler(URL, Method="GET", User_Agent=True, Application_JSON_Accept=
 
                 Response_Dict["Filtered"] = Filtered_Response
 
-            if Response_Dict != {}:
+            if Response_Dict != dict():
                 return Response_Dict
 
             else:
@@ -736,11 +881,11 @@ def Response_Filter(Response, Host, Risky_Plugin=False):
         
     return Response
 
-def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Components=False):
+def Regex_Handler(Query, Type: str= str(), Custom_Regex: str= str(), Findall: bool = bool(), Get_URL_Components=False):
 
     try:
 
-        if Type != "":
+        if Type != str():
             Predefined_Regex_Patterns = {"Phone": r"^\+\d+$", "Phone_Multi": r"^(\+)?\d+$", "Email": r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-\.]+$)", "Domain": r"([-a-zA-Z0-9@:%_\+~#=]{2,256}\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?", "IP": r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", "URL": r"^(https?\:\/\/(www\.)?)?([a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]+)(\.[a-z]+)?(\.[a-z]+)?(\/)?$", "URL_Wild": r"(https?\:\/\/(www\.)?)?([-a-zA-Z0-9@:%_\+\-~#=]{2,256})(\.[a-z]{2,3})(\.[a-z]{2,3})?(\.[a-z]{2,3})?(\/)?.*", "MD5": r"([a-fA-F0-9]{32})\W", "SHA1": r"([a-fA-F0-9]{40})\W", "SHA256": r"([a-fA-F0-9]{64})\W", "Credentials": r"[\w\d\.\-\_]+\@[\w\.]+\:.*", "Cron": r"^([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)\s([\d\/\*\-\,]+)$", "File_Date": r".+\/\d{4}\/\d{2}\/\d{2}\/.+", "Password_Special_Characters": r"[\@\_\-\!\#\$\%\^\&\*\(\)\~\`\<\>\]\[\}\{\|\:\;\'\"\/\?\.\,\+\=]+", "Company_Name": r".*[a-zA-Z].*", "Username": r"^[\s]+"}
 
             for Key, Value in Predefined_Regex_Patterns.items():
@@ -774,7 +919,7 @@ def Regex_Handler(Query, Type="", Custom_Regex="", Findall=False, Get_URL_Compon
             else:
                 return None
 
-        elif Custom_Regex != "":
+        elif Custom_Regex != str():
 
             if not Findall:
                 Regex = re.search(Custom_Regex, Query)
@@ -799,7 +944,7 @@ def Filter(Segment_List, Start_Number, End_Number):
     try:
 
         def Dash_to_Numbers(Segment):
-            List_of_Numbers = []
+            List_of_Numbers: list = list()
             Segments = Segment.split("-")
             Iterator = int(Segments[0])
 
@@ -809,7 +954,7 @@ def Filter(Segment_List, Start_Number, End_Number):
 
             return List_of_Numbers
 
-        Segment_List_Filtered = []
+        Segment_List_Filtered: list = list()
 
         for Segment_Item in Segment_List:
 
@@ -820,8 +965,8 @@ def Filter(Segment_List, Start_Number, End_Number):
             else:
                 Segment_List_Filtered.append(Segment_Item)
 
-        Non_Hardcoded_Segment_List = []
-        Updated_Segment_List = []
+        Non_Hardcoded_Segment_List: list = list()
+        Updated_Segment_List: list = list()
         Iterator = 0
         Range_End = End_Number + 1
         Approved_Hours = list(range(Start_Number, Range_End))

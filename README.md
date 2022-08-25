@@ -7,19 +7,17 @@
   <img width="172" height="203" src="/app/static/images/main.png">
 </p>
 
-**VERSION 3.8**
-- Categorised dashboards.
-- Web-based task cache management.
-- Improved task-specific input validation.
-- New plugins, i.e. GitLab Search.
+**VERSION 3.9**
+- Improved dependency management (migration to Poetry)
+- Stricter type checking of variables.
+- Improved anonymity of the configuration file via encryption. (Manual editing of configuration file is now difficult and it's advised to not edit the configuration file manually.)
+- Code quality and security enhancements, including revamping of input validation.
   
-Scrummage is an OSINT tool that centralises search functionality from a bounty of powerful, publicly-available, third-party, OSINT websites. This project draws inspiration mainly from two other, open-source projects, including:  
-- The [Scumblr](https://github.com/Netflix-Skunkworks/Scumblr) project, which while is now deprecated, inspired this concept.
-- The [OSINT Framework](https://osintframework.com/) project, which is a visualisation tool, depicting a range of sites that can be used to search for a variety of things.
+Scrummage is an OSINT tool that centralises search functionality from a bounty of powerful, publicly-available, third-party, OSINT websites.
 
-While at first glance the web application may not look all that different when compared to Scumblr, the copious amounts of plugins this tool comes with is mainly what makes this project unique, where the provided Python/Flask web application is just a simple, lightweight, and scalable way of providing users with the ability to manage large pools of results. The other main benefit this projects brags is a much simpler installation process, which is kept up to date, compared to Scumblr which is now deprecated. 
+Scrummage provides distinct value in terms of the copious amounts of plugins this tool comes with. The provided Python/Flask web application is just a simple, lightweight, and scalable way of providing users with the ability to manage large pools of results. The installation of this tool is simple, and can be circumvented with the provided image, which will create a new instance of Scrummage when run for the first time.
 
-Any feedback is welcome.
+Please feel free to contribute to this project, whether via reporting bugs or creating new feature requests. If you don't want to contribute to the code base, but want to get behind the Scrummage project, Sponsorship enables us to continue to improve and mature the platform. We are happy to reward our sponsors with platform support and in other ways shown on the sponsorship page. Scrummage will always remain open-source, and free of charge, as a way to give back to the global, open-source, security community. However, we recognise that learning how to use the platform, and implement it, especially in complex environments, can be challenging. This is where Sponsorship can be used to obtain that extra support.
 
 **FOR INSTRUCTIONS REFER TO THE [WIKI](https://github.com/matamorphosis/Scrummage/wiki)**
 

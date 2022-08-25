@@ -4,14 +4,14 @@ from requests_oauthlib import OAuth1Session
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "Tumblr"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "Tumblr"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "tumblr.com"
-        self.Result_Type = "Social Media - Page"
+        self.Domain: str = "tumblr.com"
+        self.Result_Type: str = "Social Media - Page"
 
     def Load_Configuration(self):
         logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Loading configuration data.")
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -49,14 +49,14 @@ class Plugin_Search:
 
                 if "blog" in Response and "url" in Response.get("blog"):
                     Link = Response["blog"]["url"]
-                    Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
+                    Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{self.Domain}")
                     Filtered_Response = Responses["Filtered"]
 
                     if Response["blog"].get("title"):
-                        Title = f"{self.Plugin_Name} | " + str(Response["blog"]["title"])
+                        Title = f"{self.Plugin_Name} | {str(Response['blog']['title'])}"
 
                     else:
-                        Title = f"{self.Plugin_Name} | " + General.Get_Title(Link, Requests=True)
+                        Title = f"{self.Plugin_Name} | {General.Get_Title(Link, Requests=True)}"
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Filtered_Response, Link, self.The_File_Extensions["Query"])

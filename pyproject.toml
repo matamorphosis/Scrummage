@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "Scrummage"
+version = "3.9"
+description = "The Ultimate OSINT and Threat Hunting Framework"
+authors = ["Matamorphosis <info@endsec.com.au>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+praw = "^7.6.0"
+pandas = "^1.4.3"
+feedparser = "^6.0.10"
+jira = "^3.4.0"
+pyhibp = "^4.2.0"
+ebaysdk = "^2.2.0"
+google-api-python-client = "^2.57.0"
+selenium = "^4.4.2"
+Flask = "^2.2.2"
+python-crontab = "^2.6.0"
+slackclient = "^2.9.4"
+vulners = "^2.0.2"
+defectdojo_api = "^1.1.4"
+flickr-api = "^0.7.3"
+python-docx = "^0.8.11"
+Flask-Compress = "^1.12"
+Flask-JWT = "^0.3.2"
+Flask-WTF = "^1.0.1"
+tweepy = "^4.10.0"
+ratelimiter = "^1.2.0"
+pyleri = "^1.4.1"
+publicsuffix2 = "^2.20191221"
+shodan = "^1.28.0"
+builtwith = "^1.3.4"
+pyhunter = "^1.7"
+PyTumblr = "^0.1.0"
+requests-oauthlib = "^1.3.1"
+emailrep = "^0.0.5"
+bs4 = "^0.0.1"
+timeout-decorator = "^0.5.0"
+Py1337x = "^0.3"
+wikipedia = "^1.4.0"
+Pillow = "^9.2.0"
+pyotp = "^2.6.0"
+pycryptodome = "^3.15.0"
+psycopg2-binary = "^2.9.3"
+pinterest-api = "^0.0.8"
+requests = "^2.28.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

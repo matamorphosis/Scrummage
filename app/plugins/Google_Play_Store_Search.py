@@ -3,21 +3,21 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Google Play Store"
-        self.Concat_Plugin_Name = "playstore"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Google Play Store"
+        self.Concat_Plugin_Name: str = "playstore"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "play.google.com"
-        self.Result_Type = "Application"
+        self.Domain: str = "play.google.com"
+        self.Result_Type: str = "Application"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -32,7 +32,7 @@ class Plugin_Search:
 
                 try:
                     body = {"f.req": f'''[[["lGYRle","[[[],[[10,[10,50]],true,null,[96,27,4,8,57,30,110,11,16,49,1,3,9,12,104,55,56,51,10,34,31,77,145],[null,null,null,[[[[7,31],[[1,52,43,112,92,58,69,31,19,96,103]]]]]]],[\\"{Query}\\"],7,[null,1]]]",null,"2"]]]'''}
-                    Play_Store_Response = Common.Request_Handler(f"https://{self.Domain}/_/PlayStoreUi/data/batchexecute", Method="POST", Data=body)
+                    Play_Store_Response = Common.Request_Handler(url=f"https://{self.Domain}/_/PlayStoreUi/data/batchexecute", method="POST", Data=body)
                     Play_Store_Response = Play_Store_Response.replace(')]}\'\n\n', "").replace("\\\\u003d", "=")
                     JSON_Object = Common.JSON_Handler(Play_Store_Response)
                     Play_Store_Response_JSON = JSON_Object.To_JSON_Loads()
@@ -45,11 +45,11 @@ class Plugin_Search:
                     for Result, Item in Win_Store_Regex:
                         Result = Result.replace("\\\\u003d", "=")
                         Result_URL = f"https://{self.Domain}{Result}"
-                        Item = Item.replace("u003d", "")
+                        Item = Item.replace("u003d", str())
                         Title = f"Play Store | {Item}"
                         
                         if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                            Play_Store_Responses = Common.Request_Handler(Result_URL, Filter=True, Host=f"https://{self.Domain}")
+                            Play_Store_Responses = Common.Request_Handler(url=Result_URL, Filter=True, Host=f"https://{self.Domain}")
                             Play_Store_Response = Play_Store_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Play_Store_Response, Item, self.The_File_Extensions["Query"])
 

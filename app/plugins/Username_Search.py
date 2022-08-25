@@ -3,20 +3,20 @@ import logging, os, time, plugins.common.General as General, plugins.common.Comm
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Username"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name).replace("-Search", "")
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Username"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name).replace("-Search", "")
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "usersearch.org"
-        self.Result_Type = "Account"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "usersearch.org"
+        self.Result_Type: str = "Account"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -34,7 +34,7 @@ class Plugin_Search:
                     
                 Main_URL = f"https://{self.Domain}/results_normal.php"
                 body = {"ran": "", "username": Query}
-                Responses = Common.Request_Handler(Main_URL, Method="POST", Data=body, Filter=True, Host=f"https://{self.Domain}", Optional_Headers={"Content-Type": "application/x-www-form-urlencoded"})
+                Responses = Common.Request_Handler(url=Main_URL, method="POST", Data=body, Filter=True, Host=f"https://{self.Domain}", Optional_Headers={"Content-Type": "application/x-www-form-urlencoded"})
                 Response = Responses["Regular"]
                 Filtered_Response = Responses["Filtered"]
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Filtered_Response, Query, self.The_File_Extension)
@@ -45,7 +45,7 @@ class Plugin_Search:
                     Current_Step = 0
 
                     for Item_URL, WWW in Link_Regex:
-                        Responses = Common.Request_Handler(Item_URL, Filter=True, Host=f"https://{self.Domain}")
+                        Responses = Common.Request_Handler(url=Item_URL, Filter=True, Host=f"https://{self.Domain}")
                         Response = Responses["Filtered"]
 
                         if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):

@@ -51,7 +51,7 @@ if __name__ == "__main__":
         connection = Load_Main_Database()
         cursor = connection.cursor()
 
-        create_org_query = '''CREATE TABLE IF NOT EXISTS org_identities
+        create_org_query: str = '''CREATE TABLE IF NOT EXISTS org_identities
             (identity_id SERIAL PRIMARY KEY NOT NULL,
             firstname TEXT NOT NULL,
             middlename TEXT,
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         
         cursor.execute(create_org_query)
         print(str(datetime.datetime.now()) + " Organisation Identities table created successfully in PostgreSQL.")
-        cursor.execute("SELECT result_id FROM results WHERE result_type = 'Virus';")
+        cursor.execute("SELECT result_id FROM results WHERE result_type: str = 'Virus';")
         results = cursor.fetchall()
 
         for result in results:

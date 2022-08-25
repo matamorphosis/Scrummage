@@ -3,19 +3,19 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "AbuseIPDB"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "AbuseIPDB"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "abuseipdb.com"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "abuseipdb.com"
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -30,7 +30,7 @@ class Plugin_Search:
 
                 if Common.Regex_Handler(Query, Type=self.Type):
                     Search_URL = f"https://www.{self.Domain}/check-block/{Query}"
-                    Responses = Common.Request_Handler(Search_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                    Responses = Common.Request_Handler(url=Search_URL, Filter=True, Host=f"https://www.{self.Domain}")
                     Filtered_Response = Responses["Filtered"]
                     Result_Type = self.Type
 
@@ -41,9 +41,10 @@ class Plugin_Search:
 
                     if Search_URL not in Cached_Data and Search_URL not in Data_to_Cache:
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Filtered_Response, Query, self.The_File_Extension)
+                        Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
 
                         if Output_file:
-                            Output_Connections.Output([Output_file], Search_URL, f"{self.Plugin_Name} {self.Type} | {Query}", self.Plugin_Name.lower())
+                            Output_Connections.Output([Output_file], Search_URL, Title, self.Plugin_Name.lower())
                             Data_to_Cache.append(Search_URL)
 
                         else:

@@ -6,3 +6,5 @@
 **/certs
 **/lib
 **/dev
+*.dccache
+*.lock

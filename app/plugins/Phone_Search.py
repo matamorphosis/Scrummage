@@ -3,21 +3,21 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "Phone"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "Phone"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "numberingplans.com"
-        self.Result_Type = "Phone Details"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "numberingplans.com"
+        self.Result_Type: str = "Phone Details"
         self.Custom_Headers = {"Origin": "https://www.numberingplans.com"}
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -43,7 +43,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type="Phone"):
                         Link = f"https://www.{self.Domain}/?page=analysis&sub=phonenr"
                         Data = {"i": Query, "button": "analyse"}
-                        Responses = Common.Request_Handler(Link, Method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
+                        Responses = Common.Request_Handler(url=Link, method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
                         Response = Responses["Regular"]
                         Filtered_Response = Responses["Filtered"]
 
@@ -72,7 +72,7 @@ class Plugin_Search:
                     if Int_String(Query):
                         Link = f"https://www.{self.Domain}/?page=analysis&sub=imeinr"
                         Data = {"i": Query, "button": "analyse"}
-                        Responses = Common.Request_Handler(Link, Method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
+                        Responses = Common.Request_Handler(url=Link, method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
                         Response = Responses["Regular"]
                         Filtered_Response = Responses["Filtered"]
 
@@ -101,7 +101,7 @@ class Plugin_Search:
                     if Int_String(Query):
                         Link = f"https://www.{self.Domain}/?page=analysis&sub=imsinr"
                         Data = {"i": Query, "button": "analyse"}
-                        Responses = Common.Request_Handler(Link, Method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
+                        Responses = Common.Request_Handler(url=Link, method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
                         Response = Responses["Regular"]
                         Filtered_Response = Responses["Filtered"]
 
@@ -130,7 +130,7 @@ class Plugin_Search:
                     if Int_String(Query):
                         Link = f"https://www.{self.Domain}/?page=analysis&sub=simnr"
                         Data = {"i": Query, "button": "analyse"}
-                        Responses = Common.Request_Handler(Link, Method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
+                        Responses = Common.Request_Handler(url=Link, method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
                         Response = Responses["Regular"]
                         Filtered_Response = Responses["Filtered"]
 
@@ -159,7 +159,7 @@ class Plugin_Search:
                     if Int_String(Query):
                         Link = f"https://www.{self.Domain}/?page=analysis&sub=ispcnr"
                         Data = {"i": Query, "button": "analyse"}
-                        Responses = Common.Request_Handler(Link, Method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
+                        Responses = Common.Request_Handler(url=Link, method="POST", Application_Form_CT=True, Data=Data, Optional_Headers=self.Custom_Headers, Filter=True, Host=f"https://www.{self.Domain}")
                         Response = Responses["Regular"]
                         Filtered_Response = Responses["Filtered"]
 

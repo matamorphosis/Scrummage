@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 # Homograph Enumerator v2.0 (A.K.A Punycode Domain Fuzzer)
 
-import itertools, logging, string, sys, plugins.common.Common as Common
-from typing import List
+import itertools, logging, string, plugins.common.Common as Common
 
 class Iterator:
 
-    def __init__(self, Query, English_Upper=False, Numbers=False, Special_Characters=False, Asian=False, Latin=False, Middle_Eastern=False, Native_American=False, North_African=False, Latin_Alternatives=False, Comprehensive=False):
+    def __init__(self, Query: str = str(), English_Upper: bool = bool(), Numbers: bool = bool(), Special_Characters: bool = bool(), Asian: bool = bool(), Latin: bool = bool(), Middle_Eastern: bool = bool(), Native_American: bool = bool(), North_African: bool = bool(), Latin_Alternatives: bool = bool(), Comprehensive=False):
         self.Query = Query
         self.English_Upper = English_Upper
         self.Numbers = Numbers
@@ -21,13 +20,13 @@ class Iterator:
         self.Comprehensive = Comprehensive
 
     def Search(self):
-        Rotor_Wordlist = []
+        Rotor_Wordlist: list = list()
         Domain_Allowed_Characters_List = ['$', '-', '_', '.', '+', '!', '*', '\'', '(', ')', ',']
 
         if type(self.Query) == str:
             self.Query = list(self.Query)
 
-        elif type(self.Query) != str and type(self.Query) != list:
+        elif type(self.Query) not in [str, list]:
             logging.error(f"{Common.Date()} [-] Invalid query type.")
             return None
 
@@ -48,27 +47,27 @@ class Iterator:
         return self.Rotor_Combinations(Rotor_Wordlist)
 
     def List_Formatter(self):
-        Lists = {}
-        Cyrillic = False
-        Greek = False
-        Lao = False
-        Thai = False
-        Korean = False
-        Armenian = False
-        Arabic = False
-        Amharic = False
-        Hebrew = False
-        Georgian = False
-        Khmer = False
-        Burmese = False
-        Vietnamese = False
-        Tifinagh = False
-        Vai = False
-        Nko = False
-        Cherokee = False
-        Inuktitut = False
-        Lisu = False
-        Osmanya = False
+        Lists: dict = dict()
+        Cyrillic: bool = bool()
+        Greek: bool = bool()
+        Lao: bool = bool()
+        Thai: bool = bool()
+        Korean: bool = bool()
+        Armenian: bool = bool()
+        Arabic: bool = bool()
+        Amharic: bool = bool()
+        Hebrew: bool = bool()
+        Georgian: bool = bool()
+        Khmer: bool = bool()
+        Burmese: bool = bool()
+        Vietnamese: bool = bool()
+        Tifinagh: bool = bool()
+        Vai: bool = bool()
+        Nko: bool = bool()
+        Cherokee: bool = bool()
+        Inuktitut: bool = bool()
+        Lisu: bool = bool()
+        Osmanya: bool = bool()
 
         def Merger(Dict_to_Merge, Lists):
 
@@ -80,69 +79,69 @@ class Iterator:
             return Lists
 
         if self.Asian:
-            Middle_Eastern = False
-            Middle_Eastern_Alternatives = False
-            Latin = False
-            Latin_Alternatives = False
-            Native_American = False
-            English_Upper = False
-            North_African = False
-            Lao = True
-            Thai = True
-            Korean = True
-            Khmer = True
-            Burmese = True
-            Vietnamese = True
-            Lisu = True
+            Middle_Eastern: bool = bool()
+            Middle_Eastern_Alternatives: bool = bool()
+            Latin: bool = bool()
+            Latin_Alternatives: bool = bool()
+            Native_American: bool = bool()
+            English_Upper: bool = bool()
+            North_African: bool = bool()
+            Lao: bool = True
+            Thai: bool = True
+            Korean: bool = True
+            Khmer: bool = True
+            Burmese: bool = True
+            Vietnamese: bool = True
+            Lisu: bool = True
 
         if self.Middle_Eastern:
-            Asian = False
-            Latin = False
-            Latin_Alternatives = False
-            Middle_Eastern_Alternatives = True
-            Native_American = False
-            English_Upper = False
-            North_African = False
-            Armenian = True
-            Arabic = True
-            Amharic = True
-            Hebrew = True
-            Georgian = True
+            Asian: bool = bool()
+            Latin: bool = bool()
+            Latin_Alternatives: bool = bool()
+            Middle_Eastern_Alternatives: bool = True
+            Native_American: bool = bool()
+            English_Upper: bool = bool()
+            North_African: bool = bool()
+            Armenian: bool = True
+            Arabic: bool = True
+            Amharic: bool = True
+            Hebrew: bool = True
+            Georgian: bool = True
 
         if self.North_African:
-            Middle_Eastern = False
-            Middle_Eastern_Alternatives = False
-            Asian = False
-            Latin = False
-            Latin_Alternatives = False
-            Native_American = False
-            English_Upper = False
-            Tifinagh = True
-            Vai = True
-            Nko = True
-            Osmanya = True
+            Middle_Eastern: bool = bool()
+            Middle_Eastern_Alternatives: bool = bool()
+            Asian: bool = bool()
+            Latin: bool = bool()
+            Latin_Alternatives: bool = bool()
+            Native_American: bool = bool()
+            English_Upper: bool = bool()
+            Tifinagh: bool = True
+            Vai: bool = True
+            Nko: bool = True
+            Osmanya: bool = True
 
         if self.Native_American:
-            Asian = False
-            Middle_Eastern = False
-            Middle_Eastern_Alternatives = False
-            Latin = False
-            Latin_Alternatives = False
-            English_Upper = False
-            North_African = False
-            Cherokee = True
-            Inuktitut = True
+            Asian: bool = bool()
+            Middle_Eastern: bool = bool()
+            Middle_Eastern_Alternatives: bool = bool()
+            Latin: bool = bool()
+            Latin_Alternatives: bool = bool()
+            English_Upper: bool = bool()
+            North_African: bool = bool()
+            Cherokee: bool = True
+            Inuktitut: bool = True
 
         if self.Latin:
-            Middle_Eastern = False
-            Middle_Eastern_Alternatives = False
-            Asian = False
-            Latin_Alternatives = True
-            Native_American = False
-            English_Upper = False
-            North_African = False
-            Greek = True
-            Cyrillic = True
+            Middle_Eastern: bool = bool()
+            Middle_Eastern_Alternatives: bool = bool()
+            Asian: bool = bool()
+            Latin_Alternatives: bool = True
+            Native_American: bool = bool()
+            English_Upper: bool = bool()
+            North_African: bool = bool()
+            Greek: bool = True
+            Cyrillic: bool = True
 
         for Alphabet_Letter in list(string.ascii_lowercase):
             Lists[Alphabet_Letter] = [Alphabet_Letter]

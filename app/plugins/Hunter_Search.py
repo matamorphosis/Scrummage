@@ -4,13 +4,13 @@ from pyhunter import PyHunter
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "Hunter"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Hunter"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "hunter.io"
+        self.Domain: str = "hunter.io"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -59,9 +59,9 @@ class Plugin_Search:
                                 for Hunter_Item in API_Response["emails"]:
                                     Current_Email_Address = Hunter_Item["value"]
                                     Current_Hunter_Item_Host = f"https://{self.Domain}/verify/{Current_Email_Address}"
-                                    Current_Hunter_Item_Responses = Common.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"https://{self.Domain}")
+                                    Current_Hunter_Item_Responses = Common.Request_Handler(url=Current_Hunter_Item_Host, Filter=True, Host=f"https://{self.Domain}")
                                     Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
-                                    Title = f"{self.Plugin_Name} | " + Current_Email_Address
+                                    Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Current_Email_Address)}"
 
                                     if Current_Email_Address not in Cached_Data and Current_Email_Address not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Filtered_Response, Current_Hunter_Item_Host, self.The_File_Extensions["Query"])
@@ -95,17 +95,17 @@ class Plugin_Search:
                                     Current_Hunter_Item_Domain = Hunter_Item["Domain"]
 
                                     if 'http://' in Current_Hunter_Item_Host:
-                                        Current_Hunter_Item_Responses = Common.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"http://{Current_Hunter_Item_Domain}")
+                                        Current_Hunter_Item_Responses = Common.Request_Handler(url=Current_Hunter_Item_Host, Filter=True, Host=f"http://{Current_Hunter_Item_Domain}")
                                         Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
 
                                     elif 'https://' in Current_Hunter_Item_Host:
-                                        Current_Hunter_Item_Responses = Common.Request_Handler(Current_Hunter_Item_Host, Filter=True, Host=f"https://{Current_Hunter_Item_Domain}")
+                                        Current_Hunter_Item_Responses = Common.Request_Handler(url=Current_Hunter_Item_Host, Filter=True, Host=f"https://{Current_Hunter_Item_Domain}")
                                         Filtered_Response = Current_Hunter_Item_Responses["Filtered"]
 
                                     else:
-                                        Filtered_Response = Common.Request_Handler(Current_Hunter_Item_Host)
+                                        Filtered_Response = Common.Request_Handler(url=Current_Hunter_Item_Host)
 
-                                    Title = f"{self.Plugin_Name} | " + Current_Hunter_Item_Host
+                                    Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Current_Hunter_Item_Host)}"
 
                                     if Current_Hunter_Item_Host not in Cached_Data and Current_Hunter_Item_Host not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Filtered_Response, Current_Hunter_Item_Host, self.The_File_Extensions["Query"])

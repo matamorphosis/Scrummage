@@ -3,20 +3,20 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "Alienvault OTX"
-        self.Concat_Plugin_Name = "alienvaultotx"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "Alienvault OTX"
+        self.Concat_Plugin_Name: str = "alienvaultotx"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "otx.alienvault.com"
+        self.Domain: str = "otx.alienvault.com"
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -33,7 +33,7 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         API_URL = f"https://{self.Domain}/otxapi/indicators/domain/http_scans/{Query}"
-                        JSON_Response = Common.Request_Handler(API_URL)
+                        JSON_Response = Common.Request_Handler(url=API_URL)
                         JSON_Object = Common.JSON_Handler(JSON_Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -44,9 +44,9 @@ class Plugin_Search:
 
                             if Query not in Cached_Data and Query not in Data_to_Cache:
                                 Search_URL = f"https://{self.Domain}/indicator/domain/{Query}"
-                                Responses = Common.Request_Handler(Search_URL, Filter=True, Host=f"https://{self.Domain}")
+                                Responses = Common.Request_Handler(url=Search_URL, Filter=True, Host=f"https://{self.Domain}")
                                 Response = Responses["Filtered"]
-                                Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                                Title = f"Ahmia I2P | {Common.Fang().Defang(Query)}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -66,7 +66,7 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         API_URL = f"https://{self.Domain}/otxapi/indicators/IPv4/http_scans/{Query}"
-                        JSON_Response = Common.Request_Handler(API_URL)
+                        JSON_Response = Common.Request_Handler(url=API_URL)
                         JSON_Object = Common.JSON_Handler(JSON_Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -77,9 +77,9 @@ class Plugin_Search:
 
                             if Query not in Cached_Data and Query not in Data_to_Cache:
                                 Search_URL = f"https://{self.Domain}/indicator/domain/{Query}"
-                                Responses = Common.Request_Handler(Search_URL, Filter=True, Host=f"https://{self.Domain}")
+                                Responses = Common.Request_Handler(url=Search_URL, Filter=True, Host=f"https://{self.Domain}")
                                 Response = Responses["Filtered"]
-                                Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                                Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:

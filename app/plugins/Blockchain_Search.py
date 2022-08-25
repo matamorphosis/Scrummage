@@ -4,17 +4,17 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "Blockchain"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Blockchain"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Abuse_File_Extension = ".json"
-        self.Domain = "blockchain.com"
-        self.Monero_Domain = "localmonero.co"
-        self.Abuse_Domain = "bitcoinabuse.com"
-        self.Result_Type = "Blockchain Transaction"
+        self.The_File_Extension: str = ".html"
+        self.Abuse_File_Extension: str = ".json"
+        self.Domain: str = "blockchain.com"
+        self.Monero_Domain: str = "localmonero.co"
+        self.Abuse_Domain: str = "bitcoinabuse.com"
+        self.Result_Type: str = "Blockchain Transaction"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
@@ -32,7 +32,7 @@ class Plugin_Search:
 
         try:
             Local_Plugin_Name = self.Plugin_Name + "-Transaction-Search"
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -59,7 +59,7 @@ class Plugin_Search:
 
                     if Query_Regex:
                         Main_URL = f"https://www.{self.Domain}/{self.Type}/tx/{Query}"
-                        Main_Response = Common.Request_Handler(Main_URL)
+                        Main_Response = Common.Request_Handler(url=Main_URL)
 
                         if self.Type == "BTC":
                             Address_Regex = Common.Regex_Handler(Main_Response, Custom_Regex=r"\/btc\/address\/([\w]{26,34})", Findall=True)
@@ -81,7 +81,7 @@ class Plugin_Search:
                                 Query_URL = f"https://www.{self.Domain}/{self.Type}/address/{Transaction}"
 
                                 if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    Transaction_Responses = Common.Request_Handler(Query_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                    Transaction_Responses = Common.Request_Handler(url=Query_URL, Filter=True, Host=f"https://www.{self.Domain}")
                                     Transaction_Response = Transaction_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, self.The_File_Extension)
 
@@ -102,10 +102,10 @@ class Plugin_Search:
 
                 else:
                     Query_URL = f"https://{self.Monero_Domain}/blocks/search/{Query}"
-                    Transaction_Response = Common.Request_Handler(Query_URL)
+                    Transaction_Response = Common.Request_Handler(url=Query_URL)
 
                     if "Whoops, looks like something went wrong." not in Transaction_Response and Query_URL not in Cached_Data and Query_URL not in Data_to_Cache:
-                        Transaction_Responses = Common.Request_Handler(Query_URL, Filter=True, Host=f"https://{self.Monero_Domain}")
+                        Transaction_Responses = Common.Request_Handler(url=Query_URL, Filter=True, Host=f"https://{self.Monero_Domain}")
                         Transaction_Response = Transaction_Responses["Filtered"]
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Query, self.The_File_Extension)
 
@@ -126,7 +126,7 @@ class Plugin_Search:
 
         try:
             Local_Plugin_Name = self.Plugin_Name + "-Address-Search"
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -151,7 +151,7 @@ class Plugin_Search:
 
                 if Query_Regex:
                     Main_URL = f"https://www.{self.Domain}/{self.Type}/address/{Query}"
-                    Main_Response = Common.Request_Handler(Main_URL)
+                    Main_Response = Common.Request_Handler(url=Main_URL)
 
                     if self.Type == "BTC":
                         Transaction_Regex = Common.Regex_Handler(Main_Response, Custom_Regex=r"\/btc\/tx\/([\w]{64})", Findall=True)
@@ -173,7 +173,7 @@ class Plugin_Search:
                             Query_URL = f"https://www.{self.Domain}/{self.Type}/tx/{Transaction}"
 
                             if Query_URL not in Cached_Data and Query_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                Transaction_Responses = Common.Request_Handler(Query_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                Transaction_Responses = Common.Request_Handler(url=Query_URL, Filter=True, Host=f"https://www.{self.Domain}")
                                 Transaction_Response = Transaction_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Transaction_Response, Transaction, self.The_File_Extension)
 
@@ -201,7 +201,7 @@ class Plugin_Search:
 
         try:
             Local_Plugin_Name = self.Plugin_Name + "-Address-Abuse-Search"
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -218,12 +218,12 @@ class Plugin_Search:
 
                 if Common.Regex_Handler(Query, Custom_Regex=r"[\w]{26,34}"):
                     Query_URL = f"https://www.{self.Abuse_Domain}/api/reports/check?address={Query}&api_token={API_Key}"
-                    Main_Response = Common.Request_Handler(Query_URL)
+                    Main_Response = Common.Request_Handler(url=Query_URL)
                     JSON_Object = Common.JSON_Handler(Main_Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
                     JSON_Output_Response = JSON_Object.Dump_JSON()
                     HTML_URL = f"https://www.bitcoinabuse.com/reports/{Query}"
-                    Responses = Common.Request_Handler(HTML_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                    Responses = Common.Request_Handler(url=HTML_URL, Filter=True, Host=f"https://www.{self.Domain}")
                     Filtered_Response = Responses["Filtered"]
                     Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.Abuse_File_Extension)
                     Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())

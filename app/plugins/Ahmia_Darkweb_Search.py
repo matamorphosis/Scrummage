@@ -3,29 +3,29 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "Ahmia"
-        self.Tor_Plugin_Name = "Ahmia-Tor"
-        self.I2P_Plugin_Name = "Ahmia-I2P"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Ahmia"
+        self.Tor_Plugin_Name: str = "Ahmia-Tor"
+        self.I2P_Plugin_Name: str = "Ahmia-I2P"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Tor_Pull_URL = ""
-        self.I2P_Pull_URL = ""
-        self.Domain = "ahmia.fi"
+        self.The_File_Extension: str = ".html"
+        self.Tor_Pull_URL: str = str()
+        self.I2P_Pull_URL: str = str()
+        self.Domain: str = "ahmia.fi"
         self.Tor_General_URL = f"https://{self.Domain}/search/?q="
         self.I2P_General_URL = f"https://{self.Domain}/search/i2p/?q="
         self.Tor_Scrape_Regex_URL = r"(http\:\/\/[\d\w]+\.onion(?:\/[\/\.\-\?\=\%\d\w]+)?)"
         self.I2P_Scrape_Regex_URL = r"(http\:\/\/[\d\w]+\.i2p(?:\/[\/\.\-\?\=\%\d\w]+)?)"
-        self.Result_Type = "Darkweb Link"
+        self.Result_Type: str = "Darkweb Link"
         self.Limit = General.Get_Limit(Limit)
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -40,7 +40,7 @@ class Plugin_Search:
 
                 if self.Type == "Tor":
                     self.Tor_Pull_URL = self.Tor_General_URL + Query
-                    Responses = Common.Request_Handler(self.Tor_Pull_URL, Filter=True, Host=f"https://{self.Domain}", Scrape_Regex_URL=self.Tor_Scrape_Regex_URL)
+                    Responses = Common.Request_Handler(url=self.Tor_Pull_URL, Filter=True, Host=f"https://{self.Domain}", Scrape_Regex_URL=self.Tor_Scrape_Regex_URL)
                     Tor_Scrape_URLs = Responses["Scraped"]
 
                     if Tor_Scrape_URLs:
@@ -53,7 +53,7 @@ class Plugin_Search:
                             for URL in Tor_Scrape_URLs:
 
                                 if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    Title = f"Ahmia Tor | {URL}" 
+                                    Title = f"Ahmia Tor | {Common.Fang().Defang(URL)}"
                                     Output_Connections.Output([Output_file], URL, Title, self.Plugin_Name.lower())
                                     Data_to_Cache.append(URL)
                                     Current_Step += 1
@@ -67,7 +67,7 @@ class Plugin_Search:
 
                 elif self.Type == "I2P":
                     self.I2P_Pull_URL = self.I2P_General_URL + Query
-                    Responses = Common.Request_Handler(self.I2P_Pull_URL, Filter=True, Host=f"https://{self.Domain}", Scrape_Regex_URL=self.I2P_Scrape_Regex_URL)
+                    Responses = Common.Request_Handler(url=self.I2P_Pull_URL, Filter=True, Host=f"https://{self.Domain}", Scrape_Regex_URL=self.I2P_Scrape_Regex_URL)
                     I2P_Scrape_URLs = Responses["Scraped"]
 
                     if I2P_Scrape_URLs:
@@ -80,7 +80,7 @@ class Plugin_Search:
                             for URL in I2P_Scrape_URLs:
 
                                 if URL not in Cached_Data and URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    Title = f"Ahmia I2P | {URL}" 
+                                    Title = f"Ahmia I2P | {Common.Fang().Defang(URL)}"
                                     Output_Connections.Output([Output_file], URL, Title, self.Plugin_Name.lower())
                                     Data_to_Cache.append(URL)
                                     Current_Step += 1

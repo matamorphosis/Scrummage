@@ -3,19 +3,19 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "Kik"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "Kik"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "kik.me"
-        self.Result_Type = "Social Media - Person"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "kik.me"
+        self.Result_Type: str = "Social Media - Person"
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -28,7 +28,7 @@ class Plugin_Search:
 
             for Query in self.Query_List:
                 Main_URL = f"http://{self.Domain}/{Query}"
-                Responses = Common.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                Responses = Common.Request_Handler(url=Main_URL, Filter=True, Host=f"https://www.{self.Domain}")
                 Response = Responses["Regular"]
                 Filtered_Response = Responses["Filtered"]
                 Kik_Item_Regex = Common.Regex_Handler(Response, Custom_Regex=rf"\<h1\sclass\=\"display\-name\"\>(.+)\<\/h1>\s+\<h2\sclass\=\"username\"\>{Query}\<\/h2\>")

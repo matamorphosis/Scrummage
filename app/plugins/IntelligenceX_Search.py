@@ -3,14 +3,14 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "IntelligenceX"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "IntelligenceX"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "intelx.io"
-        self.Result_Type = "Data Leakage"
+        self.Domain: str = "intelx.io"
+        self.Result_Type: str = "Data Leakage"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -40,7 +40,7 @@ class Plugin_Search:
 
             for Query in self.Query_List:
                 Data = {"term": Query, "buckets": [], "lookuplevel": 0, "maxresults": self.Limit, "timeout": 0, "datefrom": "", "dateto": "", "sort": 2, "media": 0, "terminate": []}
-                IX_Response = Common.Request_Handler(f"https://2.{self.Domain}/intelligent/search?k={IX_Access_Token}", Method="POST", JSON_Data=Data)
+                IX_Response = Common.Request_Handler(url=f"https://2.{self.Domain}/intelligent/search?k={IX_Access_Token}", method="POST", JSON_Data=Data)
                 JSON_Object = Common.JSON_Handler(IX_Response)
                 JSON_Response = JSON_Object.To_JSON_Loads()
                 JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -49,7 +49,7 @@ class Plugin_Search:
 
                 if "id" in JSON_Response:
                     Search_ID = JSON_Response["id"]
-                    IX_Response = Common.Request_Handler(f"https://2.{self.Domain}/intelligent/search/result?k={IX_Access_Token}&id={Search_ID}")
+                    IX_Response = Common.Request_Handler(url=f"https://2.{self.Domain}/intelligent/search/result?k={IX_Access_Token}&id={Search_ID}")
                     JSON_Object = Common.JSON_Handler(IX_Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
                     JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -61,16 +61,16 @@ class Plugin_Search:
                         for IX_Item in JSON_Response["records"]:
 
                             if "systemid" in IX_Item and "name" in IX_Item:
-                                IX_URL = f"https://{self.Domain}/?did=" + IX_Item['systemid']
+                                IX_URL = f"https://{self.Domain}/?did={IX_Item['systemid']}"
 
-                                if IX_Item["name"] != "":
-                                    Title = f"IntelligenceX Data Leak | " + IX_Item["name"]
+                                if IX_Item["name"] != str():
+                                    Title = f"IntelligenceX Data Leak | {IX_Item['name']}"
 
                                 else:
-                                    Title = "IntelligenceX Data Leak | Untitled Document"
+                                    Title: str = "IntelligenceX Data Leak | Untitled Document"
 
                                 if IX_URL not in Cached_Data and IX_URL not in Data_to_Cache:
-                                    IX_Item_Responses = Common.Request_Handler(IX_URL, Filter=True, Host=f"https://{self.Domain}")
+                                    IX_Item_Responses = Common.Request_Handler(url=IX_URL, Filter=True, Host=f"https://{self.Domain}")
                                     IX_Item_Response = IX_Item_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, IX_Item_Response, IX_URL, self.The_File_Extensions["Query"])
 

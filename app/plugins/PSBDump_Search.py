@@ -3,14 +3,14 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "PSBDMP"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "PSBDMP"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "psbdmp.cc"
-        self.Result_Type = "Data Leakage"
+        self.Domain: str = "psbdmp.cc"
+        self.Result_Type: str = "Data Leakage"
         self.Limit = Limit
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -40,7 +40,7 @@ class Plugin_Search:
 
             for Query in self.Query_List:
                 URL = f"https://{self.Domain}/api/v3/search/{Query}"
-                Main_Response = Common.Request_Handler(URL)
+                Main_Response = Common.Request_Handler(url=URL)
                 JSON_Object = Common.JSON_Handler(Main_Response)
                 JSON_Response = JSON_Object.To_JSON_Loads()
                 JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -59,12 +59,12 @@ class Plugin_Search:
                         if HTML_URL not in Cached_Data and HTML_URL not in Data_to_Cache and Current_Step < int(self.Limit):
 
                             if API_Key:
-                                Item_JSON_Response = Common.Request_Handler(f"https://{self.Domain}/api/v3/dump/{Dump_ID}?key={API_Key}")
+                                Item_JSON_Response = Common.Request_Handler(url=f"https://{self.Domain}/api/v3/dump/{Dump_ID}?key={API_Key}")
                                 JSON_Object = Common.JSON_Handler(Item_JSON_Response).To_JSON_Loads()
                                 JSON_Output_Response = JSON_Object.Dump_JSON()
                                 Output_Files.append(General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Item_Response, f"https://{self.Domain}/api/v3/dump/{Dump_ID}", self.The_File_Extensions["Main"]))
 
-                            Item_Responses = Common.Request_Handler(HTML_URL, Filter=True, Host=f"https://{self.Domain}")
+                            Item_Responses = Common.Request_Handler(url=HTML_URL, Filter=True, Host=f"https://{self.Domain}")
                             Item_Response = Item_Responses["Filtered"]
                             Output_Files.append(General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Item_Response, HTML_URL, self.The_File_Extensions["Query"]))
 

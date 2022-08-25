@@ -3,14 +3,14 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Craigslist"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Craigslist"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "craigslist.org"
-        self.Result_Type = "Search Result"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "craigslist.org"
+        self.Result_Type: str = "Search Result"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -50,7 +50,7 @@ class Plugin_Search:
                     if Item_URL not in Cached_Data and Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                         Local_Domain = f"{Craigslist_Location.lower()}.{self.Domain}"
                         Local_URL = f"https://{Local_Domain}"
-                        Craigslist_Responses = Common.Request_Handler(Item_URL, Filter=True, Host=Local_URL)
+                        Craigslist_Responses = Common.Request_Handler(url=Item_URL, Filter=True, Host=Local_URL)
                         Craigslist_Response = Craigslist_Responses["Filtered"]
                         Local_URL = f"{Local_URL}/"
 

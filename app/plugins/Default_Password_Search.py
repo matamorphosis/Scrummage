@@ -3,21 +3,21 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Default Password"
-        self.Concat_Plugin_Name = "defaultpassword"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Default Password"
+        self.Concat_Plugin_Name: str = "defaultpassword"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "default-password.info"
-        self.Result_Type = "Credentials"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "default-password.info"
+        self.Result_Type: str = "Credentials"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -31,7 +31,7 @@ class Plugin_Search:
             for Query in self.Query_List:
                 URL_Body = f'https://{self.Domain}'
                 Main_URL = URL_Body + '/' + Query.lower().replace(' ', '-')
-                Responses = Common.Request_Handler(Main_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                Responses = Common.Request_Handler(url=Main_URL, Filter=True, Host=f"https://www.{self.Domain}")
                 Response = Responses["Regular"]
                 Filtered_Response = Responses["Filtered"]
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Filtered_Response, Query, self.The_File_Extension)
@@ -43,19 +43,19 @@ class Plugin_Search:
 
                     for URL, Title in Regex:
                         Item_URL = URL_Body + URL
-                        Current_Response = Common.Request_Handler(Item_URL)
+                        Current_Response = Common.Request_Handler(url=Item_URL)
                         Current_Item_Regex = Common.Regex_Handler(Current_Response, Custom_Regex=r"\<button\sclass\=\"btn\sbtn\-primary\spassword\"\s+data\-data\=\"([\-\d\w\?\/]+)\"\s+data\-toggle\=\"modal\"\s+data\-target\=\"\#modal\"\s+\>show\sme\!\<\/button\>")
                         
                         if Current_Item_Regex:
 
                             try:
                                 Detailed_Item_URL = URL_Body + Current_Item_Regex.group(1)
-                                Detailed_Responses = Common.Request_Handler(Detailed_Item_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                Detailed_Responses = Common.Request_Handler(url=Detailed_Item_URL, Filter=True, Host=f"https://www.{self.Domain}")
                                 Detailed_Response = Detailed_Responses["Regular"]
                                 JSON_Response = Common.JSON_Handler(Detailed_Response).Is_JSON()
 
                                 if JSON_Response:
-                                    Output_Response = "<head><title>" + JSON_Response["title"] + "</title></head>\n"
+                                    Output_Response: str = "<head><title>" + JSON_Response["title"] + "</title></head>\n"
                                     Output_Response = Output_Response + JSON_Response["data"]
 
                                 else:

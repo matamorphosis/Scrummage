@@ -3,19 +3,19 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "FringeProject"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "FringeProject"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "fringeproject.com"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "fringeproject.com"
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -33,13 +33,13 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         URL = f"https://{self.Domain}/search?q={Query}"
-                        Responses = Common.Request_Handler(URL, Filter=True, Host=f"https://{self.Domain}")
+                        Responses = Common.Request_Handler(url=URL, Filter=True, Host=f"https://{self.Domain}")
                         Response = Responses["Filtered"]
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Response, Query, self.The_File_Extension)
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "IP Address Information", self.Task_ID, self.Plugin_Name.lower())
 
                         if "This data is Not on the Map yet!" not in Response and Query not in Cached_Data and Query not in Data_to_Cache:
-                            Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                            Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extension)
 
                             if Output_file:
@@ -59,13 +59,13 @@ class Plugin_Search:
 
                     if Common.Regex_Handler(Query, Type=self.Type):
                         URL = f"https://{self.Domain}/search?q={Query}"
-                        Responses = Common.Request_Handler(URL, Filter=True, Host=f"https://{self.Domain}")
+                        Responses = Common.Request_Handler(url=URL, Filter=True, Host=f"https://{self.Domain}")
                         Response = Responses["Filtered"]
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Response, Query, self.The_File_Extension)
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Domain Information", self.Task_ID, self.Plugin_Name.lower())
 
                         if "This data is Not on the Map yet!" not in Response and Query not in Cached_Data and Query not in Data_to_Cache:
-                            Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                            Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extension)
 
                             if Output_file:

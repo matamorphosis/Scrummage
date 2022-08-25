@@ -696,6 +696,8 @@ table.dataTable td {
     opacity: 0.94;
     padding: 3px 10px 10px 10px;
     transition: 0.5s;
+    border: 2px solid #303030;
+    border-radius: 2px;
 }
 
 .nopadding {

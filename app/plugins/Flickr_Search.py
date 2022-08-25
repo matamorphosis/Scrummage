@@ -3,13 +3,13 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Flickr"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Flickr"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "flickr.com"
+        self.Domain: str = "flickr.com"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -43,7 +43,7 @@ class Plugin_Search:
                 else:
                     return None
 
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -79,7 +79,7 @@ class Plugin_Search:
                                 Photo_URL = f"https://www.{self.Domain}/photos/{Query}/{Photo['id']}"
 
                                 if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    Photo_Response = Common.Request_Handler(Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
+                                    Photo_Response = Common.Request_Handler(url=Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Photo_Response, Photo, self.The_File_Extensions["Query"])
 
                                     if Output_file:
@@ -112,7 +112,7 @@ class Plugin_Search:
                                 Photo_URL = f"https://www.{self.Domain}/photos/{Query}/{Photo['id']}"
 
                                 if Photo_URL not in Cached_Data and Photo_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    Photo_Response = Common.Request_Handler(Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
+                                    Photo_Response = Common.Request_Handler(url=Photo_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Photo_Response, str(Photo['id']), self.The_File_Extensions["Query"])
 
                                     if Output_file:

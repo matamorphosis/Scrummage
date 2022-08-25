@@ -1,4 +1,4 @@
-import importlib, plugin_definitions, plugins.common.Common as Common
+import importlib, logging, plugin_definitions, plugins.common.Common as Common
 
 class Plugin_Verifier:
 
@@ -17,13 +17,13 @@ class Plugin_Verifier:
             try:
 
                 def Output_API_Checker(Plugin_Object, Plugin_Name):
-                    In_Dict = False
+                    In_Dict: bool = bool()
                     Result = None
 
                     for API_Key, API_Value in Plugins_Dictionary.items():
 
                         if Plugin_Name == API_Key and API_Value["Requires_Configuration"] == True:
-                            In_Dict = True
+                            In_Dict: bool = True
                             Result = Plugin_Object.Load_Configuration()
 
                     if In_Dict:
@@ -36,8 +36,8 @@ class Plugin_Verifier:
 
                     if self.plugin_name in Plugins_Dictionary:
                         Dict_Item = Plugins_Dictionary[self.plugin_name]
-                        Kwargs = {}
-                        Func_Kwargs = {}
+                        Kwargs: dict = dict()
+                        Func_Kwargs: dict = dict()
 
                         for Key in ["Requires_Limit", "Type", "Alphabets", "Comprehensive"]:
 
@@ -54,7 +54,7 @@ class Plugin_Verifier:
                             Search_Option = Dict_Item["Custom_Search"]
                             
                         else:
-                            Search_Option = "Search"
+                            Search_Option: str = "Search"
 
                         Class = importlib.import_module(Dict_Item["Module"])
 
@@ -73,14 +73,14 @@ class Plugin_Verifier:
                             return False
 
                     else:
-                        print(f"{Common.Date()} - Plugin Verifier - Invalid plugin provided.")
+                        logging.warning(f"{Common.Date()} - Plugin Verifier - Invalid plugin provided.")
 
                 else:
 
                     if self.plugin_name in Plugins_Dictionary:
                         Dict_Item = Plugins_Dictionary[self.plugin_name]
-                        Kwargs = {}
-                        Func_Kwargs = {}
+                        Kwargs: dict = dict()
+                        Func_Kwargs: dict = dict()
 
                         for Key in ["Requires_Limit", "Type", "Alphabets", "Comprehensive"]:
 
@@ -97,11 +97,11 @@ class Plugin_Verifier:
                             Search_Option = Dict_Item["Custom_Search"]
                             
                         else:
-                            Search_Option = "Search"
+                            Search_Option: str = "Search"
 
                         Class = importlib.import_module(Dict_Item["Module"])
 
-                        if self.custom_query:
+                        if self.custom_query is not None:
                             Plugin_Object = Class.Plugin_Search(self.custom_query, self.task_id, **Kwargs)
 
                         else:
@@ -116,10 +116,10 @@ class Plugin_Verifier:
                             return False
 
                     else:
-                        print(f"{Common.Date()} - Plugin Verifier - Invalid plugin provided.")
+                        logging.warning(f"{Common.Date()} - Plugin Verifier - Invalid plugin provided.")
 
             except Exception as e:
-                print(f"{Common.Date()} - Plugin Verifier - {str(e)}.")
+                logging.warning(f"{Common.Date()} - Plugin Verifier - {str(e)}.")
                 
         except Exception as e:
-            print(f"{Common.Date()} - Plugin Verifier - {str(e)}.")
+            logging.warning(f"{Common.Date()} - Plugin Verifier - {str(e)}.")

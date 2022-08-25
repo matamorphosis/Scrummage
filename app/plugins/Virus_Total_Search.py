@@ -4,13 +4,13 @@ from googleapiclient import discovery
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "VirusTotal"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "VirusTotal"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "virustotal.com"
+        self.Domain: str = "virustotal.com"
         self.Type = Type
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -43,7 +43,7 @@ class Plugin_Search:
                 if self.Type == "Domain":
 
                     if Common.Regex_Handler(Query, Type=self.Type):
-                        Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/domains/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
+                        Response = Common.Request_Handler(url=f"https://www.{self.Domain}/api/v3/domains/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
                         if Response.status_code == 200:
                             JSON_Object = Common.JSON_Handler(Response.text)
@@ -52,9 +52,9 @@ class Plugin_Search:
                             Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Domain Information", self.Task_ID, self.Plugin_Name.lower())
                             Link = f"https://www.{self.Domain}/gui/domain/{Query}/detection"
-                            Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
+                            Main_URL_Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"{self.Plugin_Name} Domain | {Query}"
+                            Title = f"{self.Plugin_Name} Domain | {Common.Fang().Defang(Query)}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -69,7 +69,7 @@ class Plugin_Search:
                 elif self.Type == "IP":
 
                     if Common.Regex_Handler(Query, Type=self.Type):
-                        Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/ip_addresses/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
+                        Response = Common.Request_Handler(url=f"https://www.{self.Domain}/api/v3/ip_addresses/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
                         if Response.status_code == 200:
                             JSON_Object = Common.JSON_Handler(Response.text)
@@ -78,9 +78,9 @@ class Plugin_Search:
                             Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "IP Address Information", self.Task_ID, self.Plugin_Name.lower())
                             Link = f"https://www.{self.Domain}/gui/ip-address/{Query}/detection"
-                            Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
+                            Main_URL_Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"{self.Plugin_Name} IP Address | {Query}"
+                            Title = f"{self.Plugin_Name} IP Address | {Common.Fang().Defang(Query)}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -95,8 +95,8 @@ class Plugin_Search:
                 elif self.Type == "URL":
 
                     if Common.Regex_Handler(Query, Type=self.Type):
-                        Query_Encoded = General.Encoder(Query, URLSafe=True).strip("=")
-                        Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/urls/{Query_Encoded}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
+                        Query_Encoded = Common.Coder(Query).b64_urlsafe_encode().strip("=")
+                        Response = Common.Request_Handler(url=f"https://www.{self.Domain}/api/v3/urls/{Query_Encoded}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
                         if Response.status_code == 200:
                             JSON_Object = Common.JSON_Handler(Response.text)
@@ -105,9 +105,9 @@ class Plugin_Search:
                             Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Domain Information", self.Task_ID, self.Plugin_Name.lower())
                             Link = f"https://www.{self.Domain}/gui/url/{Query_Encoded}/detection"
-                            Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
+                            Main_URL_Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{self.Domain}")
                             Main_URL_Response = Main_URL_Responses["Filtered"]
-                            Title = f"{self.Plugin_Name} URL | {Query}"
+                            Title = f"{self.Plugin_Name} URL | {Common.Fang().Defang(Query)}"
 
                             if Link not in Cached_Data and Link not in Data_to_Cache:
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name.lower(), Main_URL_Response, Link, self.The_File_Extensions["Query"])
@@ -120,7 +120,7 @@ class Plugin_Search:
                                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to create output file. File may already exist.")
 
                 elif self.Type == "Hash":
-                    Response = Common.Request_Handler(f"https://www.{self.Domain}/api/v3/files/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
+                    Response = Common.Request_Handler(url=f"https://www.{self.Domain}/api/v3/files/{Query}", Optional_Headers={"x-apikey": VT_API_Key}, Full_Response=True)
 
                     if Response.status_code == 200:
                         JSON_Object = Common.JSON_Handler(Response.text)
@@ -129,7 +129,7 @@ class Plugin_Search:
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, "Virus", self.Task_ID, self.Plugin_Name.lower())
                         Link = f"https://www.{self.Domain}/gui/file/{Query}/detection"
-                        Main_URL_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{self.Domain}")
+                        Main_URL_Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{self.Domain}")
                         Main_URL_Response = Main_URL_Responses["Filtered"]
                         Title = f"{self.Plugin_Name} File | {Query}"
 

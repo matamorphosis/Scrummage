@@ -4,14 +4,14 @@ from googleapiclient import discovery
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Plugin_Name = "YouTube"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+        self.Plugin_Name: str = "YouTube"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.Domain = "youtube.com"
-        self.Result_Type = "Social Media - Media"
+        self.Domain: str = "youtube.com"
+        self.Result_Type: str = "Social Media - Media"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -48,7 +48,7 @@ class Plugin_Search:
 
                 for Search_Result in Search_Response.get('items', []):
                     Full_Video_URL = f"https://www.{self.Domain}/watch?v=" + Search_Result['id']['videoId']
-                    Search_Video_Responses = Common.Request_Handler(Full_Video_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                    Search_Video_Responses = Common.Request_Handler(url=Full_Video_URL, Filter=True, Host=f"https://www.{self.Domain}")
                     Search_Video_Response = Search_Video_Responses["Filtered"]
                     Title = f"{self.Plugin_Name} | " + Search_Result['snippet']['title']
 

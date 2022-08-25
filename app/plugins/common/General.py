@@ -5,8 +5,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-Bad_Characters = ["|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^"]
-Current_User_Agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+Current_User_Agent: str = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
 
 def Selenium():
     global Current_User_Agent
@@ -44,13 +43,14 @@ def Selenium():
 
 class Screenshot:
 
-    def __init__(self, File_Path, Internally_Requested=False, Append_Mode=False, **kwargs):
+    def __init__(self, File_Path: str = str(), Internally_Requested: bool = bool(), Append_Mode: bool = bool(), **kwargs):
 
         try:
             self.Internally_Requested = Internally_Requested
             self.File_Path = File_Path
             self.Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
             self.Cursor = self.Connection.cursor()
+            self.defanger_object = Common.Fang()
 
             if not self.Internally_Requested and kwargs.get('Screenshot_ID') and kwargs.get('Screenshot_User'):
                 self.Screenshot_ID = kwargs['Screenshot_ID']
@@ -58,10 +58,10 @@ class Screenshot:
                 self.Append_Mode = Append_Mode
 
             elif self.Internally_Requested and kwargs.get('Screenshot_Link'):
-                self.Screenshot_ID = False
-                self.Screenshot_User = False
-                self.Screenshot_Link = kwargs['Screenshot_Link']
-                self.Append_Mode = Append_Mode
+                self.Screenshot_ID: bool = bool()
+                self.Screenshot_User: bool = bool()
+                self.Screenshot_Link: str = self.defanger_object.Fang(kwargs['Screenshot_Link'])
+                self.Append_Mode: bool = Append_Mode
 
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - {e}.')
@@ -87,12 +87,12 @@ class Screenshot:
             Driver = Selenium()
 
             if Driver:
-                Bad_Link_Strings = ['.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:', 'nameapi.org']
+                Bad_Link_Strings: tuple = ('.onion', 'general-insurance.coles.com.au', 'magnet:?xt=urn:btih:', 'nameapi.org')
 
                 if not self.Internally_Requested:
                     self.Cursor.execute('SELECT link FROM results WHERE result_id = %s', (self.Screenshot_ID,))
                     Result = self.Cursor.fetchone()
-                    self.Screenshot_Link = Result[0]
+                    self.Screenshot_Link = self.defanger_object.Fang(Result[0])
                     Message = f'Screenshot requested for result number {self.Screenshot_ID} by {self.Screenshot_User}.'
 
                     logging.warning(Message)
@@ -103,8 +103,8 @@ class Screenshot:
                 if any(String in self.Screenshot_Link for String in Bad_Link_Strings):
                     return None
 
-                Screenshot_File = self.Screenshot_Link.replace("http://", "")
-                Screenshot_File = Screenshot_File.replace("https://", "")
+                Screenshot_File = self.Screenshot_Link.replace("http://", str())
+                Screenshot_File = Screenshot_File.replace("https://", str())
 
                 if Screenshot_File.endswith('/'):
                     Screenshot_File = Screenshot_File[:-1]
@@ -113,11 +113,11 @@ class Screenshot:
                     Screenshot_File_List = Screenshot_File.split('?')
                     Screenshot_File = Screenshot_File_List[0]
 
-                for Replaceable_Item in ['/', '?', '#', '&', '%', '$', '@', '*', '=']:
+                for Replaceable_Item in ('/', '#', '&', '%', '$', '@', '*', '='):
                     Screenshot_File = Screenshot_File.replace(Replaceable_Item, '-')
 
                 if self.Append_Mode:
-                    i = 0
+                    i: int = int()
                     Current_File = f"{Screenshot_File}.png"
 
                     while os.path.isfile(os.path.join(self.File_Path, "static/protected/screenshots", Current_File)):
@@ -154,7 +154,7 @@ class Screenshot:
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - {e}.')
 
-    def Create_Event(self, Description):
+    def Create_Event(self, Description: str = str()):
 
         try:
             self.Cursor.execute("INSERT INTO events (description, created_at) VALUES (%s,%s)", (Description, Common.Date()))
@@ -164,7 +164,7 @@ class Screenshot:
             logging.error(f'{Common.Date()} - General Library - {e}.')
 
 
-def Get_Limit(Limit):
+def Get_Limit(Limit: int = int()):
 
     try:
 
@@ -176,7 +176,7 @@ def Get_Limit(Limit):
 
         return 10
 
-def Logging(Directory, Plugin_Name):
+def Logging(Directory: str = str(), Plugin_Name: str = str()):
 
     try:
         Main_File = f"{Plugin_Name}-log-file.log"
@@ -188,7 +188,7 @@ def Logging(Directory, Plugin_Name):
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to initialise logging. {e}.')
 
-def Get_Plugin_Logging_Name(Plugin_Name):
+def Get_Plugin_Logging_Name(Plugin_Name: str = str()):
 
     try:
 
@@ -202,7 +202,7 @@ def Get_Plugin_Logging_Name(Plugin_Name):
 
 class Cache:
 
-    def __init__(self, Directory, Plugin_Name):
+    def __init__(self, Directory: str = str(), Plugin_Name: str = str()):
         Cache_File = f"{Plugin_Name}-cache.txt"
         General_Directory_Search = Common.Regex_Handler(Directory, Custom_Regex=r"(.*)\/\d{4}\/\d{2}\/\d{2}")
 
@@ -220,30 +220,30 @@ class Cache:
                     
             else:
                 logging.info(f"{Common.Date()} - General Library - No cache file found, caching will not be used for this session.")
-                self.Cached_Data = []
+                self.Cached_Data: list = list()
 
             return self.Cached_Data
 
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - Failed to read file. {e}.')
 
-    def Write_Cache(self, Data_to_Cache):
+    def Write_Cache(self, Data_to_Cache: list = list()):
 
         if not Data_to_Cache:
             return None
 
-        Open_File_Type = "a" if self.Cached_Data else "w"
+        Open_File_Type: str = "a" if self.Cached_Data else "w"
 
         try:
 
             with open(self.Complete_File, Open_File_Type) as File_Output:
-                Current_Output_Data = "\n".join(Data_to_Cache) + "\n"
+                Current_Output_Data: str = "\n".join(Data_to_Cache) + "\n"
                 File_Output.write(Current_Output_Data)
 
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - Failed to create file. {e}.')
 
-def Convert_to_List(String):
+def Convert_to_List(String: str = str()):
 
     try:
 
@@ -261,11 +261,12 @@ def Convert_to_List(String):
 
 class Connections:
 
-    def __init__(self, Input, Plugin_Name, Domain, Result_Type, Task_ID, Concat_Plugin_Name):
+    def __init__(self, Input: str = str(), Plugin_Name: str = str(), Domain: str = str(), Result_Type: str = str(), Task_ID: str = str(), Concat_Plugin_Name: str = str()):
     
         try:
+            self.defanger_object = Common.Fang()
             self.Plugin_Name = str(Plugin_Name)
-            self.Domain = str(Domain)
+            self.Domain = self.defanger_object.Defang(str(Domain))
             self.Result_Type = str(Result_Type)
             self.Task_ID = str(Task_ID)
             self.Input = str(Input)
@@ -274,19 +275,20 @@ class Connections:
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - Error setting initial variables. {e}.')
 
-    def Output(self, Complete_File_List, Link, DB_Title, Directory_Plugin_Name, Dump_Types=[]):
+    def Output(self, Complete_File_List: list = list(), Link: str = str(), DB_Title: str = str(), Directory_Plugin_Name: str = str(), Dump_Types: list = list()):
 
         try:
+            Link = self.defanger_object.Defang(str(Link))
 
             try:
-                Text_Complete_Files = "\n- ".join(Complete_File_List)
+                Text_Complete_Files: str = "\n- ".join(Complete_File_List)
 
                 if type(Dump_Types) == list and len(Dump_Types) > 0:
                     self.Dump_Types = Dump_Types
-                    Joined_Dump_Types = ", ".join(self.Dump_Types)
+                    Joined_Dump_Types: str = ", ".join(self.Dump_Types)
                     self.Title = f"Data for input: {self.Input}, found by Scrummage plugin {self.Plugin_Name}.\nData types include: {Joined_Dump_Types}.\nAll data is stored in\n- {Text_Complete_Files}."
                     self.Ticket_Subject = f"Scrummage {self.Plugin_Name} results for query {self.Input}."
-                    NL_Joined_Dump_Types = "\n- ".join(self.Dump_Types)
+                    NL_Joined_Dump_Types: str = "\n- ".join(self.Dump_Types)
                     self.Ticket_Text = f"Results were identified for the search {self.Input} performed by the Scrummage plugin {self.Plugin_Name}.\nThe following types of sensitive data were found:\n- {NL_Joined_Dump_Types}. Please ensure these results do not pose a threat to your organisation, and take the appropriate action necessary if they pose a security risk.\n\nResult data can be found in the following output files:\n- {Text_Complete_Files}."
 
                 else:
@@ -308,7 +310,7 @@ class Connections:
             if DOCX_File:
                 Complete_File_List.append(DOCX_File)
 
-            Relative_File_List = []
+            Relative_File_List: list = list()
 
             for File in Complete_File_List:
                 Relative_File = File.replace(os.path.dirname(os.path.realpath('__file__')), "")
@@ -335,10 +337,10 @@ class Connections:
         except Exception as e:
             logging.warning(f'{Common.Date()} - General Library - Error handling outputs. {e}.')
 
-def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension):
+def Main_File_Create(Directory: str = str(), Plugin_Name: str = str(), Output: str = str(), Query: str = str(), Main_File_Extension: str = str()):
     Main_File = f"Main-file-for-{Plugin_Name}-query-{Query}{Main_File_Extension}"
     Complete_File = os.path.join(Directory, Main_File)
-    Appendable_Output_Data = []
+    Appendable_Output_Data: list = list()
 
     try:
 
@@ -352,7 +354,7 @@ def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension)
                 Cache_File_Input = File_Input.read()
             if Appendable_Output_Data:
                 logging.info(f"{Common.Date()} - General Library - New data has been discovered and will be appended to the existing file.")
-                Appendable_Output_Data_String = "\n".join(Cache_File_Input)
+                Appendable_Output_Data_String: str = "\n".join(Cache_File_Input)
                 with open(Complete_File, "a") as File_Output:
                     File_Output.write(f"\n{Appendable_Output_Data_String}\n{Output}")
                 logging.info(f"{Common.Date()} - General Library - Main file appended.")
@@ -381,11 +383,11 @@ def Main_File_Create(Directory, Plugin_Name, Output, Query, Main_File_Extension)
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to create main file. {e}.')
 
-def Data_Type_Discovery(Data_to_Search):
+def Data_Type_Discovery(Data_to_Search: str = str()):
     # Function responsible for determining the type of data found. Examples: Hash_Type, Credentials, Email, or URL.
 
     try:
-        Dump_Types = []
+        Dump_Types: list = list()
         Hash_Types = ["MD5", "SHA1", "SHA256"]
         Hash_Type_Dict = {
             Hash_Type: Common.Regex_Handler(Data_to_Search, Type=Hash_Type)
@@ -401,7 +403,8 @@ def Data_Type_Discovery(Data_to_Search):
                 if Hash_Type_Line not in Dump_Types:
                     Dump_Types.append(Hash_Type_Line)
 
-        if Common.Regex_Handler(Data_to_Search, Type="Credentials"): # Credentials identification
+        if Common.Regex_Handler(Data_to_Search, Type="Credentials"):
+            # Credential identification
 
             if "Credentials" not in Dump_Types:
                 Dump_Types.append("Credentials")
@@ -425,13 +428,12 @@ def Data_Type_Discovery(Data_to_Search):
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to determine data type. {e}.')
 
-def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data, Query_Result_Name, The_File_Extension):
+def Create_Query_Results_Output_File(Directory: str = str(), Query: str = str(), Plugin_Name: str = str(), Output_Data: str = str(), Query_Result_Name: str = str(), The_File_Extension: str = str()):
 
     try:
-        Query_Bad_Characters = Bad_Characters
-        Query_Bad_Characters.extend(["https://", "http://", "www.", "=", ",", " ", "@", ":", "---", "--"])
+        Filename_Bad_Characters: tuple = ("|", "/", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "https://", "http://", "www.", "=", ",", " ", "@", ":", "---", "--")
 
-        for Character in Query_Bad_Characters:
+        for Character in Filename_Bad_Characters:
 
             if Character in Query:
                 Query = Query.replace(Character, "-")
@@ -442,7 +444,7 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
                     Query_Result_Name = Query_Result_Name.replace(Character, "-")
 
                 else:
-                    Query_Result_Name = Query_Result_Name.replace(Character, "")
+                    Query_Result_Name = Query_Result_Name.replace(Character, str())
 
         try:
             The_File = f"{Plugin_Name}-Query-{Query}-{Query_Result_Name}{The_File_Extension}"
@@ -458,6 +460,7 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
 
                     with open(Complete_File, 'w') as Current_Output_file:
                         Current_Output_file.write(Output_Data)
+                        Current_Output_file.close()
 
                 logging.info(f"{Common.Date()} - General Library - File: {Complete_File} created.")
 
@@ -472,7 +475,7 @@ def Create_Query_Results_Output_File(Directory, Query, Plugin_Name, Output_Data,
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to initialise query file. {e}.')
 
-def Make_Directory(Plugin_Name):
+def Make_Directory(Plugin_Name: str = str()):
     Today = Common.Date(Full_Timestamp=True)
     Year = str(Today.year)
     Month = str(Today.month)
@@ -496,14 +499,14 @@ def Make_Directory(Plugin_Name):
     
     return Directory
 
-def Get_Title(URL, Requests=False):
+def Get_Title(URL: str = str(), Requests: bool = bool()):
 
     try:
 
         if URL.startswith('http'):
 
             if Requests:
-                Soup = BeautifulSoup(Common.Request_Handler(URL), features="lxml")
+                Soup = BeautifulSoup(Common.Request_Handler(url=URL), features="lxml")
 
             else:
                 # Bandit detects the following line as a potential vulnerability. The reason being it is susceptible to URLs beginning with file:/, hence the condition check above to ensure URL begins with http.
@@ -518,7 +521,7 @@ def Get_Title(URL, Requests=False):
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to get title. {e}.')
 
-def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
+def JSONDict_to_HTML(JSON_Data: list = list(), JSON_Data_Output: str = str(), Title: str = str()):
 
     try:
 
@@ -547,7 +550,7 @@ def JSONDict_to_HTML(JSON_Data, JSON_Data_Output, Title):
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to convert provided JSON data to HTML. {e}.')
 
-def CSV_to_HTML(CSV_Data, Title):
+def CSV_to_HTML(CSV_Data: list = list(), Title: str = str()):
 
     try:
 
@@ -557,10 +560,10 @@ def CSV_to_HTML(CSV_Data, Title):
 
             for CSV_Line in CSV_Data:
                 HTML_Table.append("    <tr>")
-                Values = []
-                Tag = ""
+                Values: list = list()
+                Tag: str = str()
 
-                Tag = "th" if CSV_Line == CSV_Data[0] else "td"
+                Tag: str = "th" if CSV_Line == CSV_Data[0] else "td"
                 for CSV_Item in CSV_Line.split(","):
                     Value = f'      <{Tag}>{CSV_Item}</{Tag}>'
                     Values.append(Value)
@@ -586,7 +589,7 @@ def CSV_to_JSON(Query, CSV_Data):
     try:
 
         if type(CSV_Data) == list:
-            JSON_Data = {Query: []}
+            JSON_Data = {Query: list()}
 
             for CSV_Line in CSV_Data:
 
@@ -602,20 +605,3 @@ def CSV_to_JSON(Query, CSV_Data):
 
     except Exception as e:
         logging.warning(f'{Common.Date()} - General Library - Failed to convert provided CSV data to JSON. {e}.')
-
-def Encoder(To_Encode, URLSafe=False, Type="Base64"):
-    # Currently just handles b64 encoding as no other encoding types are required; however, this function can be scaled with future demand.
-
-    try:
-
-        if Type == "Base64":
-            import base64
-
-            if URLSafe:
-                return base64.urlsafe_b64encode(To_Encode.encode()).decode()
-
-            else:
-                return base64.b64encode(To_Encode.encode()).decode()
-
-    except Exception as e:
-        logging.warning(f'{Common.Date()} - General Library - Failed to encode data. {e}.')

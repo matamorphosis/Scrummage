@@ -3,20 +3,20 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "LeakIX"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "LeakIX"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "leakix.net"
-        self.Result_Type = "Data Leakage"
+        self.Domain: str = "leakix.net"
+        self.Result_Type: str = "Data Leakage"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -29,7 +29,7 @@ class Plugin_Search:
 
             for Query in self.Query_List:
                 Current_Step = 0
-                Response = Common.Request_Handler(f"https://{self.Domain}/search?q={Query}&scope=leak", Application_JSON_Accept=True)
+                Response = Common.Request_Handler(url=f"https://{self.Domain}/search?q={Query}&scope=leak", Application_JSON_Accept=True)
                 JSON_Object = Common.JSON_Handler(Response)
                 JSON_Response = JSON_Object.To_JSON_Loads()
                 JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -38,9 +38,9 @@ class Plugin_Search:
 
                 for Search_Result in JSON_Response:
                     Host = Search_Result["ip"]
-                    Result_Title = f"{self.Plugin_Name} Host | {Host}"
+                    Result_Title = f"{self.Plugin_Name} Host | {Common.Fang().Defang(Host)}"
                     Result_URL = f"https://{self.Domain}/host/{Host}"
-                    Search_Result_Responses = Common.Request_Handler(Result_URL, Filter=True, Host=f"https://{self.Domain}")
+                    Search_Result_Responses = Common.Request_Handler(url=Result_URL, Filter=True, Host=f"https://{self.Domain}")
                     Search_Result_Response = Search_Result_Responses["Filtered"]
 
                     if Result_URL not in Cached_Data and Result_URL not in Data_to_Cache and Current_Step < int(self.Limit):

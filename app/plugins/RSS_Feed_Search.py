@@ -3,11 +3,11 @@ import os, feedparser, logging, plugins.common.General as General, plugins.commo
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.The_File_Extension = ".html"
-        self.Plugin_Name = "RSS"
-        self.Logging_Plugin_Name = self.Plugin_Name + " Feed Search"
-        self.Result_Type = "News Report"
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.The_File_Extension: str = ".html"
+        self.Plugin_Name: str = "RSS"
+        self.Logging_Plugin_Name: str = self.Plugin_Name + " Feed Search"
+        self.Result_Type: str = "News Report"
         self.Limit = General.Get_Limit(Limit)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
@@ -15,7 +15,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -57,7 +57,7 @@ class Plugin_Search:
 
                             if Feed.link not in Cached_Data and Feed.link not in Data_to_Cache and Current_Step < int(self.Limit):
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Feed.description, File_Link, self.The_File_Extension)
-                                Title = "RSS Feed | " + General.Get_Title(Feed.link)
+                                Title: str = "RSS Feed | " + General.Get_Title(Feed.link)
 
                                 if Output_file:
                                     Output_Connections = General.Connections(Query, self.Plugin_Name, Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())

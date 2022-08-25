@@ -33,7 +33,7 @@ if __name__ == "__main__":
     try:
         connection = Load_Main_Database()
         cursor = connection.cursor()
-        update_users_query = '''ALTER TABLE users
+        update_users_query: str = '''ALTER TABLE users
         ADD COLUMN mfa_token TEXT,
         ADD COLUMN mfa_confirmed TEXT;
         '''

@@ -1,18 +1,21 @@
 #!/usr/bin/python3
-import psycopg2, sys, json, datetime
+import psycopg2, sys, datetime, Common
 
 def Load_Main_Database():
 
     try:
+        Configuration_File, DB_File = Common.Get_Relative_Configuration()
 
-        with open('db.json') as JSON_File:
-            Configuration_Data = json.load(JSON_File)
+        with open(DB_File, 'r') as JSON_File:
+            Configuration_Data = Common.Cryptography().configuration_decrypt(JSON_File.read())
             DB_Info = Configuration_Data['postgresql']
             DB_Host = DB_Info['host']
             DB_Port = str(int(DB_Info['port']))
             DB_Username = DB_Info['user']
             DB_Password = DB_Info['password']
             DB_Database = DB_Info['database']
+            
+        JSON_File.close()
 
     except:
         sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")        
@@ -31,7 +34,7 @@ try:
     connection = Load_Main_Database()
     cursor = connection.cursor()
 
-    create_users_query = '''CREATE TABLE IF NOT EXISTS users
+    create_users_query: str = '''CREATE TABLE IF NOT EXISTS users
           (user_id SERIAL PRIMARY KEY NOT NULL,
           username TEXT UNIQUE NOT NULL,
           password TEXT NOT NULL,
@@ -42,12 +45,12 @@ try:
           mfa_token TEXT,
           mfa_confirmed TEXT);'''
 
-    create_events_query = '''CREATE TABLE IF NOT EXISTS events
+    create_events_query: str = '''CREATE TABLE IF NOT EXISTS events
           (event_id SERIAL PRIMARY KEY NOT NULL,
           description TEXT NOT NULL,
           created_at TEXT NOT NULL);'''
 
-    create_results_query = '''CREATE TABLE IF NOT EXISTS results
+    create_results_query: str = '''CREATE TABLE IF NOT EXISTS results
           (result_id SERIAL PRIMARY KEY NOT NULL,
           task_id INT NOT NULL,
           title TEXT NOT NULL,
@@ -62,7 +65,7 @@ try:
           result_type TEXT NOT NULL,
           screenshot_requested BOOLEAN);'''
 
-    create_tasks_query = '''CREATE TABLE IF NOT EXISTS tasks
+    create_tasks_query: str = '''CREATE TABLE IF NOT EXISTS tasks
           (task_id SERIAL PRIMARY KEY NOT NULL,
           query TEXT NOT NULL,
           plugin TEXT NOT NULL,
@@ -73,7 +76,7 @@ try:
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL);'''
 
-    create_org_query = '''CREATE TABLE IF NOT EXISTS org_identities
+    create_org_query: str = '''CREATE TABLE IF NOT EXISTS org_identities
           (identity_id SERIAL PRIMARY KEY NOT NULL,
           firstname TEXT NOT NULL,
           middlename TEXT,

@@ -4,7 +4,7 @@ import json
 try:
 
 	def Inner_Values(Key, Current_Value):
-		New_Value = {}
+		New_Value: dict = dict()
 
 		for Inner_Key, Inner_Item in Current_Value.items():
 

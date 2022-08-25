@@ -4,20 +4,20 @@ from urllib.parse import urlparse
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Phishstats"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Phishstats"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "phishstats.info"
-        self.Result_Type = "Phishing"
+        self.Domain: str = "phishstats.info"
+        self.Result_Type: str = "Phishing"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -32,7 +32,7 @@ class Plugin_Search:
 
                 try:
                     Pull_URL = f"https://{self.Domain}:2096/api/phishing?_where=(url,like,~{Query}~)&_sort=-id&_size={self.Limit}"
-                    JSON_Object = Common.JSON_Handler(Common.Request_Handler(Pull_URL))
+                    JSON_Object = Common.JSON_Handler(Common.Request_Handler(url=Pull_URL))
                     Results = JSON_Object.To_JSON_Loads()
                     Indented_Results = JSON_Object.Dump_JSON()
                     Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
@@ -51,7 +51,7 @@ class Plugin_Search:
                             Response = None
 
                         if Response:
-                            Current_Result = Common.Request_Handler(Current_Link, Filter=True, Risky_Plugin=True, Host=Current_Link, Certificate_Verification=False)
+                            Current_Result = Common.Request_Handler(url=Current_Link, Filter=True, Risky_Plugin=True, Host=Current_Link, verify=False)
                             Current_Result_Filtered = Current_Result["Filtered"]
                             Response_Regex = Common.Regex_Handler(Current_Result, Custom_Regex=r"\<title\>([^\<\>]+)\<\/title\>")
                             Output_file_Query = Query.replace(" ", "-")

@@ -3,19 +3,19 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "Threat Crowd"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "Threat Crowd"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "threatcrowd.org"
+        self.Domain: str = "threatcrowd.org"
         self.Type = Type
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -33,15 +33,14 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type=self.Type):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                         URL = f"https://www.{self.Domain}/searchApi/v2/email/report/?email={Query}"
-                        Response = Common.Request_Handler(URL)
-                        Search_Response = Common.Request_Handler(URL)
+                        Response = Common.Request_Handler(url=URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
 
                         if int(JSON_Response.get("response_code")) != 0:
                             JSON_Output_Response = JSON_Object.Dump_JSON()
                             Permalink = JSON_Response.get("permalink")
-                            Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                            Permalink_Responses = Common.Request_Handler(url=URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
                             Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
@@ -66,14 +65,14 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type=self.Type):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                         URL = f"https://www.{self.Domain}/searchApi/v2/self.Domain/report/?self.Domain={Query}"
-                        Response = Common.Request_Handler(URL)
+                        Response = Common.Request_Handler(url=URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
 
                         if int(JSON_Response.get("response_code")) != 0:
                             JSON_Output_Response = JSON_Object.Dump_JSON()
                             Permalink = JSON_Response.get("permalink")
-                            Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                            Permalink_Responses = Common.Request_Handler(url=URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
                             Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
@@ -98,14 +97,14 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type="IP"):
                         Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                         URL = f"https://www.{self.Domain}/searchApi/v2/ip/report/?ip={Query}"
-                        Response = Common.Request_Handler(URL)
+                        Response = Common.Request_Handler(url=URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
 
                         if int(JSON_Response.get("response_code")) != 0:
                             JSON_Output_Response = JSON_Object.Dump_JSON()
                             Permalink = JSON_Response.get("permalink")
-                            Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                            Permalink_Responses = Common.Request_Handler(url=URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Permalink_Response = Permalink_Responses["Filtered"]
                             Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                             Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
@@ -128,14 +127,14 @@ class Plugin_Search:
                 elif self.Type == "AV":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                     URL = f"https://www.{self.Domain}/searchApi/v2/antivirus/report/?antivirus={Query}"
-                    Response = Common.Request_Handler(URL)
+                    Response = Common.Request_Handler(url=URL)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
 
                     if int(JSON_Response.get("response_code")) != 0:
                         JSON_Output_Response = JSON_Object.Dump_JSON()
                         Permalink = JSON_Response.get("permalink")
-                        Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                        Permalink_Responses = Common.Request_Handler(url=URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Permalink_Response = Permalink_Responses["Filtered"]
                         Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
@@ -155,14 +154,14 @@ class Plugin_Search:
                 elif self.Type == "Virus Report":
                     Local_Plugin_Name = self.Plugin_Name + " " + self.Type
                     URL = f"https://www.{self.Domain}/searchApi/v2/file/report/?resource={Query}"
-                    Response = Common.Request_Handler(URL)
+                    Response = Common.Request_Handler(url=URL)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
 
                     if int(JSON_Response.get("response_code")) != 0:
                         JSON_Output_Response = JSON_Object.Dump_JSON()
                         Permalink = JSON_Response.get("permalink")
-                        Permalink_Responses = Common.Request_Handler(URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                        Permalink_Responses = Common.Request_Handler(url=URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Permalink_Response = Permalink_Responses["Filtered"]
                         Title = f"{self.Plugin_Name} | " + General.Get_Title(Permalink, Requests=True).replace(" | Threatcrowd.org Open Source Threat Intelligence", "")
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])

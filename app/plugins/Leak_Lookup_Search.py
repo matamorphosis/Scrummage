@@ -3,14 +3,14 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "Leak Lookup"
-        self.Concat_Plugin_Name = "leaklookup"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "Leak Lookup"
+        self.Concat_Plugin_Name: str = "leaklookup"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "leak-lookup.com"
+        self.Domain: str = "leak-lookup.com"
         self.Type = Type
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -46,7 +46,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type=self.Type):
                         URL = f"https://{self.Domain}/api/search"
                         Data = {"key": API_Key, "type": "email_address", "query": Query}
-                        Response = Common.Request_Handler(URL, Data=Data)
+                        Response = Common.Request_Handler(url=URL, Data=Data)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -56,11 +56,11 @@ class Plugin_Search:
                         if JSON_Response.get("error") == "false":
                             
                             if Query not in Cached_Data and Query not in Data_to_Cache:
-                                Data = {"type%5B%5D": "1", "type%5B%5D": "2", "query": Query}
+                                Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
                                 Item_URL = f"https://{self.Domain}/search"
-                                Item_Responses = Common.Request_Handler(Item_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                                Item_Responses = Common.Request_Handler(url=Item_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                                 Output_Response = Item_Responses["Filtered"]
-                                Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                                Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Output_Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -78,8 +78,8 @@ class Plugin_Search:
 
                 elif self.Type == "Username":
                     URL = f"https://{self.Domain}/api/search"
-                    Data = {"key": API_Key, "type": "username", "query": Query}
-                    Response = Common.Request_Handler(URL, Data=Data)
+                    Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
+                    Response = Common.Request_Handler(url=URL, Data=Data)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
                     JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -89,9 +89,9 @@ class Plugin_Search:
                     if JSON_Response.get("error") == "false":
                         
                         if Query not in Cached_Data and Query not in Data_to_Cache:
-                            Data = {"type%5B%5D": "1", "type%5B%5D": "2", "query": Query}
+                            Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
                             Item_URL = f"https://{self.Domain}/search"
-                            Item_Responses = Common.Request_Handler(Item_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                            Item_Responses = Common.Request_Handler(url=Item_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                             Output_Response = Item_Responses["Filtered"]
                             Title = f"{self.Plugin_Name} {self.Type} | {Query}"
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Output_Response, Title, self.The_File_Extensions["Query"])
@@ -111,7 +111,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type=self.Type):
                         URL = f"https://{self.Domain}/api/search"
                         Data = {"key": API_Key, "type": "ipaddress", "query": Query}
-                        Response = Common.Request_Handler(URL, Data=Data)
+                        Response = Common.Request_Handler(url=URL, Data=Data)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -121,11 +121,11 @@ class Plugin_Search:
                         if JSON_Response.get("error") == "false":
                             
                             if Query not in Cached_Data and Query not in Data_to_Cache:
-                                Data = {"type%5B%5D": "1", "type%5B%5D": "2", "query": Query}
+                                Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
                                 Item_URL = f"https://{self.Domain}/search"
-                                Item_Responses = Common.Request_Handler(Item_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                                Item_Responses = Common.Request_Handler(url=Item_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                                 Output_Response = Item_Responses["Filtered"]
-                                Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                                Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Output_Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -146,7 +146,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type=self.Type):
                         URL = f"https://{self.Domain}/api/search"
                         Data = {"key": API_Key, "type": "domain", "query": Query}
-                        Response = Common.Request_Handler(URL, Data=Data)
+                        Response = Common.Request_Handler(url=URL, Data=Data)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -156,11 +156,11 @@ class Plugin_Search:
                         if JSON_Response.get("error") == "false":
                             
                             if Query not in Cached_Data and Query not in Data_to_Cache:
-                                Data = {"type%5B%5D": "1", "type%5B%5D": "2", "query": Query}
+                                Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
                                 Item_URL = f"https://{self.Domain}/search"
-                                Item_Responses = Common.Request_Handler(Item_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                                Item_Responses = Common.Request_Handler(url=Item_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                                 Output_Response = Item_Responses["Filtered"]
-                                Title = f"{self.Plugin_Name} {self.Type} | {Query}"
+                                Title = f"{self.Plugin_Name} {self.Type} | {Common.Fang().Defang(Query)}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Output_Response, Title, self.The_File_Extensions["Query"])
 
                                 if Output_file:
@@ -181,7 +181,7 @@ class Plugin_Search:
                     if any(Common.Regex_Handler(Query, Type=Hash_Type) for Hash_Type in ["MD5", "SHA1", "SHA256"]):
                         URL = f"https://{self.Domain}/api/search"
                         Data = {"key": API_Key, "type": "hash", "query": Query}
-                        Response = Common.Request_Handler(URL, Data=Data)
+                        Response = Common.Request_Handler(url=URL, Data=Data)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -191,9 +191,9 @@ class Plugin_Search:
                         if JSON_Response.get("error") == "false":
 
                             if Query not in Cached_Data and Query not in Data_to_Cache:
-                                Data = {"type%5B%5D": "1", "type%5B%5D": "2", "query": Query}
+                                Data = f"search-type%5B%5D=1&search-type%5B%5D=2&query={Query}"
                                 Item_URL = f"https://{self.Domain}/search"
-                                Item_Responses = Common.Request_Handler(Item_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                                Item_Responses = Common.Request_Handler(url=Item_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                                 Output_Response = Item_Responses["Filtered"]
                                 Title = f"{self.Plugin_Name} {self.Type} | {Query}"
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Output_Response, Title, self.The_File_Extensions["Query"])

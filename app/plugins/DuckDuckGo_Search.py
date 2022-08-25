@@ -3,20 +3,20 @@ import logging, os, urllib.parse, plugins.common.General as General, plugins.com
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "DuckDuckGo"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "DuckDuckGo"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "duckduckgo.com"
-        self.Result_Type = "Search Result"
+        self.Domain: str = "duckduckgo.com"
+        self.Result_Type: str = "Search Result"
         self.Limit = General.Get_Limit(Limit)
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -30,7 +30,7 @@ class Plugin_Search:
             for Query in self.Query_List:
                 URL_Query = urllib.parse.quote(Query)
                 URL = f"https://api.{self.Domain}/?q={URL_Query}&format=json"
-                DDG_Response = Common.Request_Handler(URL)
+                DDG_Response = Common.Request_Handler(url=URL)
                 JSON_Object = Common.JSON_Handler(DDG_Response)
                 JSON_Response = JSON_Object.To_JSON_Loads()
                 JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -50,7 +50,7 @@ class Plugin_Search:
                                 Title = f"{self.Plugin_Name} | {Title}"
 
                                 if DDG_URL not in Cached_Data and DDG_URL not in Data_to_Cache and Current_Step < int(self.Limit):
-                                    DDG_Item_Responses = Common.Request_Handler(DDG_URL, Filter=True, Host=f"https://www.{self.Domain}")
+                                    DDG_Item_Responses = Common.Request_Handler(url=DDG_URL, Filter=True, Host=f"https://www.{self.Domain}")
                                     DDG_Item_Response = DDG_Item_Responses["Filtered"]
                                     Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, DDG_Item_Response, DDG_URL, self.The_File_Extensions["Query"])
 

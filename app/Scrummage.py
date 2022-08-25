@@ -15,42 +15,47 @@ if __name__ == '__main__':
         from crontab import CronTab
         from logging.handlers import RotatingFileHandler
         from ratelimiter import RateLimiter
-        import os, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, pyotp, plugins.common.General as General, plugins.common.Common as Common
+        import os, sys, plugin_caller, plugin_verifier, plugin_definitions, getpass, pathlib, time, sys, threading, html, secrets, jwt, logging, pyotp, plugins.common.General as General, plugins.common.Common as Common
 
-        Bad_Characters = ["|", "&", "?", "\\", "\"", "\'", "[", "]", ">", "<", "~", "`", ";", "{", "}", "%", "^", "--", "++", "+", "'", "(", ")", "*", "="]
-        Finding_Types = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
+        Finding_Types: list = sorted(["Darkweb Link", "Company Details", "Blockchain - Address", "Blockchain - Transaction",
                          "BSB Details", "Certificate", "Search Result", "Cloud Storage - Azure Blob", "Cloud Storage - AWS S3", "Credentials", "Domain Information", "Email Information",
                          "Social Media - Media", "Social Media - Page", "Social Media - Person", "Social Media - Group",
                          "Social Media - Place", "Application", "Account", "Account Source", "Publication", "Phishing", "Phone Details"
                          "Repository", "Forum", "News Report", "Torrent", "Vehicle Details", "Domain Spoof", "Data Leakage", "Exploit",
                          "Economic Details", "Malware", "Malware Report", "Web Application Architecture", "IP Address Information", "Wiki Page", "Hash"])
-        Result_Filters = ["Result ID", "Task ID", "Title", "Plugin", "Status", "Domain", "Link", "Created At", "Updated At", "Result Type"]
-        Task_Filters = ["Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At"]
-        Event_Filters = ["Event ID", "Description", "Created At"]
-        Account_Filters = ["User ID", "Username", "Blocked", "Is Admin"]
-        Identity_Filters = ["Identity ID", "Firstname", "Middlename", "Surname", "Fullname", "Username", "Email", "Phone"]
+        Result_Filters: tuple = ("Result ID", "Task ID", "Title", "Plugin", "Status", "Domain", "Link", "Created At", "Updated At", "Result Type")
+        Standard_Safe_Chars: list = ["-", "(", ")", "*", "/", ".", ",", ":", "@", "=", "[", "]", " "]
+        Restricted_Safe_Chars: list = ["-", ":", ".", ",", " "]
+        Task_Filters: tuple = ("Task ID", "Query", "Plugin", "Description", "Frequency", "Task Limit", "Status", "Created At", "Updated At")
+        Event_Filters: tuple = ("Event ID", "Description", "Created At")
+        Account_Filters: tuple = ("User ID", "Username", "Blocked", "Is Admin")
+        Identity_Filters: tuple = ("Identity ID", "Firstname", "Middlename", "Surname", "Fullname", "Username", "Email", "Phone")
         Thread_In_Use = None
         SS_Thread_In_Use = None
-        Version = "3.8"
+        Version: str = "3.9"
 
         try:
             Scrummage_Working_Directory = pathlib.Path(sys.argv[0]).parent.absolute()
+            SWD_Iterator: int = int()
 
-            if str(Scrummage_Working_Directory) != str(os.getcwd()):
-                print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(Scrummage_Working_Directory)}.")
-                os.chdir(Scrummage_Working_Directory)
+            while str(Scrummage_Working_Directory) != str(os.getcwd()):
 
-                if str(Scrummage_Working_Directory) != str(os.getcwd()):
+                if SWD_Iterator == int():
+                    print(f"[i] Scrummage has been called from outside the Scrummage directory, changing the working directory to {str(Scrummage_Working_Directory)}.")
+                    os.chdir(Scrummage_Working_Directory)
+                    SWD_Iterator += 1
+
+                else:
                     sys.exit(f'{Common.Date()} Error setting the working directory.')
 
         except:
             sys.exit(f'{Common.Date()} Error setting the working directory.')
 
         Valid_Plugins = plugin_definitions.Get(Scrummage_Working_Directory)
-        Org_Preset_to_Regex_Mapping = {"domain": "Domain", "website": "URL", "identity_phones": "Phone", "identity_emails": "Email", "identity_usernames": "Username", "IP": "IP"}
+        Org_Preset_to_Regex_Mapping: dict = {"domain": "Domain", "website": "URL", "identity_phones": "Phone", "identity_emails": "Email", "identity_usernames": "Username", "IP": "IP"}
 
         def No_Limit_Plugins():
-            Plugin_Names = []
+            Plugin_Names: list = list()
 
             for Key, Value in Valid_Plugins.items():
 
@@ -76,12 +81,13 @@ if __name__ == '__main__':
             app.logger.fatal(f'{Common.Date()} Startup error, ensure all necessary libraries are imported and installed.')
             sys.exit()
 
-        Application_Details = Common.Configuration(Core=True).Load_Configuration(Object="web_app", Details_to_Load=["debug", "host", "port", "certificate_file", "key_file", "api_secret", "api_validity_minutes", "api_max_calls", "api_period_in_seconds"])
-        API_Secret = Application_Details[5]
-        API_Validity_Limit = Application_Details[6]
+        Application_Details: list = Common.Configuration(Core=True).Load_Configuration(Object="web_app", Details_to_Load=["debug", "host", "port", "certificate_file", "key_file", "api_secret", "api_validity_minutes", "api_max_calls", "api_period_in_seconds"])
+        API_Secret: str = Application_Details[5]
+        API_Validity_Limit: int = Application_Details[6]
+        Minimum_API_Limit: int = 60
 
-        if API_Validity_Limit < 60:
-            app.logger.fatal(f"{Common.Date()} API Validity Limit must be greater than or equal to 60.")
+        if API_Validity_Limit < Minimum_API_Limit:
+            app.logger.fatal(f"{Common.Date()} API Validity Limit must be greater than or equal to {Minimum_API_Limit}.")
             sys.exit()
 
         API_Max_Calls = Application_Details[7]
@@ -121,7 +127,7 @@ if __name__ == '__main__':
 
         try:
             import ssl
-            context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             context.load_cert_chain(certfile=Application_Details[3], keyfile=Application_Details[4])
 
         except Exception as e:
@@ -134,7 +140,7 @@ if __name__ == '__main__':
                 self.username = username
                 self.password = password
 
-            def authenticate(self):
+            def authenticate(self) -> dict:
                 Cursor.execute('SELECT * FROM users WHERE username = %s', (self.username,))
                 User_Details = Cursor.fetchone()
 
@@ -143,24 +149,23 @@ if __name__ == '__main__':
 
                     if not Password_Check:
 
-                        for char in self.password:
+                        if not self.username.isalnum():
+                            Message = f"Failed login attempt for the provided user {str(User_Details[1])} with a password that contains potentially dangerous characters."
+                            app.logger.warning(Message)
+                            Create_Event(Message)
+                            return {"Message": True}
 
-                            if char in Bad_Characters:
-                                Message = f"Failed login attempt for the provided user {str(User_Details[1])} with a password that contains potentially dangerous characters."
-                                app.logger.warning(Message)
-                                Create_Event(Message)
-                                return {"Message": True}
-
-                        Message = f"Failed login attempt for user {str(User_Details[1])}."
-                        app.logger.warning(Message)
-                        Create_Event(Message)
-                        return {"Message": True}
+                        else:
+                            Message = f"Failed login attempt for user {str(User_Details[1])}."
+                            app.logger.warning(Message)
+                            Create_Event(Message)
+                            return {"Message": True}
 
                     else:
 
                         if not User_Details[3]:
                             self.ID = User_Details[0]
-                            self.authenticated = True
+                            self.authenticated: bool = True
                             self.admin = User_Details[4]
                             self.API = User_Details[5]
                             self.MFA = User_Details[8]
@@ -174,19 +179,17 @@ if __name__ == '__main__':
 
                 else:
 
-                    for char in self.username:
+                    if not self.username.isalnum():
+                        Message: str = "Failed login attempt for a provided username that contained potentially dangerous characters."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+                        return {"Message": True}
 
-                        if char in Bad_Characters:
-                            Message = "Failed login attempt for a provided username that contained potentially dangerous characters."
-                            app.logger.warning(Message)
-                            Create_Event(Message)
-                            return {"Message": True}
-
-                        else:
-                            Message = f"Failed login attempt for user {self.username}."
-                            app.logger.warning(Message)
-                            Create_Event(Message)
-                            return {"Message": True}
+                    else:
+                        Message = f"Failed login attempt for user {self.username}."
+                        app.logger.warning(Message)
+                        Create_Event(Message)
+                        return {"Message": True}
 
             def API_registration(self):
 
@@ -263,15 +266,15 @@ if __name__ == '__main__':
         def Output_API_Checker():
 
             try:
-                Full_List = {}
+                Full_List: dict = dict()
 
                 for API_Key, API_Value in Valid_Plugins.items():
 
                     if API_Value["Requires_Configuration"]:
-                        Result = plugin_verifier.Plugin_Verifier(API_Key, 0, "", 0).Verify_Plugin(Scrummage_Working_Directory, Load_Config_Only=True)
+                        Result = plugin_verifier.Plugin_Verifier(API_Key, int(), str(), int()).Verify_Plugin(Scrummage_Working_Directory, Load_Config_Only=True)
                         Full_List[API_Key] = Result
 
-                if len(Full_List) > 0:
+                if len(Full_List) > int():
                     return Full_List
 
                 else:
@@ -280,11 +283,39 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
 
-        def Create_Event(Description):
+        def Create_Event(Description: str = str()):
 
             try:
                 Cursor.execute("INSERT INTO events (description, created_at) VALUES (%s,%s)", (Description, Common.Date()))
                 Connection.commit()
+
+            except Exception as e:
+                app.logger.error(e)
+
+        def Validator(String_to_Check: str = str(), Safe_Characters: list = list(), Safe_Spaces: bool = True) -> bool:
+
+            try:
+                String_to_Check = str(String_to_Check)
+                whitelist: list = Common.Alnum_List()
+                whitelist.extend(Safe_Characters)
+
+                if not Safe_Spaces and " " in String_to_Check:
+                    return False
+            
+                for char in String_to_Check:
+
+                    if char in whitelist:
+
+                        if len(char) == 1 and not char.isalnum() and char not in (".", ","):
+                            double_char = f"{char}{char}"
+
+                            if double_char in String_to_Check:
+                                return False
+
+                    else:
+                        return False
+
+                return True
 
             except Exception as e:
                 app.logger.error(e)
@@ -484,10 +515,8 @@ if __name__ == '__main__':
 
                     if 'username' in request.form and 'password' in request.form:
 
-                        for char in request.form['username']:
-
-                            if char in Bad_Characters:
-                                return render_template('index.html', error="Login Unsuccessful.")
+                        if not request.form['username'].isalnum():
+                            return render_template('index.html', error="Login Unsuccessful.")
 
                         Current_User = User(request.form['username'], request.form['password']).authenticate()
 
@@ -498,23 +527,23 @@ if __name__ == '__main__':
                                 return redirect(url_for('mfa_login'))
 
                             else:
-                                session['dashboard-refresh'] = 0
+                                session['dashboard-refresh']: int = int()
                                 session['user_id'] = Current_User.get('ID')
                                 session['user'] = Current_User.get('Username')
                                 session['is_admin'] = Current_User.get('Admin')
                                 session['api_key'] = Current_User.get('API')
-                                session['task_frequency'] = ""
-                                session['task_description'] = ""
-                                session['task_limit'] = 0
-                                session['task_query'] = ""
-                                session['task_id'] = ""
+                                session['task_frequency']: str = str()
+                                session['task_description']: str = str()
+                                session['task_limit']: int = int()
+                                session['task_query']: str = str()
+                                session['task_id']: str = str()
                                 Message = f"Successful login from {Current_User.get('Username')}."
                                 app.logger.warning(Message)
                                 Create_Event(Message)
 
                                 if session.get("next_page"):
                                     Redirect = session.get("next_page")
-                                    session["next_page"] == ""
+                                    session["next_page"] == str()
                                     return redirect(Redirect)
 
                                 else:
@@ -530,7 +559,7 @@ if __name__ == '__main__':
                         return render_template('index.html')
 
                 else:
-                    session['user_id'] = ""
+                    session['user_id']: str = str()
                     return render_template('index.html')
 
             except Exception as e:
@@ -551,23 +580,23 @@ if __name__ == '__main__':
                     TOTP = pyotp.TOTP(User_Info[7])
 
                     if request.form.get("mfa_token") and (request.form["mfa_token"] == TOTP.now()):
-                        session['dashboard-refresh'] = 0
+                        session['dashboard-refresh']: int = int()
                         session['user_id'] = User_Info[0]
                         session['user'] = User_Info[1]
                         session['is_admin'] = User_Info[4]
                         session['api_key'] = User_Info[5]
-                        session['task_frequency'] = ""
-                        session['task_description'] = ""
-                        session['task_limit'] = 0
-                        session['task_query'] = ""
-                        session['task_id'] = ""
+                        session['task_frequency']: str = str()
+                        session['task_description']: str = str()
+                        session['task_limit']: int = int()
+                        session['task_query']: str = str()
+                        session['task_id']: str = str()
                         Message = f"Successful login from {User_Info[1]}."
                         app.logger.warning(Message)
                         Create_Event(Message)
 
                         if session.get("next_page"):
                             Redirect = session.get("next_page")
-                            session["next_page"] == ""
+                            session["next_page"] == str()
                             return redirect(Redirect)
 
                         else:
@@ -654,15 +683,15 @@ if __name__ == '__main__':
             try:
 
                 if request.method == 'GET':
-                    Purified = {}
+                    Purified: dict = dict()
 
                     for Key, Value in Output_API_Checker().items():
 
                         if Value:
-                            Purified[Key] = True
+                            Purified[Key]: bool = True
 
                         else:
-                            Purified[Key] = False
+                            Purified[Key]: bool = bool()
 
                     return jsonify({"Inputs": Purified})
 
@@ -782,13 +811,13 @@ if __name__ == '__main__':
         def apply_response_headers(response):
 
             try:
-                response.headers["X-Frame-Options"] = "DENY"
-                response.headers["X-XSS-Protection"] = "1; mode=block"
-                response.headers["X-Content-Type"] = "nosniff"
-                response.headers["Server"] = ""
-                response.headers["Pragma"] = "no-cache"
-                response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
-                response.headers["Expires"] = "0"
+                response.headers["X-Frame-Options"]: str = "DENY"
+                response.headers["X-XSS-Protection"]: str = "1; mode=block"
+                response.headers["X-Content-Type"]: str = "nosniff"
+                response.headers["Server"]: str = str()
+                response.headers["Pragma"]: str = "no-cache"
+                response.headers["Cache-Control"]: str = "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                response.headers["Expires"]: str = "0"
                 return response
 
             except Exception as e:
@@ -873,12 +902,12 @@ if __name__ == '__main__':
                         SS_URL = Cursor.fetchone()
                         Cursor.execute('SELECT screenshot_requested FROM results WHERE result_id = %s', (ss_id,))
                         SS_Req = Cursor.fetchone()
-                        Append_Mode = False
+                        Append_Mode: bool = bool()
 
                         if not SS_Req[0]:
                         
                             if SS_URL[0]:
-                                Append_Mode = True
+                                Append_Mode: bool = True
                         
                             def Get_Screenshot(Inner_File_Path, Inner_SS_ID, User_Inner, Append_Mode_Inner):
                                 General.Screenshot(Inner_File_Path, Screenshot_ID=Inner_SS_ID, Screenshot_User=User_Inner, Append_Mode=Append_Mode_Inner).Grab_Screenshot()
@@ -934,12 +963,12 @@ if __name__ == '__main__':
 
             try:
                 colors_original = dashboard_colours()
-                most_common_tasks_labels = []
-                most_common_tasks_values = []
-                most_common_queries_labels = []
-                most_common_queries_values = []
-                most_common_frequencies_labels = []
-                most_common_frequencies_values = []
+                most_common_tasks_labels: list = list()
+                most_common_tasks_values: list = list()
+                most_common_queries_labels: list = list()
+                most_common_queries_values: list = list()
+                most_common_frequencies_labels: list = list()
+                most_common_frequencies_values: list = list()
                 Cursor.execute("SELECT plugin, COUNT(*) AS counted FROM tasks WHERE plugin IS NOT NULL GROUP BY plugin ORDER BY counted DESC, plugin LIMIT 10;")
                 most_common_tasks = Cursor.fetchall()
                 Cursor.execute("SELECT query, COUNT(*) AS counted FROM tasks WHERE query IS NOT NULL GROUP BY query ORDER BY counted DESC, query LIMIT 10;")
@@ -973,54 +1002,54 @@ if __name__ == '__main__':
         def results_dashboard():
 
             try:
-                Status = ""
-                Review_Results = True
-                Closed_Results = True
+                Status: str = str()
+                Review_Results: bool = True
+                Closed_Results: bool = True
 
                 if request.method == "POST":
                     
                     if request.form.get("reviewresults") and not request.form.get("closedresults"):
-                        Status = "status != 'Closed'"
-                        Closed_Results = False
+                        Status: str = "status != 'Closed'"
+                        Closed_Results: bool = bool()
 
                     elif not request.form.get("reviewresults") and request.form.get("closedresults"):
-                        Status = "status != 'Reviewing'"
-                        Review_Results = False
+                        Status: str = "status != 'Reviewing'"
+                        Review_Results: bool = bool()
 
                     elif not request.form.get("reviewresults") and not request.form.get("closedresults"):
-                        Status = "status = 'Open'"
-                        Closed_Results = False
-                        Review_Results = False
+                        Status: str = "status: str = 'Open'"
+                        Closed_Results: bool = bool()
+                        Review_Results: bool = bool()
 
                 labels = Finding_Types
                 colors_original = dashboard_colours()
                 colors = colors_original[:len(labels)]
-                PSQL_Select_Query = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
-                Dendogram_Query_1 = 'SELECT DISTINCT query FROM tasks;'
-                Dendogram_Query_2 = 'SELECT task_id FROM tasks WHERE query ILIKE %s;'
+                PSQL_Select_Query: str = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
+                Dendogram_Query_1: str = 'SELECT DISTINCT query FROM tasks;'
+                Dendogram_Query_2: str = 'SELECT task_id FROM tasks WHERE query ILIKE %s;'
 
-                if Status != "":
-                    Dendogram_Query_3 = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s' + f' AND {Status};'
-                    Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s' + f' AND {Status};'
+                if Status != str():
+                    Dendogram_Query_3: str = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s' + f' AND {Status};'
+                    Dendogram_Query_4: str = 'SELECT domain, link FROM results WHERE result_type = %s' + f' AND {Status};'
 
                 else:
-                    Dendogram_Query_3 = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s;'
-                    Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s;'
+                    Dendogram_Query_3: str = 'SELECT DISTINCT result_type FROM results WHERE task_id = %s;'
+                    Dendogram_Query_4: str = 'SELECT domain, link FROM results WHERE result_type = %s;'
 
-                Dendogram_Query_4 = 'SELECT domain, link FROM results WHERE result_type = %s;'
-                Dendogram_Data = {"children": [], "name": "Scrummage"}
-                open_values = []
-                closed_values = []
-                mixed_values = []
-                Use_Open = True
-                Use_Closed = True
-                Use_Mixed = True
-                Task_ID_Dict = {}
+                Dendogram_Query_4: str = 'SELECT domain, link FROM results WHERE result_type = %s;'
+                Dendogram_Data = {"children": list(), "name": "Scrummage"}
+                open_values: list = list()
+                closed_values: list = list()
+                mixed_values: list = list()
+                Use_Open: bool = True
+                Use_Closed: bool = True
+                Use_Mixed: bool = True
+                Task_ID_Dict: dict = dict()
 
                 Cursor.execute(Dendogram_Query_1)
                 Dendogram_Main_Results = Cursor.fetchall()
-                Dendogram_Condensed_Query_Dict = {}
-                Condensed_List = []
+                Dendogram_Condensed_Query_Dict: dict = dict()
+                Condensed_List: list = list()
 
                 for Query in Dendogram_Main_Results:
                     Query = Query[0]
@@ -1033,7 +1062,7 @@ if __name__ == '__main__':
                             Condensed_List.append(Extracted_Item)
 
                     if Query not in Task_ID_Dict:
-                        Task_ID_Dict[Query] = []
+                        Task_ID_Dict[Query]: list = list()
 
                     Like_Query = f"%{Query}%"
                     Cursor.execute(Dendogram_Query_2, (Like_Query,))
@@ -1041,13 +1070,13 @@ if __name__ == '__main__':
                     Task_ID_Dict[Query].extend(Results)
 
                 for Inner_Query in Condensed_List:
-                    Task_IDs = []
+                    Task_IDs: list = list()
 
                     if Inner_Query not in Dendogram_Condensed_Query_Dict:
-                        Dendogram_Condensed_Query_Dict[Inner_Query] = {}
+                        Dendogram_Condensed_Query_Dict[Inner_Query]: dict = dict()
 
                     if Inner_Query in Task_ID_Dict:
-                        New_Result_Types = []
+                        New_Result_Types: list = list()
 
                         for Task_ID in Task_ID_Dict[Inner_Query]:
                             Task_ID = Task_ID[0]
@@ -1068,7 +1097,7 @@ if __name__ == '__main__':
                         for Result_Type in New_Result_Types:
                             Cursor.execute(Dendogram_Query_4, (Result_Type,))
                             Domains_and_Links = Cursor.fetchall()
-                            Domain_Links_Dict = {}
+                            Domain_Links_Dict: dict = dict()
 
                             for DL in Domains_and_Links:
 
@@ -1082,10 +1111,10 @@ if __name__ == '__main__':
                                 Dendogram_Condensed_Query_Dict[Inner_Query][Result_Type] = {"URL": url_for("results_filtered") + f"?Result+ID=&Task+ID=&Title=&Plugin=&Status=&Domain=&Link=&Created+At=&Updated+At=&Result+Type={Result_Type}&setfilter=Set+Filter", "Domain_Links": Domain_Links_Dict}
 
                         if len(Dendogram_Condensed_Query_Dict[Inner_Query]) == 0:
-                            Dendogram_Condensed_Query_Dict[Inner_Query]["No Results"] = ""
+                            Dendogram_Condensed_Query_Dict[Inner_Query]["No Results"]: str = str()
 
                 for Key in Dendogram_Condensed_Query_Dict.keys():
-                    Child_List = []
+                    Child_List: list = list()
 
                     for Child_Key, Child_Value in Dendogram_Condensed_Query_Dict[Key].items():
 
@@ -1122,13 +1151,13 @@ if __name__ == '__main__':
                     mixed_values.append([current_mixed_results[0][0]])
 
                 if all(open_item == [0] for open_item in open_values):
-                    Use_Open = False
+                    Use_Open: bool = bool()
 
                 if all(closed_item == [0] for closed_item in closed_values):
-                    Use_Closed = False
+                    Use_Closed: bool = bool()
 
                 if all(mixed_item == [0] for mixed_item in mixed_values):
-                    Use_Mixed = False
+                    Use_Mixed: bool = bool()
 
                 return render_template('dashboard.html', resultsdash=True, is_admin=session.get('is_admin'), username=session.get('user'), open_set=[open_values, labels, colors], closed_set=[closed_values, labels, colors], mixed_set=[mixed_values, labels, colors], Use_Open=Use_Open, Use_Closed=Use_Closed, Use_Mixed=Use_Mixed, refreshrate=session.get('dashboard-refresh'), version=Version, Dendogram_Data=Dendogram_Data, Review_Results=Review_Results, Closed_Results=Closed_Results)
 
@@ -1148,24 +1177,24 @@ if __name__ == '__main__':
 
                 colors_original = dashboard_colours()
                 Dates = Common.Date(Additional_Last_Days=5, Date_Only=True)
-                Successful_User_Dates_Count = []
-                Unsuccessful_User_Dates_Count = []
-                Users_Created_Dates_Count = []
+                Successful_User_Dates_Count: list = list()
+                Unsuccessful_User_Dates_Count: list = list()
+                Users_Created_Dates_Count: list = list()
                 Cursor.execute('SELECT username FROM users;')
                 Current_Users = Cursor.fetchall()
                 Current_Index = 2
 
                 for Current_User in Current_Users:
                     Current_User = Current_User[0]
-                    Successful_User_Dates = []
-                    Unsuccessful_User_Dates = []
-                    Users_Created_Dates = []
+                    Successful_User_Dates: list = list()
+                    Unsuccessful_User_Dates: list = list()
+                    Users_Created_Dates: list = list()
 
                     for Date in Dates:
                         SQL_Date = Date + "%"
-                        SQL_User_Success = "Successful login from " + Current_User + "%"
-                        SQL_User_Fail = "Failed login attempt for user " + Current_User + "%"
-                        SQL_New_User = "%" + "user created by " + Current_User + "%"
+                        SQL_User_Success: str = "Successful login from " + Current_User + "%"
+                        SQL_User_Fail: str = "Failed login attempt for user " + Current_User + "%"
+                        SQL_New_User: str = "%" + "user created by " + Current_User + "%"
                         Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Success,))
                         Current_Date_Count = Cursor.fetchall()
                         Successful_User_Dates.append(Current_Date_Count[0][0])
@@ -1207,7 +1236,7 @@ if __name__ == '__main__':
             try:
 
                 if 'setrefresh' in request.form and 'interval' in request.form:
-                    approved_refresh_rates = [0, 5, 10, 15, 20, 30, 60]
+                    approved_refresh_rates = (0, 5, 10, 15, 20, 30, 60)
                     refresh_rate = int(request.form['interval'])
 
                     if refresh_rate in approved_refresh_rates:
@@ -1229,10 +1258,10 @@ if __name__ == '__main__':
         def api_dashboard():
 
             try:
-                PSQL_Select_Query_1 = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
-                open_values = {}
-                closed_values = {}
-                mixed_values = {}
+                PSQL_Select_Query_1: str = 'SELECT count(*) FROM results WHERE status = %s AND result_type = %s;'
+                open_values: dict = dict()
+                closed_values: dict = dict()
+                mixed_values: dict = dict()
 
                 for Finding_Type in Finding_Types:
                     Cursor.execute(PSQL_Select_Query_1, ("Open", Finding_Type,))
@@ -1259,13 +1288,13 @@ if __name__ == '__main__':
 
                 for Current_User in Current_Users:
                     Current_User = Current_User[0]
-                    Successful_User_Dates = []
-                    Unsuccessful_User_Dates = []
+                    Successful_User_Dates: list = list()
+                    Unsuccessful_User_Dates: list = list()
 
                     for Date in Dates:
                         SQL_Date = Date + "%"
-                        SQL_User_Success = "Successful login from " + Current_User + "%"
-                        SQL_User_Fail = "Failed login attempt for user " + Current_User + "%"
+                        SQL_User_Success: str = "Successful login from " + Current_User + "%"
+                        SQL_User_Fail: str = "Failed login attempt for user " + Current_User + "%"
                         Cursor.execute("SELECT count(*) FROM events WHERE created_at LIKE %s AND description LIKE %s;", (SQL_Date, SQL_User_Success,))
                         Current_Date_Count = Cursor.fetchall()
                         Successful_User_Dates.append({Date: Current_Date_Count[0][0]})
@@ -1308,7 +1337,7 @@ if __name__ == '__main__':
             try:
                 Cursor.execute("SELECT * FROM events ORDER BY event_id DESC LIMIT 1000")
                 events = Cursor.fetchall()
-                return render_template('events.html', is_admin=session.get('is_admin'), username=session.get('user'), events=events, Event_Filters=Event_Filters, Event_Filter_Values=[], Event_Filter_Iterator=list(range(0, len(Event_Filters))))
+                return render_template('events.html', is_admin=session.get('is_admin'), username=session.get('user'), events=events, Event_Filters=Event_Filters, Event_Filter_Values=list(), Event_Filter_Iterator=list(range(0, len(Event_Filters))))
 
             except Exception as e:
                 app.logger.error(e)
@@ -1320,15 +1349,15 @@ if __name__ == '__main__':
         def events_filtered():
 
             try:
-                SQL_Query_Start = "SELECT * FROM events WHERE "
-                SQL_Query_End = " ORDER BY event_id DESC LIMIT 1000"
-                SQL_Query_Args = []
-                Event_Filter_Values = []
+                SQL_Query_Start: str = "SELECT * FROM events WHERE "
+                SQL_Query_End: str = " ORDER BY event_id DESC LIMIT 1000"
+                SQL_Query_Args: list = list()
+                Event_Filter_Values: list = list()
 
                 for Event_Filter in Event_Filters:
                     Current_Filter_Value = str(request.args.get(Event_Filter))
 
-                    if Current_Filter_Value and Current_Filter_Value != '':
+                    if Current_Filter_Value and Current_Filter_Value != str():
 
                         if "ID" in Event_Filter:
                             Current_Filter_Value = int(Current_Filter_Value)
@@ -1341,16 +1370,16 @@ if __name__ == '__main__':
                         elif Current_Filter_Value == "*":
                             SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
 
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                        elif type(Current_Filter_Value) == str and Validator(String_to_Check=str(Current_Filter_Value), Safe_Characters=Restricted_Safe_Chars):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
 
                         Event_Filter_Values.append(Current_Filter_Value)
                         
                     else:
-                        Event_Filter_Values.append("")
+                        Event_Filter_Values.append(str())
 
-                if len(SQL_Query_Args) > 0:
-                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                if len(SQL_Query_Args) > int():
+                    SQL_Query_Args: str = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
                     return render_template('events.html', is_admin=session.get('is_admin'), username=session.get('user'), events=Cursor.fetchall(), Event_Filters=Event_Filters, Event_Filter_Values=Event_Filter_Values, Event_Filter_Iterator=list(range(0, len(Event_Filters))))
@@ -1374,15 +1403,12 @@ if __name__ == '__main__':
 
                     if request.is_json:
                         Content = request.get_json()
-                        data = {}
-                        Safe_Content = {}
+                        data: dict = dict()
+                        Safe_Content: dict = dict()
 
                         for Item in Event_Filters:
 
                             if Item in Content:
-
-                                if any(char in Item for char in Bad_Characters):
-                                    return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
                                 if Item == "Event ID":
 
@@ -1391,20 +1417,25 @@ if __name__ == '__main__':
 
                                     Safe_Content["event_id"] = Content[Item]
 
-                                elif " " in Item:
-                                    Safe_Content[Item.lower().replace(" ", "_")] = Content[Item]
-
                                 else:
-                                    Safe_Content[Item.lower()] = Content[Item]
+
+                                    if not Validator(String_to_Check=str(Content[Item]), Safe_Characters=Restricted_Safe_Chars):
+                                        return jsonify({"Error": f"Unsafe value provided."}), 500
+
+                                    if " " in Item:
+                                        Safe_Content[Item.lower().replace(" ", "_")] = Content[Item]
+
+                                    else:
+                                        Safe_Content[Item.lower()] = Content[Item]
 
                         if len(Safe_Content) > 1:
-                            Select_Query = "SELECT * FROM events WHERE "
+                            Select_Query: str = "SELECT * FROM events WHERE "
 
                             for Item_Key, Item_Value in sorted(Safe_Content.items()):
                                 Select_Query += f"{Item_Key} = '{Item_Value}'"
 
                                 if Item_Key != sorted(Safe_Content.keys())[-1]:
-                                    Select_Query += " and "
+                                    Select_Query += " AND "
 
                                 else:
                                     Select_Query += ";"
@@ -1414,7 +1445,7 @@ if __name__ == '__main__':
                         elif len(Safe_Content) == 1:
                             Key = list(Safe_Content.keys())[0]
                             Val = list(Safe_Content.values())[0]
-                            Select_Query = "SELECT * FROM events WHERE "
+                            Select_Query: str = "SELECT * FROM events WHERE "
                             Select_Query += f"{Key} = '{Val}'"
                             Cursor.execute(Select_Query)
 
@@ -1428,7 +1459,7 @@ if __name__ == '__main__':
                         return jsonify(data), 200
 
                     else:
-                        data = {}
+                        data: dict = dict()
                         Cursor.execute('SELECT * FROM events ORDER BY event_id DESC LIMIT 100')
 
                         for Event in Cursor.fetchall():
@@ -1485,18 +1516,18 @@ if __name__ == '__main__':
             try:
                 Task_API_Check = session.get('task_api_check')
                 Task_Error = session.get('task_error')
-                session['task_form_step'] = 0
-                session['task_form_type'] = ""
-                session['task_frequency'] = ""
-                session['task_description'] = ""
-                session['task_limit'] = 0
-                session['task_query'] = ""
-                session['task_id'] = 0
+                session['task_form_step']: int = int()
+                session['task_form_type']: str = str()
+                session['task_frequency']: str = str()
+                session['task_description']: str = str()
+                session['task_limit']: int = int()
+                session['task_query']: str = str()
+                session['task_id']: int = int()
                 session['task_error'] = None
                 session['task_api_check'] = None
                 Cursor.execute("SELECT * FROM tasks ORDER BY task_id DESC LIMIT 1000")
                 task_results = Cursor.fetchall()
-                return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), is_admin=session.get('is_admin'), results=task_results, Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))), api_check=Task_API_Check, error=Task_Error)
+                return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), is_admin=session.get('is_admin'), results=task_results, Task_Filters=Task_Filters, Task_Filter_Values=list(), Task_Filter_Iterator=list(range(0, len(Task_Filters))), api_check=Task_API_Check, error=Task_Error)
 
             except Exception as e:
                 app.logger.error(e)
@@ -1507,40 +1538,34 @@ if __name__ == '__main__':
         def tasks_filtered():
 
             try:
-                session['task_form_step'] = 0
-                session['task_form_type'] = ""
-                session['task_frequency'] = ""
-                session['task_description'] = ""
-                session['task_limit'] = 0
-                session['task_query'] = ""
-                session['task_id'] = 0
+                session['task_form_step']: int = int()
+                session['task_form_type']: str = str()
+                session['task_frequency']: str = str()
+                session['task_description']: str = str()
+                session['task_limit']: int = int()
+                session['task_query']: str = str()
+                session['task_id']: int = int()
                 session['task_error'] = None
                 session['task_api_check'] = None
-                SQL_Query_Start = "SELECT * FROM tasks WHERE "
-                SQL_Query_End = " ORDER BY task_id DESC LIMIT 1000"
-                SQL_Query_Args = []
-                Task_Filter_Values = []
+                SQL_Query_Start: str = "SELECT * FROM tasks WHERE "
+                SQL_Query_End: str = " ORDER BY task_id DESC LIMIT 1000"
+                SQL_Query_Args: list = list()
+                Task_Filter_Values: list = list()
             
                 for Task_Filter in Task_Filters:
                     Current_Filter_Value = str(request.args.get(Task_Filter))
 
-                    if Current_Filter_Value and Current_Filter_Value != '':
+                    if Current_Filter_Value and Current_Filter_Value != str():
 
                         if "ID" in Task_Filter:
                             Current_Filter_Value = int(Current_Filter_Value)
 
                         Converted_Filter = Task_Filter.lower().replace(" ", "_")
-                        Current_Bad_Chars = Bad_Characters
-
-                        for Current_Char in [")", "(", "-", "*", "/"]:
-
-                            if Current_Char in Current_Bad_Chars:
-                                Current_Bad_Chars.remove(Current_Char)
                     
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Current_Bad_Chars)):
+                        elif (type(Current_Filter_Value) == str and Validator(String_to_Check=str(Current_Filter_Value), Safe_Characters=Standard_Safe_Chars)):
                             
                             if Current_Filter_Value == "*":
                                 SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
@@ -1551,10 +1576,10 @@ if __name__ == '__main__':
                         Task_Filter_Values.append(Current_Filter_Value)
 
                     else:
-                        Task_Filter_Values.append("")
+                        Task_Filter_Values.append(str())
 
-                if len(SQL_Query_Args) > 0:
-                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                if len(SQL_Query_Args) > int():
+                    SQL_Query_Args: str = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
                     return render_template('tasks.html', username=session.get('user'), form_step=session.get('task_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Task_Filters=Task_Filters, Task_Filter_Values=Task_Filter_Values, Task_Filter_Iterator=list(range(0, len(Task_Filters))))
@@ -1590,7 +1615,7 @@ if __name__ == '__main__':
                 File_Path = os.path.dirname(os.path.realpath('__file__'))
                 Output_Directory = os.path.join(File_Path, 'static/protected/output')
                 List_of_Cache_Directories = os.listdir(Output_Directory)
-                Message = "Cache already cleared."
+                Message: str = "Cache already cleared."
                 
                 if plugin in List_of_Cache_Directories:
                     Cache_Directory = os.path.join(Output_Directory, plugin)
@@ -1614,7 +1639,7 @@ if __name__ == '__main__':
                             
                             if Common.Regex_Handler(File, Custom_Regex=".+\-cache\.txt"):
                                 os.remove(os.path.join(Cache_Directory, File))
-                                Message = "All cache cleared."
+                                Message: str = "All cache cleared."
 
                     return render_template('clear_cache.html', is_admin=session.get('is_admin'), username=session.get('user'), List_of_Cache_Directories=List_of_Cache_Directories, message=Message)
                 
@@ -1802,7 +1827,7 @@ if __name__ == '__main__':
                             return render_template('tasks.html', username=session.get('user'),
                                                    form_step=session.get('task_form_step'),
                                                    is_admin=session.get('is_admin'), results=results,
-                                                   error=f"Failed to remove task ID {str(del_id)} from crontab.", Task_Filters=Task_Filters, Task_Filter_Values=[], Task_Filter_Iterator=list(range(0, len(Task_Filters))))
+                                                   error=f"Failed to remove task ID {str(del_id)} from crontab.", Task_Filters=Task_Filters, Task_Filter_Values=list(), Task_Filter_Iterator=list(range(0, len(Task_Filters))))
 
                     Cursor.execute("DELETE FROM tasks WHERE task_id = %s;", (del_id,))
                     Connection.commit()
@@ -1824,6 +1849,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('tasks'))
 
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
         @app.route('/api/task/run/<taskid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -1891,7 +1917,7 @@ if __name__ == '__main__':
                 result = Cursor.fetchone()
 
                 if result[6] == "Running":
-                    session["task_error"] = "Task is already running."
+                    session["task_error"]: str = "Task is already running."
                     return redirect(url_for('tasks'))
 
                 if result[1] == "[IDENTITIES_DATABASE]":
@@ -1909,20 +1935,20 @@ if __name__ == '__main__':
                         Cursor.execute("SELECT phone FROM org_identities;")
                         ID_DB_Results = Cursor.fetchall()
 
-                    Filtered_Data = []
+                    Filtered_Data: list = list()
 
                     for Row in ID_DB_Results:
                         Filtered_Data.append(Row[0])
 
-                    Query = ", ".join(Filtered_Data)
+                    Query: str = ", ".join(Filtered_Data)
 
                 else:
                     Query = None
 
                 Plugin = plugin_verifier.Plugin_Verifier(result[2], Plugin_ID, result[1], result[5]).Verify_Plugin(Scrummage_Working_Directory)
 
-                if not Plugin or not all(Item in Plugin for Item in ["Object", "Search Option", "Function Kwargs"]):
-                    session["task_api_check"] = "Failed"
+                if not Plugin or not (isinstance(Plugin, dict) and all(Item in Plugin for Item in ("Object", "Search Option", "Function Kwargs"))):
+                    session["task_api_check"]: str = "Failed"
                     return redirect(url_for('tasks'))
 
                 else:
@@ -1947,7 +1973,7 @@ if __name__ == '__main__':
                         Thread_In_Use = threading.Thread(target=Task_Runner, args=(result, Plugin_ID, Query))
                         Thread_In_Use.start()
                     
-                    session["task_api_check"] = "Passed"
+                    session["task_api_check"]: str = "Passed"
                     time.sleep(1.5)
                     return redirect(url_for('tasks'))
 
@@ -1963,7 +1989,7 @@ if __name__ == '__main__':
         def api_tasks_new():
 
             try:
-                Task_Bad_Characters = Bad_Characters
+                Safe_Chars: list = Restricted_Safe_Chars.copy()
 
                 if request.method == 'POST':
 
@@ -1971,9 +1997,9 @@ if __name__ == '__main__':
                         Content = request.get_json()
 
                         if all(Items in Content for Items in ["Task Type", "Query"]):
-                            Frequency = ""
-                            Description = ""
-                            Limit = 0
+                            Frequency: str = str()
+                            Description: str = str()
+                            Limit: int = int()
                             
                             if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
@@ -1981,13 +2007,9 @@ if __name__ == '__main__':
                             Plugin_in_List = Valid_Plugins[Content['Task Type']]
 
                             if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
+                                Safe_Chars.extend(Plugin_in_List["Safe_Characters"])
 
-                                for Bad_Character in Plugin_in_List['Safe_Characters']:
-
-                                    if Bad_Character in Task_Bad_Characters:
-                                        Task_Bad_Characters.remove(Bad_Character)
-
-                            if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
+                            if (Validator(String_to_Check=str(Content['Query']), Safe_Characters=Safe_Chars) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if Valid_Plugins[Content['Task Type']].get("Organisation_Presets") and not Common.Regex_Handler(Content['Query'], Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]]):
@@ -1998,7 +2020,7 @@ if __name__ == '__main__':
                                 task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
 
                                 if task_frequency_regex:
-                                    Updated_Cron = []
+                                    Updated_Cron: list = list()
 
                                     for Group in range(1, 6):
                                         Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
@@ -2011,7 +2033,7 @@ if __name__ == '__main__':
                                         else:
                                             Updated_Cron.append(Regex_Group)
 
-                                    Frequency = " ".join(Updated_Cron)
+                                    Frequency: str = " ".join(Updated_Cron)
                                         
                                 else:
                                     return jsonify({"Error": "Invalid frequency, please provide a valid frequency in the same way you would set up a cronjob or leave the field blank. i.e. \"* */5 * * *\""}), 500
@@ -2037,7 +2059,7 @@ if __name__ == '__main__':
                             result = Cursor.fetchone()
                             current_task_id = result[0]
 
-                            if Frequency != "":
+                            if Frequency != str():
                                 Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {str(current_task_id)}'
 
                                 try:
@@ -2075,7 +2097,7 @@ if __name__ == '__main__':
         def new_task():
 
             try:
-                Task_Bad_Characters = Bad_Characters
+                Safe_Chars: list = Restricted_Safe_Chars.copy()
                 Suggestion = Common.Configuration(Core=True).Load_Configuration(Object="organisation", Details_to_Load=["name", "website", "domain", "subdomains"])
 
                 if session.get('task_form_step') == 0 or request.method == "GET":
@@ -2097,12 +2119,12 @@ if __name__ == '__main__':
                                                 form_step=session.get('task_form_step'),
                                                 error="Please choose a valid task from the provided list for the Task Type field.")
 
-                    if request.form.get('frequency') != "":
+                    if request.form.get('frequency') != str():
                         session['task_frequency'] = request.form['frequency']
                         task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
                         if task_frequency_regex:
-                            Updated_Cron = []
+                            Updated_Cron: list = list()
 
                             for Group in range(1, 6):
                                 Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
@@ -2115,7 +2137,7 @@ if __name__ == '__main__':
                                 else:
                                     Updated_Cron.append(Regex_Group)
 
-                            session['task_frequency'] = " ".join(Updated_Cron)
+                            session['task_frequency']: str = " ".join(Updated_Cron)
                                 
                         else:
                             return render_template('tasks.html', username=session.get('user'),
@@ -2131,18 +2153,14 @@ if __name__ == '__main__':
                     Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
 
                     if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
-
-                        for Bad_Character in Plugin_in_List['Safe_Characters']:
-
-                            if Bad_Character in Task_Bad_Characters:
-                                Task_Bad_Characters.remove(Bad_Character)
+                        Safe_Chars.extend(Plugin_in_List['Safe_Characters'])
 
                     session['task_form_type'] = request.form['tasktype']                     
 
                     if 'query' in request.form:
 
                         if request.form['query']:
-                            Frequency_Error = ""
+                            Frequency_Error: str = str()
                             session['task_query'] = request.form['query']
                             Current_Query_List = General.Convert_to_List(session['task_query'])
 
@@ -2152,12 +2170,12 @@ if __name__ == '__main__':
 
                                     if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
-                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
                                                                         form_type=session.get('task_form_type'),
                                                                         form_step=session.get('task_form_step'), suggestion=Suggestion,
                                                                         Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                        is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                        is_admin=session.get('is_admin'), new_task=True, error="Invalid query specified, your query contains unsupported special characters.")
 
                                         try:
                                             session['task_limit'] = int(request.form['limit'])
@@ -2188,13 +2206,13 @@ if __name__ == '__main__':
                                                                     is_admin=session.get('is_admin'),
                                                                     error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
-                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
                                                                         form_type=session.get('task_form_type'),
                                                                         form_step=session.get('task_form_step'), new_task=True,
                                                                         is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                                         Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                        error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                        error="Invalid query specified, your query contains unsupported special characters.")
 
                                 else:
                                     Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]].lower()
@@ -2236,7 +2254,7 @@ if __name__ == '__main__':
                                 except:
                                     Frequency_Error = f"Task created but no cronjob was created due to the supplied frequency being invalid, please double check the frequency for task ID {str(current_task_id)} and use the \"Edit\" button to update it in order for the cronjob to be created."
 
-                            session['task_form_step'] = 0
+                            session['task_form_step'] = int()
                             Cursor.execute("SELECT * FROM tasks")
                             results = Cursor.fetchall()
 
@@ -2278,7 +2296,7 @@ if __name__ == '__main__':
         def api_tasks_edit(taskid):
 
             try:
-                Task_Bad_Characters = Bad_Characters
+                Safe_Chars: list = Restricted_Safe_Chars.copy()
 
                 if request.method == 'POST':
 
@@ -2292,9 +2310,9 @@ if __name__ == '__main__':
                         Content = request.get_json()
 
                         if all(Items in Content for Items in ["Task Type", "Query"]):
-                            Frequency = ""
-                            Description = ""
-                            Limit = 0
+                            Frequency: str = str()
+                            Description: str = str()
+                            Limit: int = int()
                             
                             if Content['Task Type'] not in Valid_Plugins.keys():
                                 return jsonify({"Error": "The task type is not a valid option."}), 500
@@ -2302,13 +2320,9 @@ if __name__ == '__main__':
                             Plugin_in_List = Valid_Plugins[Content['Task Type']]
 
                             if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
+                                Safe_Chars.extend(Plugin_in_List["Safe_Characters"])
 
-                                for Bad_Character in Plugin_in_List['Safe_Characters']:  
-
-                                    if Bad_Character in Task_Bad_Characters:
-                                        Task_Bad_Characters.remove(Bad_Character)
-
-                            if (any(char in Content['Query'] for char in Task_Bad_Characters) and Content['Query'] != "[IDENTITIES_DATABASE]"):
+                            if (Validator(String_to_Check=str(Content['Query']), Safe_Characters=Safe_Chars) and Content['Query'] != "[IDENTITIES_DATABASE]"):
                                 return jsonify({"Error": "Potentially dangerous query identified. Please ensure your query does not contain any bad characters."}), 500
 
                             if Valid_Plugins[Content['Task Type']].get("Organisation_Presets") and not Common.Regex_Handler(Content['Query'], Type=Org_Preset_to_Regex_Mapping[Valid_Plugins[Content['Task Type']]["Organisation_Presets"]]):
@@ -2319,7 +2333,7 @@ if __name__ == '__main__':
                                 task_frequency_regex = Common.Regex_Handler(Content('frequency'), Type="Cron")
 
                                 if task_frequency_regex:
-                                    Updated_Cron = []
+                                    Updated_Cron: list = list()
 
                                     for Group in range(1, 6):
                                         Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
@@ -2332,24 +2346,24 @@ if __name__ == '__main__':
                                         else:
                                             Updated_Cron.append(Regex_Group)
 
-                                    Frequency = " ".join(Updated_Cron)
-                                    Update_Cron = False
+                                    Frequency: str = " ".join(Updated_Cron)
+                                    Update_Cron: bool = bool()
                                     Cursor.execute("SELECT frequency FROM tasks WHERE task_id = %s;", (session.get('task_id'),))
                                     result = Cursor.fetchone()
                                     Original_Frequency = result[0]
                                     Cron_Command = f'/usr/bin/python3 {File_Path}/plugin_caller.py -t {current_task_id}'
 
-                                    if Frequency != "" and Frequency != Original_Frequency:
-                                        Update_Cron = True
+                                    if Frequency != str() and Frequency != Original_Frequency:
+                                        Update_Cron: bool = True
 
-                                    elif Frequency != "" and Frequency == Original_Frequency:
-                                        Update_Cron = False
+                                    elif Frequency != str() and Frequency == Original_Frequency:
+                                        Update_Cron: bool = bool()
 
-                                    elif Frequency == "" and Original_Frequency == "":
-                                        Remove_Cron = True
+                                    elif Frequency == str() and Original_Frequency == str():
+                                        Remove_Cron: bool = True
 
-                                    elif Frequency != "" and Original_Frequency == "":
-                                        Create_Cron = True
+                                    elif Frequency != str() and Original_Frequency == str():
+                                        Create_Cron: bool = True
 
                                     if Remove_Cron:
 
@@ -2435,10 +2449,10 @@ if __name__ == '__main__':
         def edit_task(taskid):
 
             try:
-                Task_Bad_Characters = Bad_Characters
+                Safe_Chars: list = Restricted_Safe_Chars.copy()
                 Suggestion = Common.Configuration(Core=True).Load_Configuration(Object="organisation", Details_to_Load=["name", "website", "domain", "subdomains"])
 
-                if session.get('task_form_step') == 0 or request.method == "GET":
+                if session.get('task_form_step') == int() or request.method == "GET":
 
                     session['task_id'] = int(taskid)
                     Cursor.execute("SELECT * FROM tasks WHERE task_id = %s;", (session.get('task_id'),))
@@ -2458,15 +2472,15 @@ if __name__ == '__main__':
 
                     if request.form.get('tasktype') and request.form.get('tasktype') in Valid_Plugins.keys():
                         
-                        if request.form.get('frequency') != "":
+                        if request.form.get('frequency') != str():
                             session['task_frequency'] = request.form['frequency']
                             task_frequency_regex = Common.Regex_Handler(session.get('task_frequency'), Type="Cron")
 
                             if task_frequency_regex:
-                                Updated_Cron = []
+                                Updated_Cron: list = list()
 
                                 for Group in range(1, 6):
-                                    Items = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
+                                    Items: dict = {1: [0, 59], 2: [0, 23], 3: [1, 31], 4: [1, 12], 5: [0, 6]}
                                     Regex_Group = task_frequency_regex.group(Group)
                                     
                                     if "," in Regex_Group:
@@ -2476,7 +2490,7 @@ if __name__ == '__main__':
                                     else:
                                         Updated_Cron.append(Regex_Group)
 
-                                session['task_frequency'] = " ".join(Updated_Cron)
+                                session['task_frequency']: str = " ".join(Updated_Cron)
                                     
                             else:
                                 return render_template('tasks.html', username=session.get('user'),
@@ -2492,11 +2506,7 @@ if __name__ == '__main__':
                         Plugin_in_List = Valid_Plugins[request.form.get('tasktype')]
 
                         if type(Plugin_in_List.get('Safe_Characters')) == list and "Safe_Characters" in Plugin_in_List:
-
-                            for Bad_Character in Plugin_in_List['Safe_Characters']:  
-
-                                if Bad_Character in Task_Bad_Characters:
-                                    Task_Bad_Characters.remove(Bad_Character)
+                            Safe_Chars.extend(Plugin_in_List["Safe_Characters"])
 
                         session['task_form_type'] = request.form['tasktype']
 
@@ -2510,7 +2520,7 @@ if __name__ == '__main__':
                     if 'query' in request.form:
 
                         if request.form['query']:
-                            Frequency_Error = ""
+                            Frequency_Error: str = str()
                             session['task_query'] = request.form['query']
                             Current_Query_List = General.Convert_to_List(session['task_query'])
 
@@ -2520,12 +2530,12 @@ if __name__ == '__main__':
 
                                     if request.form.get('limit') and Valid_Plugins[session.get('task_form_type')]["Requires_Limit"]:
 
-                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
                                                                     form_step=session.get('task_form_step'), edit_task=True, Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]),
                                                                     results=results, is_admin=session.get('is_admin'), suggestion=Suggestion,
                                                                     form_type=session.get('task_form_type'),
-                                                                    error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                    error="Invalid query specified, your query contains unsupported special characters.")
 
                                         try:
                                             session['task_limit'] = int(request.form['limit'])
@@ -2557,13 +2567,13 @@ if __name__ == '__main__':
                                                                     is_admin=session.get('is_admin'),
                                                                     error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
-                                        if any(char in Current_Query for char in Bad_Characters) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
+                                        if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
                                                                         form_type=session.get('task_form_type'), suggestion=Suggestion,
                                                                         form_step=session.get('task_form_step'), edit_task=True,
                                                                         is_admin=session.get('is_admin'),
                                                                         Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                        error="Invalid query specified, please provide a valid query with no special characters.")
+                                                                        error="Invalid query specified, your query contains unsupported special characters.")
 
                                 else:
                                     Type = Org_Preset_to_Regex_Mapping[Valid_Plugins[session['task_form_type']]["Organisation_Presets"]].lower()
@@ -2574,19 +2584,19 @@ if __name__ == '__main__':
                                                                         Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
                                                                         error=f"The query provided was invalid for the type of query expected. Please enter a valid {Type}.")
 
-                            Update_Cron = False
+                            Update_Cron: bool = bool()
 
-                            if session.get('task_frequency') != "":
+                            if session.get('task_frequency') != str():
                                 Cursor.execute("SELECT frequency FROM tasks WHERE task_id = %s;", (session.get('task_id'),))
                                 result = Cursor.fetchone()
                                 original_frequency = result[0]
 
                                 if not original_frequency == session.get('task_frequency'):
-                                    Update_Cron = True
+                                    Update_Cron: bool = True
 
                             else:
 
-                                if results[4] != "":
+                                if results[4] != str():
 
                                     try:
                                         my_cron = CronTab(user=getpass.getuser())
@@ -2635,7 +2645,7 @@ if __name__ == '__main__':
                             Message = f"Task ID {str(session.get('task_id'))} updated by {session.get('user')}."
                             app.logger.warning(Message)
                             Create_Event(Message)
-                            session['task_form_step'] = 0
+                            session['task_form_step'] = int()
                             Cursor.execute("SELECT * FROM tasks")
                             results = Cursor.fetchall()
 
@@ -2680,14 +2690,14 @@ if __name__ == '__main__':
 
                     if request.is_json:
                         Content = request.get_json()
-                        data = {}
-                        Safe_Content = {}
+                        data: dict = dict()
+                        Safe_Content: dict = dict()
 
                         for Item in Task_Filters:
 
                             if Item in Content:
 
-                                if any(char in Item for char in Bad_Characters):
+                                if Validator(String_to_Check=str(Content[Item]), Safe_Characters=Standard_Safe_Chars):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
                                 if Item == "Task ID":
@@ -2711,13 +2721,13 @@ if __name__ == '__main__':
                                     Safe_Content[Item.lower()] = Content[Item]
 
                         if len(Safe_Content) > 1:
-                            Select_Query = "SELECT * FROM tasks WHERE "
+                            Select_Query: str = "SELECT * FROM tasks WHERE "
 
                             for Item_Key, Item_Value in sorted(Safe_Content.items()):
                                 Select_Query += f"{Item_Key} = '{Item_Value}'"
 
                                 if Item_Key != sorted(Safe_Content.keys())[-1]:
-                                    Select_Query += " and "
+                                    Select_Query += " AND "
 
                                 else:
                                     Select_Query += ";"
@@ -2727,7 +2737,7 @@ if __name__ == '__main__':
                         elif len(Safe_Content) == 1:
                             Key = list(Safe_Content.keys())[0]
                             Val = list(Safe_Content.values())[0]
-                            Select_Query = "SELECT * FROM tasks WHERE "
+                            Select_Query: str = "SELECT * FROM tasks WHERE "
                             Select_Query += f"{Key} = '{Val}'"
                             Cursor.execute(Select_Query)
 
@@ -2740,7 +2750,7 @@ if __name__ == '__main__':
                         return jsonify(data), 200
 
                     else:
-                        data = {}
+                        data: dict = dict()
                         Cursor.execute('SELECT * FROM tasks ORDER BY task_id DESC LIMIT 1000')
 
                         for Task in Cursor.fetchall():
@@ -2764,7 +2774,7 @@ if __name__ == '__main__':
 
                 if session.get('results_form_step') == 0 or request.method == "GET":
                     session['results_form_step'] = 1
-                    session['results_form_type'] = "bulk"
+                    session['results_form_type']: str = "bulk"
                     return render_template('results.html', username=session.get('user'), form_type=session.get("results_form_type"), form_step=session.get('results_form_step'), is_admin=session.get('is_admin'), Finding_Types=Finding_Types)
 
                 elif session.get('results_form_step') == 1:
@@ -2772,14 +2782,14 @@ if __name__ == '__main__':
 
                     if request.form.get("bulk_results"):
                         Iterator = 1
-                        Records_to_Insert = []
+                        Records_to_Insert: list = list()
 
                         for Result_Row in request.form["bulk_results"].split("\r\n"):
                             Attributes = Result_Row.split(",")
-                            Final_List = []
+                            Final_List: list = list()
 
                             if len(Attributes) == 3:
-                                Attr_Iterator = 0
+                                Attr_Iterator: int = int()
 
                                 for Attribute in Attributes:
 
@@ -2816,7 +2826,7 @@ if __name__ == '__main__':
 
                             Iterator += 1
 
-                        if len(Records_to_Insert) > 0:
+                        if len(Records_to_Insert) > int():
 
                             for Record in Records_to_Insert:
                                 Cursor.execute('INSERT INTO results (task_id, title, status, plugin, domain, link, created_at, updated_at, result_type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0, str(Record[0]), "Open", "Manual Entry", str(Record[1]), str(Record[2]), Common.Date(), Common.Date(), Record[3],))
@@ -2844,7 +2854,7 @@ if __name__ == '__main__':
 
                 if session.get('results_form_step') == 0 or request.method == "GET":
                     session['results_form_step'] = 1
-                    session['results_form_type'] = "new"
+                    session['results_form_type']: str = "new"
                     return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types)
 
                 elif session.get('results_form_step') == 1:
@@ -2852,7 +2862,7 @@ if __name__ == '__main__':
 
                     if all(Item in request.form for Item in ['Name', 'URL', 'Type']):
 
-                        if any(char in request.form['Name'] for char in Bad_Characters):
+                        if not Validator(String_to_Check=str(request.form['Name']), Safe_Characters=["-", ".", ",", ":"]):
                             return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), form_type=session.get("results_form_type"), is_admin=session.get('is_admin'), Finding_Types=Finding_Types, error="Bad characters identified in the name field, please remove special characters from the name field.")
 
                         if not request.form['Type'] in Finding_Types:
@@ -2899,11 +2909,11 @@ if __name__ == '__main__':
                             URL = Content['URL']
                             Type = Content['Type']
 
-                            if any(char in Name for char in Bad_Characters):
+                            if not Validator(String_to_Check=str(Name), Safe_Characters=["-", ".", ",", ":"]):
                                 return jsonify({"Error": "Bad characters identified in the name field, please remove special characters."}), 500
 
                             if not Type in Finding_Types:
-                                Joint_Finding_Types = ", ".join(Finding_Types)
+                                Joint_Finding_Types: str = ", ".join(Finding_Types)
                                 return jsonify({"Error": f"Result type is not valid. Please use one of the following result types {Joint_Finding_Types}"}), 500
 
                             if type(Name) == list:
@@ -2921,8 +2931,8 @@ if __name__ == '__main__':
                             if len(Query_List) != len(Hosts_List):
                                 return jsonify({"Error": "Please provide the same amount of result names as result URLs."}), 500
 
-                            Iterator_List = []
-                            i = 0
+                            Iterator_List: list = list()
+                            i: int = int()
 
                             while i < len(Hosts_List) and len(Query_List):
                                 URL_Regex = Common.Regex_Handler(Hosts_List[i], Type="URL")
@@ -3126,6 +3136,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('results'))
 
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
         @app.route('/api/result/changestatus/<status>/<resultid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -3168,13 +3179,13 @@ if __name__ == '__main__':
 
             try:
                 Screenshot_Request_Message = session.get("result_ss_request_message")
-                session["result_ss_request_message"] = ""
+                session["result_ss_request_message"]: str = str()
                 resultid = int(resultid)
                 Cursor.execute("SELECT * FROM results WHERE result_id = %s", (resultid,))
                 Result_Table_Results = Cursor.fetchone()
-                Report_Files = []
-                Output_Files = []
-                Screenshot_Files = []
+                Report_Files: list = list()
+                Output_Files: list = list()
+                Screenshot_Files: list = list()
                 
                 if Result_Table_Results[9] and "," in Result_Table_Results[9]:
 
@@ -3223,16 +3234,16 @@ if __name__ == '__main__':
         def results_filtered():
 
             try:
-                session['results_form_step'] = 0
-                SQL_Query_Start = "SELECT * FROM results WHERE "
-                SQL_Query_End = " ORDER BY result_id DESC LIMIT 1000"
-                SQL_Query_Args = []
-                Result_Filter_Values = []
+                session['results_form_step']: int = int()
+                SQL_Query_Start: str = "SELECT * FROM results WHERE "
+                SQL_Query_End: str = " ORDER BY result_id DESC LIMIT 1000"
+                SQL_Query_Args: list = list()
+                Result_Filter_Values: list = list()
 
                 for Result_Filter in Result_Filters:
                     Current_Filter_Value = str(request.args.get(Result_Filter))
 
-                    if Current_Filter_Value and Current_Filter_Value != '':
+                    if Current_Filter_Value and Current_Filter_Value != str():
 
                         if "ID" in Result_Filter:
                             Current_Filter_Value = int(Current_Filter_Value)
@@ -3242,7 +3253,7 @@ if __name__ == '__main__':
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                        elif (type(Current_Filter_Value) == str and Validator(String_to_Check=str(Current_Filter_Value), Safe_Characters=Standard_Safe_Chars)):
 
                             if Current_Filter_Value == "*":
                                 SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
@@ -3253,10 +3264,10 @@ if __name__ == '__main__':
                         Result_Filter_Values.append(Current_Filter_Value)
 
                     else:
-                        Result_Filter_Values.append("")
+                        Result_Filter_Values.append(str())
 
-                if len(SQL_Query_Args) > 0:
-                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                if len(SQL_Query_Args) > int():
+                    SQL_Query_Args: str = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
                     return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Finding_Types=Finding_Types, Result_Filters=Result_Filters, Result_Filter_Values=Result_Filter_Values, Result_Filter_Iterator=list(range(0, len(Result_Filters))))
@@ -3273,9 +3284,9 @@ if __name__ == '__main__':
         def results():
 
             try:
-                session['results_form_step'] = 0
+                session['results_form_step']: int = int()
                 Cursor.execute("SELECT * FROM results ORDER BY result_id DESC LIMIT 1000")
-                return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Finding_Types=Finding_Types , Result_Filters=Result_Filters, Result_Filter_Values=[], Result_Filter_Iterator=list(range(0, len(Result_Filters))))
+                return render_template('results.html', username=session.get('user'), form_step=session.get('results_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Finding_Types=Finding_Types , Result_Filters=Result_Filters, Result_Filter_Values=list(), Result_Filter_Iterator=list(range(0, len(Result_Filters))))
 
             except Exception as e:
                 app.logger.error(e)
@@ -3296,14 +3307,14 @@ if __name__ == '__main__':
 
                         if request.is_json:
                             Content = request.get_json()
-                            data = {}
-                            Safe_Content = {}
+                            data: dict = dict()
+                            Safe_Content: dict = dict()
 
                             for Item in Result_Filters:
 
                                 if Item in Content:
 
-                                    if any(char in Item for char in Bad_Characters):
+                                    if not Validator(String_to_Check=str(Content[Item]), Safe_Characters=Standard_Safe_Chars):
                                         return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
                                     if Item == "Result ID":
@@ -3323,13 +3334,13 @@ if __name__ == '__main__':
                                         Safe_Content[Item.lower()] = Content[Item]
 
                             if len(Safe_Content) > 1:
-                                Select_Query = "SELECT * FROM results WHERE "
+                                Select_Query: str = "SELECT * FROM results WHERE "
 
                                 for Item_Key, Item_Value in sorted(Safe_Content.items()):
                                     Select_Query += f"{Item_Key} = '{Item_Value}'"
 
                                     if Item_Key != sorted(Safe_Content.keys())[-1]:
-                                        Select_Query += " and "
+                                        Select_Query += " AND "
 
                                     else:
                                         Select_Query += ";"
@@ -3339,7 +3350,7 @@ if __name__ == '__main__':
                             elif len(Safe_Content) == 1:
                                 Key = list(Safe_Content.keys())[0]
                                 Val = list(Safe_Content.values())[0]
-                                Select_Query = "SELECT * FROM results WHERE "
+                                Select_Query: str = "SELECT * FROM results WHERE "
                                 Select_Query += f"{Key} = '{Val}'"
                                 Cursor.execute(Select_Query)
 
@@ -3352,7 +3363,7 @@ if __name__ == '__main__':
                             return jsonify(data), 200
 
                         else:
-                            data = {}
+                            data: dict = dict()
                             Cursor.execute('SELECT * FROM results ORDER BY result_id DESC LIMIT 1000')
 
                             for Result in Cursor.fetchall():
@@ -3393,6 +3404,7 @@ if __name__ == '__main__':
             except Exception as e:
                 app.logger.error(e)
                 return redirect(url_for('dashboard'))
+# deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
 
         @app.route('/api/account/new')
         @csrf.exempt
@@ -3467,7 +3479,7 @@ if __name__ == '__main__':
 
                 if session.get('settings_form_step') == 0 or request.method == "GET":
                     session['settings_form_step'] = 1
-                    session['settings_form_type'] = "CreateUser"
+                    session['settings_form_type']: str = "CreateUser"
                     return render_template('settings.html', username=session.get('user'),
                                            form_type=session.get('settings_form_type'), form_step=session.get('settings_form_step'),
                                            is_admin=session.get('is_admin'), api_key=session.get('api_key'),
@@ -3630,13 +3642,13 @@ if __name__ == '__main__':
                     User = Cursor.fetchone()
 
                     if not check_password_hash(User[2], Current_Password):
-                        session["na_settings_error"] = "Current Password is incorrect."
+                        session["na_settings_error"]: str = "Current Password is incorrect."
                         return redirect(url_for('account'))
 
                     else:
 
                         if request.form['New_Password'] != request.form['New_Password_Retype']:
-                            session["na_settings_error"] = "Please make sure the \"New Password\" and \"Retype Password\" fields match."
+                            session["na_settings_error"]: str = "Please make sure the \"New Password\" and \"Retype Password\" fields match."
                             return redirect(url_for('account'))
 
                         else:
@@ -3656,11 +3668,11 @@ if __name__ == '__main__':
                                     password = generate_password_hash(request.form['New_Password'])
                                     Cursor.execute('UPDATE users SET password = %s WHERE user_id = %s', (password, User[0],))
                                     Connection.commit()
-                                    session["na_settings_message"] = "Password successfully changed."
+                                    session["na_settings_message"]: str = "Password successfully changed."
                                     return redirect(url_for('account'))
 
                             else:
-                                session["na_settings_error"] = "Your current password and new password cannot be identical."
+                                session["na_settings_error"]: str = "Your current password and new password cannot be identical."
                                 return redirect(url_for('account'))
 
                 else:
@@ -3670,7 +3682,7 @@ if __name__ == '__main__':
                         if session.get('settings_form_step') == 0 or request.method == "GET":
                             session['other_user_id'] = int(account)
                             session['settings_form_step'] = 1
-                            session['settings_form_type'] = "ChangePassword"
+                            session['settings_form_type']: str = "ChangePassword"
                             return render_template('settings.html', username=session.get('user'),
                                                    form_type=session.get('settings_form_type'),
                                                    form_step=session.get('settings_form_step'),
@@ -3744,7 +3756,7 @@ if __name__ == '__main__':
 
                     try:
                         jwt.decode(User_Info[5], API_Secret, algorithm='HS256')
-                        session['apigen_settings_message'] = "Current token is still valid."
+                        session['apigen_settings_message']: str = "Current token is still valid."
                         return redirect(url_for('account'))
 
                     except:
@@ -3755,7 +3767,7 @@ if __name__ == '__main__':
                         app.logger.warning(Message)
                         Create_Event(Message)
                         session['api_key'] = API_Key
-                        session['apigen_settings_message'] = "New API token generated successfully."
+                        session['apigen_settings_message']: str = "New API token generated successfully."
                         return redirect(url_for('account'))
 
                 else:
@@ -3766,7 +3778,7 @@ if __name__ == '__main__':
                     app.logger.warning(Message)
                     Create_Event(Message)
                     session['api_key'] = API_Key
-                    session['apigen_settings_message'] = "New API token generated successfully."
+                    session['apigen_settings_message']: str = "New API token generated successfully."
                     return redirect(url_for('account'))
 
             except Exception as e:
@@ -3799,7 +3811,7 @@ if __name__ == '__main__':
                     if request.form.get("mfa_token") and (request.form["mfa_token"] == TOTP.now()):
                         Cursor.execute('UPDATE users SET mfa_confirmed = %s WHERE user_id = %s', (True, User_Info[0],))
                         Connection.commit()
-                        session['apigen_settings_message'] = "MFA successfully set up."
+                        session['apigen_settings_message']: str = "MFA successfully set up."
                         return redirect(url_for('account'))
 
                     else:
@@ -3812,6 +3824,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
         @app.route('/api/account/delete/<accountid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -3866,6 +3879,8 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
         @app.route('/api/account/disable/<accountid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -3918,6 +3933,7 @@ if __name__ == '__main__':
 
             except Exception as e:
                 app.logger.error(e)
+                # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
                 return redirect(url_for('account'))
 
         @app.route('/api/account/enable/<accountid>')
@@ -3974,6 +3990,7 @@ if __name__ == '__main__':
                 app.logger.error(e)
                 return redirect(url_for('account'))
 
+        # deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>, deepcode ignore DisablesCSRFProtection: <please specify a reason of ignoring this>
         @app.route('/api/account/demote/<accountid>')
         @csrf.exempt
         @RateLimiter(max_calls=API_Max_Calls, period=API_Period)
@@ -4100,38 +4117,38 @@ if __name__ == '__main__':
             
                 if session.get('apigen_settings_message'):
                     Settings_Message = session.get('apigen_settings_message')
-                    session['apigen_settings_message'] = ""
+                    session['apigen_settings_message']: str = str()
                     return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), message=Settings_Message)
 
                 elif session.get('mfa_error') and session.get('is_admin'):
                     MFA_Error = session.get('mfa_error')
-                    session['mfa_error'] = ""
+                    session['mfa_error']: str = str()
                     return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), error=MFA_Error)
 
                 else:
-                    Settings_Message = ""
+                    Settings_Message: str = str()
 
                     if session.get('is_admin'):
                     
                         if not session.get('apigen_settings_message'):
                             Settings_Message = session.get('settings_message')
 
-                        session['settings_message'] = ""
-                        session['mfa_error'] = ""
-                        session['settings_form_step'] = 0
-                        session['settings_form_type'] = ""
-                        session['other_user_id'] = 0
-                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=[], Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
+                        session['settings_message']: str = str()
+                        session['mfa_error']: str = str()
+                        session['settings_form_step']: int = int()
+                        session['settings_form_type']: str = str()
+                        session['other_user_id']: int = int()
+                        return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), results=Admin_Results, api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=list(), Account_Filter_Iterator=list(range(0, len(Account_Filters))), message=Settings_Message)
 
                     else:
                         Form_Settings_Message = session.get('na_settings_message')
                         Form_Settings_Error = session.get('na_settings_error')
                         Req_Error = session.get('na_req_settings_error')
                         MFA_Error = session.get('mfa_error')
-                        session['na_settings_error'] = ""
-                        session['na_req_settings_error'] = []
-                        session['na_settings_message'] = ""
-                        session['mfa_error'] = ""
+                        session['na_settings_error']: str = str()
+                        session['na_req_settings_error']: list = list()
+                        session['na_settings_message']: str = str()
+                        session['mfa_error']: str = str()
                         return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), mfainuse=(User_Details[8] == "true"), api_key=session.get('api_key'), current_user_id=session.get('user_id'), form_error=Form_Settings_Error, form_message=Form_Settings_Message, requirement_error=Req_Error, message=Settings_Message, MFA_Error=MFA_Error)
 
             except Exception as e:
@@ -4161,7 +4178,7 @@ if __name__ == '__main__':
                         return jsonify({"Error": "Invalid configuration type, please select from inputs, outputs, or core."}), 500
 
                     List_of_Inputs = Object.Load_Keys()
-                    Final_List = []
+                    Final_List: list = list()
 
                     if "web_app" in List_of_Inputs:
                         List_of_Inputs.remove("web_app")
@@ -4208,7 +4225,7 @@ if __name__ == '__main__':
                         Data_Items = Object.Load_Values(Object=Content["object"])
 
                         if all(Item in Content["data"] for Item in Data_Items.keys()):
-                            New_Config = {}
+                            New_Config: dict = dict()
 
                             for Item_Key, Item_Value in Content["data"].items():
 
@@ -4252,11 +4269,11 @@ if __name__ == '__main__':
         def configure(configtype):
 
             try:
-                session['settings_form_step'] = 0
-                session['settings_form_type'] = ""
-                session['item'] = ""
-                session['item_list'] = []
-                session['config_list'] = []
+                session['settings_form_step']: int = int()
+                session['settings_form_type']: str = str()
+                session['item']: str = str()
+                session['item_list']: list = list()
+                session['config_list']: list = list()
 
                 if configtype == "inputs":
                     Object = Common.Configuration(Input=True)
@@ -4291,7 +4308,7 @@ if __name__ == '__main__':
 
             try:
 
-                if session.get('settings_form_step') == 0 and session.get('settings_form_type') != "" and "item" in request.form and request.form['item'] in session.get('config_list'):
+                if session.get('settings_form_step') == 0 and session.get('settings_form_type') != str() and "item" in request.form and request.form['item'] in session.get('config_list'):
                     time.sleep(1)
                     item = request.form['item']
                     configtype = session.get('settings_form_type')
@@ -4315,12 +4332,12 @@ if __name__ == '__main__':
                     session['item'] = item
                     return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), List_of_Item_Values=List_of_Item_Values.items(), Configure=True, Config_Type_Upper=session['settings_form_type'].capitalize(), Config_Type=session['settings_form_type'])
 
-                elif session.get('settings_form_step') == 1 and session.get('settings_form_type') != "":
+                elif session.get('settings_form_step') == 1 and session.get('settings_form_type') != str():
                     time.sleep(1)
 
                     if all(Item in request.form for Item, Val in session['item_list'].items()):
                         item = session.get('item')
-                        New_Config = {}
+                        New_Config: dict = dict()
 
                         for Item_Key, Item_Value in request.form.items():
 
@@ -4387,18 +4404,18 @@ if __name__ == '__main__':
         def account_filtered():
 
             try:
-                session['settings_form_step'] = 0
-                session['settings_form_type'] = ""
-                session['other_user_id'] = 0
-                SQL_Query_Start = "SELECT * FROM users WHERE "
-                SQL_Query_End = " ORDER BY user_id DESC LIMIT 1000"
-                SQL_Query_Args = []
-                Account_Filter_Values = []
+                session['settings_form_step']: int = int()
+                session['settings_form_type']: str = str()
+                session['other_user_id']: int = int()
+                SQL_Query_Start: str = "SELECT * FROM users WHERE "
+                SQL_Query_End: str = " ORDER BY user_id DESC LIMIT 1000"
+                SQL_Query_Args: list = list()
+                Account_Filter_Values: list = list()
         
                 for Account_Filter in Account_Filters:
                     Current_Filter_Value = str(request.args.get(Account_Filter))
 
-                    if Current_Filter_Value and Current_Filter_Value != '':
+                    if Current_Filter_Value and Current_Filter_Value != str():
 
                         if "ID" in Account_Filter:
                             Current_Filter_Value = int(Current_Filter_Value)
@@ -4408,22 +4425,22 @@ if __name__ == '__main__':
                         if type(Current_Filter_Value) == int:
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
-                        elif type(Current_Filter_Value) == str and Converted_Filter in ["blocked", "is_admin"]:
+                        elif type(Current_Filter_Value) == str and Converted_Filter in ("blocked", "is_admin"):
                             SQL_Query_Args.append(f"{Converted_Filter} = {str(Current_Filter_Value)}")
 
                         elif Current_Filter_Value == "*":
                             SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
                         
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                        elif (type(Current_Filter_Value) == str and Validator(String_to_Check=str(Current_Filter_Value), Safe_Characters=Standard_Safe_Chars)):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                         
                         Account_Filter_Values.append(Current_Filter_Value)
 
                     else:
-                        Account_Filter_Values.append("")
+                        Account_Filter_Values.append(str())
 
-                if len(SQL_Query_Args) > 0:
-                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                if len(SQL_Query_Args) > int():
+                    SQL_Query_Args: str = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
                     return render_template('settings.html', username=session.get('user'), form_step=session.get('settings_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), api_key=session.get('api_key'), current_user_id=session.get('user_id'), Account_Filters=Account_Filters, Account_Filter_Values=Account_Filter_Values, Account_Filter_Iterator=list(range(0, len(Account_Filters))))
@@ -4447,14 +4464,14 @@ if __name__ == '__main__':
 
                     if request.is_json:
                         Content = request.get_json()
-                        data = {}
-                        Safe_Content = {}
+                        data: dict = dict()
+                        Safe_Content: dict = dict()
 
                         for Item in Account_Filters:
 
                             if Item in Content:
 
-                                if any(char in Item for char in Bad_Characters):
+                                if not Validator(String_to_Check=str(Content[Item]), Safe_Characters=Restricted_Safe_Chars):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
                                 if Item == "User ID":
@@ -4472,13 +4489,13 @@ if __name__ == '__main__':
                                     Safe_Content[Item.lower()] = Content[Item]
 
                         if len(Safe_Content) > 1:
-                            Select_Query = "SELECT * FROM users WHERE "
+                            Select_Query: str = "SELECT * FROM users WHERE "
 
                             for Item_Key, Item_Value in sorted(Safe_Content.items()):
                                 Select_Query += f"{Item_Key} = '{Item_Value}'"
 
                                 if Item_Key != sorted(Safe_Content.keys())[-1]:
-                                    Select_Query += " and "
+                                    Select_Query += " AND "
 
                                 else:
                                     Select_Query += ";"
@@ -4488,7 +4505,7 @@ if __name__ == '__main__':
                         elif len(Safe_Content) == 1:
                             Key = list(Safe_Content.keys())[0]
                             Val = list(Safe_Content.values())[0]
-                            Select_Query = "SELECT * FROM users WHERE "
+                            Select_Query: str = "SELECT * FROM users WHERE "
                             Select_Query += f"{Key} = '{Val}'"
                             Cursor.execute(Select_Query)
 
@@ -4501,7 +4518,7 @@ if __name__ == '__main__':
                         return jsonify(data), 200
 
                     else:
-                        data = {}
+                        data: dict = dict()
                         Cursor.execute('SELECT * FROM users ORDER BY user_id DESC LIMIT 1000')
 
                         for User in Cursor.fetchall():
@@ -4524,12 +4541,12 @@ if __name__ == '__main__':
             try:
                 Identity_Message = session.get('identities_message')
                 Identity_Error = session.get('identities_error')
-                session['identities_message'] = ""
-                session['identities_error'] = ""
-                session['identities_form_step'] = 0
-                session['identities_form_type'] = ""
+                session['identities_message']: str = str()
+                session['identities_error']: str = str()
+                session['identities_form_step']: int = int()
+                session['identities_form_type']: str = str()
                 Cursor.execute("SELECT * FROM org_identities ORDER BY identity_id DESC LIMIT 1000")
-                return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Identity_Filters=Identity_Filters, Identity_Filter_Values=[], Identity_Filter_Iterator=list(range(0, len(Identity_Filters))), message=Identity_Message, error=Identity_Error)
+                return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Identity_Filters=Identity_Filters, Identity_Filter_Values=list(), Identity_Filter_Iterator=list(range(0, len(Identity_Filters))), message=Identity_Message, error=Identity_Error)
 
             except Exception as e:
                 app.logger.error(e)
@@ -4547,20 +4564,20 @@ if __name__ == '__main__':
 
                     if request.is_json:
                         Content = request.get_json()
-                        data = {}
-                        Safe_Content = {}
+                        data: dict = dict()
+                        Safe_Content: dict = dict()
 
                         for Item in Identity_Filters:
 
                             if Item in Content:
 
-                                if any(char in Item for char in Bad_Characters):
+                                if not Validator(String_to_Check=str(Content[Item]), Safe_Characters=Standard_Safe_Chars):
                                     return jsonify({"Error": f"Bad characters detected in the {Item} field."}), 500
 
                                 if Item == "Identity ID":
 
                                     if type(Content[Item]) != int:
-                                        return jsonify({"Error": f"The ID provided is not an integer."}), 500
+                                        return jsonify({"Error": "The ID provided is not an integer."}), 500
 
                                     else:
                                         Safe_Content["identity_id"] = Content[Item]
@@ -4569,13 +4586,13 @@ if __name__ == '__main__':
                                     Safe_Content[Item.lower()] = Content[Item]
 
                         if len(Safe_Content) > 1:
-                            Select_Query = "SELECT * FROM org_identities WHERE "
+                            Select_Query: str = "SELECT * FROM org_identities WHERE "
 
                             for Item_Key, Item_Value in sorted(Safe_Content.items()):
                                 Select_Query += f"{Item_Key} = '{Item_Value}'"
 
                                 if Item_Key != sorted(Safe_Content.keys())[-1]:
-                                    Select_Query += " and "
+                                    Select_Query += " AND "
 
                                 else:
                                     Select_Query += ";"
@@ -4585,7 +4602,7 @@ if __name__ == '__main__':
                         elif len(Safe_Content) == 1:
                             Key = list(Safe_Content.keys())[0]
                             Val = list(Safe_Content.values())[0]
-                            Select_Query = "SELECT * FROM org_identities WHERE "
+                            Select_Query: str = "SELECT * FROM org_identities WHERE "
                             Select_Query += f"{Key} = '{Val}'"
                             Cursor.execute(Select_Query)
 
@@ -4598,7 +4615,7 @@ if __name__ == '__main__':
                         return jsonify(data), 200
 
                     else:
-                        data = {}
+                        data: dict = dict()
                         Cursor.execute('SELECT * FROM org_identities ORDER BY identity_id DESC LIMIT 1000')
 
                         for Identity in Cursor.fetchall():
@@ -4619,17 +4636,17 @@ if __name__ == '__main__':
         def identities_filtered():
 
             try:
-                session['identities_form_step'] = 0
-                session['identities_form_type'] = ""
-                SQL_Query_Start = "SELECT * FROM org_identities WHERE "
-                SQL_Query_End = " ORDER BY identity_id DESC LIMIT 1000"
-                SQL_Query_Args = []
-                Identity_Filter_Values = []
+                session['identities_form_step']: int = int()
+                session['identities_form_type']: str = str()
+                SQL_Query_Start: str = "SELECT * FROM org_identities WHERE "
+                SQL_Query_End: str = " ORDER BY identity_id DESC LIMIT 1000"
+                SQL_Query_Args: list = list()
+                Identity_Filter_Values: list = list()
         
                 for Identity_Filter in Identity_Filters:
                     Current_Filter_Value = str(request.args.get(Identity_Filter))
 
-                    if Current_Filter_Value and Current_Filter_Value != '':
+                    if Current_Filter_Value and Current_Filter_Value != str():
 
                         if "ID" in Identity_Filter:
                             Current_Filter_Value = int(Current_Filter_Value)
@@ -4642,16 +4659,16 @@ if __name__ == '__main__':
                         elif Current_Filter_Value == "*":
                             SQL_Query_Args.append(f"{Converted_Filter} != \'\'")
                         
-                        elif (type(Current_Filter_Value) == str and not any(char in Current_Filter_Value for char in Bad_Characters)):
+                        elif (type(Current_Filter_Value) == str and Validator(String_to_Check=str(Current_Filter_Value), Safe_Characters=Standard_Safe_Chars)):
                             SQL_Query_Args.append(f"{Converted_Filter} LIKE \'%{Current_Filter_Value}%\'")
                         
                         Identity_Filter_Values.append(Current_Filter_Value)
 
                     else:
-                        Identity_Filter_Values.append("")
+                        Identity_Filter_Values.append(str())
 
-                if len(SQL_Query_Args) > 0:
-                    SQL_Query_Args = " AND ".join(SQL_Query_Args)
+                if len(SQL_Query_Args) > int():
+                    SQL_Query_Args: str = " AND ".join(SQL_Query_Args)
                     SQL_Statement = SQL_Query_Start + SQL_Query_Args + SQL_Query_End
                     Cursor.execute(SQL_Statement)
                     return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), is_admin=session.get('is_admin'), results=Cursor.fetchall(), Identity_Filters=Identity_Filters, Identity_Filter_Values=Identity_Filter_Values, Identity_Filter_Iterator=list(range(0, len(Identity_Filters))))
@@ -4726,7 +4743,7 @@ if __name__ == '__main__':
 
                 if session.get('identities_form_step') == 0 or request.method == "GET":
                     session['identities_form_step'] = 1
-                    session['identities_form_type'] = "new"
+                    session['identities_form_type']: str = "new"
                     return render_template('identities.html', username=session.get('user'),
                                             form_type=session.get('identities_form_type'),
                                             is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'))
@@ -4735,7 +4752,7 @@ if __name__ == '__main__':
                     time.sleep(1)
                     Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
                     Required_Fields = ["First", "Surname", "Email", "Phone"]
-                    Final_List = []
+                    Final_List: list = list()
 
                     if not all(Field in request.form for Field in Required_Fields):
                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please fill out all required fields, marked with (*).")
@@ -4744,7 +4761,7 @@ if __name__ == '__main__':
 
                         if Field != "Fullname":
 
-                            if Field != "Phone" and any(str(request.form.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                            if Field != "Phone" and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Standard_Safe_Chars):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.")
                         
                             elif Field == "Phone" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Phone_Multi"):
@@ -4753,7 +4770,7 @@ if __name__ == '__main__':
                             elif Field == "Email" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Email"):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided email address is in the correct format.")
                         
-                            elif Field not in ["Email", "Phone"] and any(Char in str(request.form.get(Field)) for Char in Bad_Characters):
+                            elif Field not in ("Email", "Phone") and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Restricted_Safe_Chars):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.")
 
                             if Field in ["First", "Middle", "Surname"]:
@@ -4802,7 +4819,7 @@ if __name__ == '__main__':
                         Content = request.get_json()
                         Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
                         Required_Fields = ["First", "Surname", "Email", "Phone"]
-                        Final_List = []
+                        Final_List: list = list()
 
                         if not all(Field in Content for Field in Required_Fields):
                             return jsonify({"Error": "Please fill out all required fields (" + ", ".join(Required_Fields) + ")."}), 500
@@ -4811,7 +4828,7 @@ if __name__ == '__main__':
 
                             if Field != "Fullname":
 
-                                if Field != "Phone" and any(str(Content.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                if Field != "Phone" and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Standard_Safe_Chars):
                                     return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
 
                                 elif Field == "Phone" and not Common.Regex_Handler(str(Content.get(Field)), Type="Phone_Multi"):
@@ -4820,7 +4837,7 @@ if __name__ == '__main__':
                                 elif Field == "Email" and not Common.Regex_Handler(str(Content.get(Field)), Type="Email"):
                                     return jsonify({"Error": "Please ensure the provided email address is in the correct format."}), 500
                             
-                                elif Field not in ["Email", "Phone"] and any(Char in str(Content.get(Field)) for Char in Bad_Characters):
+                                elif Field not in ["Email", "Phone"] and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Restricted_Safe_Chars):
                                     return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
 
                                 if Field in ["First", "Middle", "Surname"]:
@@ -4864,7 +4881,7 @@ if __name__ == '__main__':
 
                 if session.get('identities_form_step') == 0 or request.method == "GET":
                     session['identities_form_step'] = 1
-                    session['identities_form_type'] = "bulk"
+                    session['identities_form_type']: str = "bulk"
                     return render_template('identities.html', username=session.get('user'),
                                             form_type=session.get('identities_form_type'),
                                             is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'))
@@ -4874,22 +4891,22 @@ if __name__ == '__main__':
 
                     if request.form.get("bulk_identities"):
                         Iterator = 1
-                        Records_to_Insert = []
+                        Records_to_Insert: list = list()
 
                         for Identity_Row in request.form["bulk_identities"].split("\r\n"):
                             Attributes = Identity_Row.split(",")
-                            Final_List = []
+                            Final_List: list = list()
 
                             if len(Attributes) == 6:
                                 Required_Attributes = [Attributes[0], Attributes[2], Attributes[3], Attributes[5]]
-                                Attr_Iterator = 0
+                                Attr_Iterator: int = int()
 
                                 for Attribute in Attributes:
 
-                                    if Attribute in Required_Attributes and Attribute == "":
+                                    if Attribute in Required_Attributes and Attribute == str():
                                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure all required fields (marked with *) have a value provided. The offending line is line {str(Iterator)}.")
 
-                                    elif Attribute != Attributes[5] and any(Attribute.startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                                    elif Attribute != Attributes[5] and not Validator(String_to_Check=str(Attribute), Safe_Characters=Standard_Safe_Chars):
                                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the fields do not contain any bad characters. The offending line is line {str(Iterator)}.")
                                 
                                     elif Attribute == Attributes[5] and not Common.Regex_Handler(Attribute, Type="Phone_Multi"):
@@ -4898,7 +4915,7 @@ if __name__ == '__main__':
                                     elif Attribute == Attributes[4] and not Common.Regex_Handler(Attribute, Type="Email"):
                                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the provided email address is in the correct format. The offending line is line {str(Iterator)}.")
                                 
-                                    elif Attribute not in Attributes[-2:] and any(Char in Attribute for Char in Bad_Characters):
+                                    elif Attribute not in Attributes[-2:] and not Validator(String_to_Check=str(Attribute), Safe_Characters=Restricted_Safe_Chars):
                                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error=f"Please ensure the fields do not contain any bad characters. The offending line is line {str(Iterator)}.")
 
                                     if Attribute in Attributes[:3]:
@@ -4909,7 +4926,7 @@ if __name__ == '__main__':
 
                                     if Attr_Iterator == 2:
 
-                                        if Attributes[1] != "":
+                                        if Attributes[1] != str():
                                             Full_Name = Attributes[0].capitalize() + " " + Attributes[1].capitalize() + " " + Attributes[2].capitalize()
 
                                         else:
@@ -4926,7 +4943,7 @@ if __name__ == '__main__':
                         
                             Iterator += 1
 
-                        if len(Records_to_Insert) > 0:
+                        if len(Records_to_Insert) > int():
 
                             for Record in Records_to_Insert:
                                 Cursor.execute('INSERT INTO org_identities (firstname, middlename, surname, fullname, username, email, phone) VALUES (%s,%s,%s,%s,%s,%s,%s)', Record)
@@ -4959,11 +4976,11 @@ if __name__ == '__main__':
 
                     if results:
                         session['identities_form_step'] = 1
-                        session['identities_form_type'] = "edit"
+                        session['identities_form_type']: str = "edit"
                         return render_template('identities.html', username=session.get('user'), form_step=session.get('identities_form_step'), form_type=session.get("identities_form_type"), is_admin=session.get('is_admin'), results=results)
 
                     else:
-                        session['identities_message'] = "Invalid value provided. Failed to edit object."
+                        session['identities_message']: str = "Invalid value provided. Failed to edit object."
                         return redirect(url_for("identities"))
 
                 elif session.get('identities_form_step') == 1:
@@ -4972,7 +4989,7 @@ if __name__ == '__main__':
                     results = Cursor.fetchone()
                     Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
                     Required_Fields = ["First", "Surname", "Email", "Phone"]
-                    Final_List = []
+                    Final_List: list = list()
 
                     if not all(Field in request.form for Field in Required_Fields):
                         return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please fill out all required fields, marked with (*).", results=results)
@@ -4981,7 +4998,7 @@ if __name__ == '__main__':
 
                         if Field != "Fullname":
 
-                            if Field != "Phone" and any(str(request.form.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
+                            if Field != "Phone" and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Standard_Safe_Chars):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.", results=results)
                         
                             elif Field == "Phone" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Phone_Multi"):
@@ -4990,7 +5007,7 @@ if __name__ == '__main__':
                             elif Field == "Email" and not Common.Regex_Handler(str(request.form.get(Field)), Type="Email"):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the provided email address is in the correct format.", results=results)
                         
-                            elif Field not in ["Email", "Phone"] and any(Char in str(request.form.get(Field)) for Char in Bad_Characters):
+                            elif Field not in ["Email", "Phone"] and not Validator(String_to_Check=str(request.form.get(Field)), Safe_Characters=Restricted_Safe_Chars):
                                 return render_template('identities.html', username=session.get('user'), form_type=session.get('identities_form_type'), is_admin=session.get('is_admin'), form_step=session.get('identities_form_step'), error="Please ensure the fields do not contain any bad characters.", results=results)
 
                             if Field in ["First", "Middle", "Surname"]:
@@ -5040,51 +5057,56 @@ if __name__ == '__main__':
                         identity_id = str(int(identity_id))
                         Cursor.execute("SELECT * FROM org_identities WHERE identity_id = %s;", (identity_id,))
                         results = Cursor.fetchone()
-                        Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
-                        Required_Fields = ["First", "Surname", "Email", "Phone"]
-                        Final_List = []
 
-                        if not all(Field in Content for Field in Required_Fields):
-                            return jsonify({"Error": "Please fill out all required fields (" + ", ".join(Required_Fields) + ")."}), 500
+                        if results:
+                            Full_Fields = ["First", "Middle", "Surname", "Fullname", "Username", "Email", "Phone"]
+                            Required_Fields = ["First", "Surname", "Email", "Phone"]
+                            Final_List: list = list()
 
-                        for Field in Full_Fields:
+                            if not all(Field in Content for Field in Required_Fields):
+                                return jsonify({"Error": "Please fill out all required fields (" + ", ".join(Required_Fields) + ")."}), 500
 
-                            if Field != "Fullname":
+                            for Field in Full_Fields:
 
-                                if Field != "Phone" and any(str(Content.get(Field)).startswith(Bad_Start_Char) for Bad_Start_Char in ["+", "@", "-", "=", " "]):
-                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+                                if Field != "Fullname":
 
-                                elif Field == "Phone" and not Common.Regex_Handler(str(Content.get(Field)), Type="Phone_Multi"):
-                                    return jsonify({"Error": "Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces."}), 500
+                                    if Field != "Phone" and not Validator(String_to_Check=str(Content.get(Field)), Safe_Characters=Standard_Safe_Chars):
+                                        return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+
+                                    elif Field == "Phone" and not Common.Regex_Handler(str(Content.get(Field)), Type="Phone_Multi"):
+                                        return jsonify({"Error": "Please ensure the provided phone number only contains numbers and starts with a + symbol and country code, please remove any spaces."}), 500
+                                    
+                                    elif Field == "Email" and not Common.Regex_Handler(str(Content.get(Field)), Type="Email"):
+                                        return jsonify({"Error": "Please ensure the provided email address is in the correct format."}), 500
                                 
-                                elif Field == "Email" and not Common.Regex_Handler(str(Content.get(Field)), Type="Email"):
-                                    return jsonify({"Error": "Please ensure the provided email address is in the correct format."}), 500
-                            
-                                elif Field not in ["Email", "Phone"] and any(Char in str(Content.get(Field)) for Char in Bad_Characters):
-                                    return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
+                                    elif Field not in ["Email", "Phone"] and not Validator(String_to_Check=str(Content.get(Field)), Safe_Characters=Restricted_Safe_Chars):
+                                        return jsonify({"Error": "Please ensure the fields do not contain any bad characters."}), 500
 
-                                if Field in ["First", "Middle", "Surname"]:
-                                    Final_List.append(str(Content.get(Field)).capitalize())
-                                
-                                else:
-                                    Final_List.append(str(Content.get(Field)))
-
-                            else:
-
-                                if request.form.get("Middle"):
-                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Middle").capitalize() + " " + Content.get("Surname").capitalize()
+                                    if Field in ["First", "Middle", "Surname"]:
+                                        Final_List.append(str(Content.get(Field)).capitalize())
+                                    
+                                    else:
+                                        Final_List.append(str(Content.get(Field)))
 
                                 else:
-                                    Full_Name = Content.get("First").capitalize() + " " + Content.get("Surname").capitalize()
 
-                                Final_List.append(Full_Name)
+                                    if request.form.get("Middle"):
+                                        Full_Name = Content.get("First").capitalize() + " " + Content.get("Middle").capitalize() + " " + Content.get("Surname").capitalize()
 
-                        Final_List.append(identity_id)
-                        Cursor.execute('UPDATE org_identities SET firstname = %s, middlename = %s, surname = %s, fullname = %s, username = %s, email = %s, phone = %s WHERE identity_id = %s', tuple(Final_List))
-                        Connection.commit()
-                        Message = f"Identity ID {str(identity_id)} updated."
-                        Create_Event(Message)
-                        return jsonify({"Message": Message}), 200
+                                    else:
+                                        Full_Name = Content.get("First").capitalize() + " " + Content.get("Surname").capitalize()
+
+                                    Final_List.append(Full_Name)
+
+                            Final_List.append(identity_id)
+                            Cursor.execute('UPDATE org_identities SET firstname = %s, middlename = %s, surname = %s, fullname = %s, username = %s, email = %s, phone = %s WHERE identity_id = %s', tuple(Final_List))
+                            Connection.commit()
+                            Message = f"Identity ID {str(identity_id)} updated."
+                            Create_Event(Message)
+                            return jsonify({"Message": Message}), 200
+
+                        else:
+                            return jsonify({"Error": "Invalid reference."}), 500
 
                     else:
                         return jsonify({"Error": "Request is not in JSON format."}), 500
@@ -5100,4 +5122,4 @@ if __name__ == '__main__':
         app.run(debug=Application_Details[0], host=Application_Details[1], port=Application_Details[2], threaded=True, ssl_context=context)
 
     except Exception as e:
-        exit(str(e))
+        sys.exit(str(e))

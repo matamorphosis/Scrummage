@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 if __name__ == "__main__":
-    import psycopg2, datetime, argparse, sys, re, json
+    import psycopg2, datetime, argparse, sys, Common
     from werkzeug.security import generate_password_hash
 
     Parser = argparse.ArgumentParser(description='To create users in Scrummage.')
@@ -21,24 +21,24 @@ if __name__ == "__main__":
     def Load_Main_Database():
 
         try:
-            with open('db.json') as JSON_File:
-                Configuration_Data = json.load(JSON_File)
+            Configuration_File, DB_File = Common.Get_Relative_Configuration()
+
+            with open(DB_File, 'r') as JSON_File:
+                Configuration_Data = Common.Cryptography().configuration_decrypt(JSON_File.read())
                 DB_Info = Configuration_Data['postgresql']
                 DB_Host = DB_Info['host']
                 DB_Port = str(int(DB_Info['port']))
                 DB_Username = DB_Info['user']
                 DB_Password = DB_Info['password']
                 DB_Database = DB_Info['database']
+                
+            JSON_File.close()
 
         except:
             sys.exit(str(datetime.datetime.now()) + " Failed to load configuration file.")
 
         try:
-            return psycopg2.connect(user=DB_Username,
-                                          password=DB_Password,
-                                          host=DB_Host,
-                                          port=DB_Port,
-                                          database=DB_Database)
+            return psycopg2.connect(user=DB_Username, password=DB_Password, host=DB_Host, port=DB_Port, database=DB_Database)
 
         except:
             sys.exit(str(datetime.datetime.now()) + " Failed to connect to database.")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     cursor = connection.cursor()
     username = Arguments.username
 
-    PSQL_Select_Query = 'SELECT * FROM users WHERE username = %s'
+    PSQL_Select_Query: str = 'SELECT * FROM users WHERE username = %s'
     cursor.execute(PSQL_Select_Query, (username,))
     User = cursor.fetchone()
 

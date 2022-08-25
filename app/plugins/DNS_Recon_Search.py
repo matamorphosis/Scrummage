@@ -3,19 +3,19 @@ import plugins.common.General as General, plugins.common.Common as Common, plugi
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "DNS Reconnaissance"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "DNS Reconnaissance"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Concat_Plugin_Name = "dnsrecon"
-        self.Result_Type = "Domain Information"
+        self.Concat_Plugin_Name: str = "dnsrecon"
+        self.Result_Type: str = "Domain Information"
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -34,11 +34,11 @@ class Plugin_Search:
                     for DNS_Item in DNS_Info:
                         Query = DNS_Item['base_domain']
                         Output_Dict = Common.JSON_Handler(DNS_Item).Dump_JSON()
-                        Link = "https://www." + Query
-                        Title = "DNS Information for " + DNS_Item['base_domain']
+                        Link: str = f"https://www.{Query}"
+                        Title: str = f"DNS Information for {Common.Fang().Defang(DNS_Item['base_domain'])}"
 
                         if Link not in Data_to_Cache and Link not in Cached_Data:
-                            Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{Query}")
+                            Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{Query}")
                             Response = Responses["Filtered"]
                             Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Output_Dict, Query, self.The_File_Extensions["Main"])
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])
@@ -54,11 +54,11 @@ class Plugin_Search:
                 else:
                     Query = DNS_Info['base_domain']
                     Output_Dict = Common.JSON_Handler(Query).Dump_JSON()
-                    Link = "https://www." + Query
-                    Title = "DNS Information for " + Query
+                    Link: str = f"https://www.{Query}"
+                    Title: str = f"DNS Information for {Common.Fang().Defang(DNS_Item['base_domain'])}"
 
                     if Link not in Data_to_Cache and Link not in Cached_Data:
-                        Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://www.{Query}")
+                        Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://www.{Query}")
                         Response = Responses["Filtered"]
                         Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Output_Dict, Query, self.The_File_Extensions["Main"])
                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Response, Title, self.The_File_Extensions["Query"])

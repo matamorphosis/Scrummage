@@ -3,19 +3,19 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "Zone-H"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "Zone-H"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "zone-h.org"
-        self.Result_Type = "Domain Information"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "zone-h.org"
+        self.Result_Type: str = "Domain Information"
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -32,7 +32,7 @@ class Plugin_Search:
                 if Domain_Regex:
                     URL = f"https://www.{self.Domain}/archive"
                     Data = {"notifier": "", "domain": Query, "filter_date_select": "", "filter": "1"}
-                    Responses = Common.Request_Handler(URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                    Responses = Common.Request_Handler(url=URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                     Output_Response = Responses["Filtered"]
                     Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Output_Response, Query, self.The_File_Extension)
                     Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
@@ -40,10 +40,10 @@ class Plugin_Search:
 
                     if URL_Regex:
                         Output_URL = f"https://www.{self.Domain}/" + URL_Regex.group(0)
-                        Title = f"{self.Plugin_Name} | {Query}"
+                        Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Query)}"
 
                         if Output_URL not in Cached_Data and Output_URL not in Data_to_Cache:
-                            Item_Responses = Common.Request_Handler(Output_URL, Filter=True, Host=f"https://{self.Domain}")
+                            Item_Responses = Common.Request_Handler(url=Output_URL, Filter=True, Host=f"https://{self.Domain}")
                             Item_Response = Item_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Item_Response, Output_URL, self.The_File_Extension)
 

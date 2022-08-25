@@ -3,14 +3,14 @@ import os, logging, tweepy, plugins.common.General as General, plugins.common.Co
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Twitter"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Twitter"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "twitter.com"
-        self.Result_Type = "Social Media - Page"
+        self.Domain: str = "twitter.com"
+        self.Result_Type: str = "Social Media - Page"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -26,8 +26,8 @@ class Plugin_Search:
     def General_Pull(self, Handle, Directory, API):
 
         try:
-            Data_to_Cache = []
-            JSON_Response = []
+            Data_to_Cache: list = list()
+            JSON_Response: list = list()
             Cached_Data_Object = General.Cache(Directory, self.Plugin_Name)
             Cached_Data = Cached_Data_Object.Get_Cache()
             Latest_Tweets = API.user_timeline(screen_name=Handle, count=self.Limit)
@@ -59,8 +59,8 @@ class Plugin_Search:
                     Link = JSON_Item['url']
 
                     if Link not in Cached_Data and Link not in Data_to_Cache:
-                        Title = f"{self.Plugin_Name} | " + JSON_Item['text']
-                        Item_Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://{self.Domain}")
+                        Title = f"{self.Plugin_Name} | {JSON_Item['text']}"
+                        Item_Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://{self.Domain}")
                         Item_Response = Item_Responses["Filtered"]
 
                         Output_file = General.Create_Query_Results_Output_File(Directory, Handle, self.Plugin_Name, Item_Response, str(JSON_Item['id']), self.The_File_Extensions["Query"])

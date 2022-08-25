@@ -51,7 +51,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License."""
 
-__version__ = "4.4.1"
+__version__: str = "4.4.1"
 
 DMARC_VERSION_REGEX_STRING = r"v=DMARC1;"
 BIMI_VERSION_REGEX_STRING = r"v=BIMI1;"
@@ -60,10 +60,10 @@ BIMI_TAG_VALUE_REGEX_STRING = r"([a-z]{1})=(.*)"
 MAILTO_REGEX_STRING = r"^(mailto):" \
                       r"([\w\-!#$%&'*+-/=?^_`{|}~]" \
                       r"[\w\-.!#$%&'*+-/=?^_`{|}~]*@[\w\-.]+)(!\w+)?"
-SPF_VERSION_TAG_REGEX_STRING = "v=spf1"
+SPF_VERSION_TAG_REGEX_STRING: str = "v=spf1"
 SPF_MECHANISM_REGEX_STRING = r"([+\-~?])?(mx|ip4|ip6|exists|include|all|a|" \
                              r"redirect|exp|ptr)[:=]?([\w+/_.:\-{%}]*)"
-AFTER_ALL_REGEX_STRING = "all .*"
+AFTER_ALL_REGEX_STRING: str = "all .*"
 
 DMARC_TAG_VALUE_REGEX = compile(DMARC_TAG_VALUE_REGEX_STRING)
 BIMI_TAG_VALUE_REGEX = compile(BIMI_TAG_VALUE_REGEX_STRING)
@@ -71,7 +71,7 @@ MAILTO_REGEX = compile(MAILTO_REGEX_STRING)
 SPF_MECHANISM_REGEX = compile(SPF_MECHANISM_REGEX_STRING, IGNORECASE)
 AFTER_ALL_REGEX = compile(AFTER_ALL_REGEX_STRING, IGNORECASE)
 
-USER_AGENT = "Mozilla/5.0 (({0} {1})) parsedmarc/{2}".format(
+USER_AGENT: str = "Mozilla/5.0 (({0} {1})) parsedmarc/{2}".format(
             platform.system(),
             platform.release(),
             __version__
@@ -580,7 +580,7 @@ def get_base_domain(domain, use_fresh_psl=False):
     psl_path = os.path.join(TMPDIR, "public_suffix_list.dat")
 
     def download_psl():
-        url = "https://publicsuffix.org/list/public_suffix_list.dat"
+        url: str = "https://publicsuffix.org/list/public_suffix_list.dat"
         # Use a browser-like user agent string to bypass some proxy blocks
         headers = {"User-Agent": USER_AGENT}
         fresh_psl = requests.get(url, headers=headers).text
@@ -633,7 +633,7 @@ def _query_dns(domain, record_type, nameservers=None, timeout=2.0,
     """
     domain = str(domain).lower()
     record_type = record_type.upper()
-    cache_key = "{0}_{1}".format(domain, record_type)
+    cache_key: str = "{0}_{1}".format(domain, record_type)
     if cache is None:
         cache = DNS_CACHE
     if cache:
@@ -681,7 +681,7 @@ def _get_nameservers(domain, nameservers=None, timeout=2.0):
         :exc:`checkdmarc.DNSException`
 
     """
-    answers = []
+    answers: list = list()
     try:
 
         answers = _query_dns(domain, "NS", nameservers=nameservers,
@@ -711,7 +711,7 @@ def _get_mx_hosts(domain, nameservers=None, timeout=2.0):
         :exc:`checkdmarc.DNSException`
 
     """
-    hosts = []
+    hosts: list = list()
     try:
         logging.debug("Checking for MX records on {0}".format(domain))
         answers = _query_dns(domain, "MX", nameservers=nameservers,
@@ -749,7 +749,7 @@ def _get_a_records(domain, nameservers=None, timeout=2.0):
 
     """
     qtypes = ["A", "AAAA"]
-    addresses = []
+    addresses: list = list()
     for qt in qtypes:
         try:
             addresses += _query_dns(domain, qt, nameservers=nameservers,
@@ -836,10 +836,10 @@ def _query_dmarc_record(domain, nameservers=None, timeout=2.0):
     Returns:
         str: A record string or None
     """
-    target = "_dmarc.{0}".format(domain.lower())
+    target: str = "_dmarc.{0}".format(domain.lower())
     dmarc_record = None
     dmarc_record_count = 0
-    unrelated_records = []
+    unrelated_records: list = list()
 
     try:
         records = _query_dns(target, "TXT", nameservers=nameservers,
@@ -902,10 +902,10 @@ def _query_bmi_record(domain, selector="default", nameservers=None,
     Returns:
         str: A record string or None
     """
-    target = "{0}._bimi.{1}".format(selector, domain.lower())
+    target: str = "{0}._bimi.{1}".format(selector, domain.lower())
     bimi_record = None
     bmi_record_count = 0
-    unrelated_records = []
+    unrelated_records: list = list()
 
     try:
         records = _query_dns(target, "TXT", nameservers=nameservers,
@@ -976,7 +976,7 @@ def query_dmarc_record(domain, nameservers=None, timeout=2.0):
 
     """
     logging.debug("Checking for a DMARC record on {0}".format(domain))
-    warnings = []
+    warnings: list = list()
     base_domain = get_base_domain(domain)
     location = domain.lower()
     record = _query_dmarc_record(domain, nameservers=nameservers,
@@ -1028,7 +1028,7 @@ def query_bimi_record(domain, selector="default", nameservers=None,
 
     """
     logging.debug("Checking for a BIMI record on {0}".format(domain))
-    warnings = []
+    warnings: list = list()
     base_domain = get_base_domain(domain)
     location = domain.lower()
     record = _query_bmi_record(domain, selector=selector,
@@ -1081,7 +1081,7 @@ def get_dmarc_tag_description(tag, value=None):
             tag_values[tag]["values"][value]:
         description = tag_values[tag]["values"][value]
     elif type(value) == list and "values" in tag_values[tag]:
-        new_description = ""
+        new_description: str = str()
         for value_value in value:
             if value_value in tag_values[tag]["values"]:
                 new_description += "{0}: {1}\n\n".format(value_value,
@@ -1089,7 +1089,7 @@ def get_dmarc_tag_description(tag, value=None):
                                                              "values"][
                                                              value_value])
         new_description = new_description.strip()
-        if new_description != "":
+        if new_description != str():
             description = new_description
 
     return OrderedDict(
@@ -1124,7 +1124,7 @@ def parse_dmarc_report_uri(uri):
     scheme = match[0]
     email_address = match[1]
     size_limit = match[2].lstrip("!")
-    if size_limit == "":
+    if size_limit == str():
         size_limit = None
 
     return OrderedDict([("scheme", scheme), ("address", email_address),
@@ -1150,9 +1150,9 @@ def check_wildcard_dmarc_report_authorization(domain,
         bool: An indicator of the existence of a valid wildcard DMARC report
         authorization record
     """
-    wildcard_target = "*._report._dmarc.{0}".format(domain)
+    wildcard_target: str = "*._report._dmarc.{0}".format(domain)
     dmarc_record_count = 0
-    unrelated_records = []
+    unrelated_records: list = list()
     try:
         records = _query_dns(wildcard_target, "TXT",
                              nameservers=nameservers,
@@ -1208,16 +1208,16 @@ def verify_dmarc_report_destination(source_domain, destination_domain,
         if check_wildcard_dmarc_report_authorization(destination_domain,
                                                      nameservers=nameservers):
             return True
-        target = "{0}._report._dmarc.{1}".format(source_domain,
+        target: str = "{0}._report._dmarc.{1}".format(source_domain,
                                                  destination_domain)
-        message = "{0} does not indicate that it accepts DMARC reports " \
+        message: str = "{0} does not indicate that it accepts DMARC reports " \
                   "about {1} - " \
                   "Authorization record not found: " \
                   '{2} IN TXT "v=DMARC1"'.format(destination_domain,
                                                  source_domain,
                                                  target)
         dmarc_record_count = 0
-        unrelated_records = []
+        unrelated_records: list = list()
         try:
             records = _query_dns(target, "TXT",
                                  nameservers=nameservers,
@@ -1285,12 +1285,12 @@ def parse_dmarc_record(record, domain, parked=False,
 
     """
     logging.debug("Parsing the DMARC record for {0}".format(domain))
-    spf_in_dmarc_error_msg = "Found a SPF record where a DMARC record " \
+    spf_in_dmarc_error_msg: str = "Found a SPF record where a DMARC record " \
                              "should be; most likely, the _dmarc " \
                              "subdomain record does not actually exist, " \
                              "and the request for TXT records was " \
                              "redirected to the base domain"
-    warnings = []
+    warnings: list = list()
     record = record.strip('"')
     if record.startswith("v=spf1"):
         raise SPFRecordFoundWhereDMARCRecordShouldBe(spf_in_dmarc_error_msg)
@@ -1368,7 +1368,7 @@ def parse_dmarc_record(record, domain, parked=False,
 
     try:
         if "rua" in tags:
-            parsed_uris = []
+            parsed_uris: list = list()
             uris = tags["rua"]["value"].split(",")
             for uri in uris:
                 uri = parse_dmarc_report_uri(uri)
@@ -1408,7 +1408,7 @@ def parse_dmarc_record(record, domain, parked=False,
 
     try:
         if "ruf" in tags.keys():
-            parsed_uris = []
+            parsed_uris: list = list()
             uris = tags["ruf"]["value"].split(",")
             for uri in uris:
                 uri = parse_dmarc_report_uri(uri)
@@ -1444,16 +1444,16 @@ def parse_dmarc_record(record, domain, parked=False,
             raise InvalidDMARCTagValue(
                 "pct value must be an integer between 0 and 100")
         elif tags["pct"]["value"] < 100:
-            warning_msg = "pct value is less than 100. This leads to " \
+            warning_msg: str = "pct value is less than 100. This leads to " \
                           "inconsistent and unpredictable policy " \
                           "enforcement. Consider using p=none to " \
                           "monitor results instead"
             raise _DMARCBestPracticeWarning(warning_msg)
         if parked and tags["p"] != "reject":
-            warning_msg = "Policy (p=) should be reject for parked domains"
+            warning_msg: str = "Policy (p=) should be reject for parked domains"
             raise _DMARCBestPracticeWarning(warning_msg)
         if parked and tags["sp"] != "reject":
-            warning_msg = "Subdomain policy (sp=) should be reject for " \
+            warning_msg: str = "Subdomain policy (sp=) should be reject for " \
                           "parked domains"
             raise _DMARCBestPracticeWarning(warning_msg)
     except _DMARCWarning as warning:
@@ -1471,7 +1471,7 @@ def parse_dmarc_record(record, domain, parked=False,
     return OrderedDict([("tags", tags), ("warnings", warnings)])
 
 
-def get_dmarc_record(domain, include_tag_descriptions=False, nameservers=None,
+def get_dmarc_record(domain, include_tag_descriptions: bool = bool(), nameservers=None,
                      timeout=2.0):
     """
     Retrieves a DMARC record for a domain and parses it
@@ -1535,9 +1535,9 @@ def query_spf_record(domain, nameservers=None, timeout=2.0):
         :exc:`checkdmarc.SPFRecordNotFound`
     """
     logging.debug("Checking for a SPF record on {0}".format(domain))
-    warnings = []
-    spf_type_records = []
-    spf_txt_records = []
+    warnings: list = list()
+    spf_type_records: list = list()
+    spf_txt_records: list = list()
     try:
         spf_type_records += _query_dns(domain, "SPF", nameservers=nameservers,
                                        timeout=timeout)
@@ -1545,15 +1545,15 @@ def query_spf_record(domain, nameservers=None, timeout=2.0):
         pass
 
     if len(spf_type_records) > 0:
-        message = "SPF type DNS records found. Use of DNS Type SPF has been " \
+        message: str = "SPF type DNS records found. Use of DNS Type SPF has been " \
                   "removed in the standards " \
                   "track version of SPF, RFC 7208. These records should " \
                   "be removed and replaced with TXT records: " \
                   "{0}".format(",".join(spf_type_records))
         warnings.append(message)
-    warnings_str = ""
+    warnings_str: str = str()
     if len(warnings) > 0:
-        warnings_str = ". {0}".format(" ".join(warnings))
+        warnings_str: str = ". {0}".format(" ".join(warnings))
     try:
         answers = _query_dns(domain, "TXT", nameservers=nameservers,
                              timeout=timeout)
@@ -1583,7 +1583,7 @@ def query_spf_record(domain, nameservers=None, timeout=2.0):
     return OrderedDict([("record", spf_record), ("warnings", warnings)])
 
 
-def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
+def parse_spf_record(record, domain, parked: bool = bool(), seen=None, nameservers=None,
                      timeout=2.0):
     """
     Parses a SPF record, including resolving ``a``, ``mx``, and ``include``
@@ -1614,10 +1614,10 @@ def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
     if seen is None:
         seen = [domain]
     record = record.replace('" ', '').replace('"', '')
-    warnings = []
+    warnings: list = list()
     spf_syntax_checker = _SPFGrammar()
     if parked:
-        correct_record = "v=spf1 -all"
+        correct_record: str = "v=spf1 -all"
         if record != correct_record:
             warnings.append("The SPF record for parked domains should be: "
                             "{0} not: {1}".format(correct_record, record))
@@ -1629,7 +1629,7 @@ def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
         pos = parsed_record.pos
         expecting = list(
             map(lambda x: str(x).strip('"'), list(parsed_record.expecting)))
-        expecting = " or ".join(expecting)
+        expecting: str = " or ".join(expecting)
         raise SPFSyntaxError(
             "{0}: Expected {1} at position {2} in: {3}".format(domain,
                                                                expecting,
@@ -1671,7 +1671,7 @@ def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
                                          "value".format(value))
 
             if mechanism == "a":
-                if value == "":
+                if value == str():
                     value = domain
                 a_records = _get_a_records(value, nameservers=nameservers,
                                            timeout=timeout)
@@ -1683,7 +1683,7 @@ def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
                     parsed[result].append(OrderedDict(
                         [("value", record), ("mechanism", mechanism)]))
             elif mechanism == "mx":
-                if value == "":
+                if value == str():
                     value = domain
                 mx_hosts = _get_mx_hosts(value, nameservers=nameservers,
                                          timeout=timeout)
@@ -1692,7 +1692,7 @@ def parse_spf_record(record, domain, parked=False, seen=None, nameservers=None,
                         "{0} does not have any MX records".format(
                             value.lower()))
                 if len(mx_hosts) > 10:
-                    url = "https://tools.ietf.org/html/rfc7208#section-4.6.4"
+                    url: str = "https://tools.ietf.org/html/rfc7208#section-4.6.4"
                     raise SPFTooManyDNSLookups(
                         "{0} has more than 10 MX records - "
                         "{1}".format(value, url), dns_lookups=len(mx_hosts))
@@ -1830,7 +1830,7 @@ def test_tls(hostname, ssl_context=None, cache=None):
     Returns:
         bool: TLS supported
     """
-    tls = False
+    tls=bool()
     if cache:
         cached_result = cache.get(hostname, None)
         if cached_result is not None:
@@ -1843,7 +1843,7 @@ def test_tls(hostname, ssl_context=None, cache=None):
     try:
         server = smtplib.SMTP_SSL(hostname, context=ssl_context)
         server.ehlo_or_helo_if_needed()
-        tls = True
+        tls: bool = True
         try:
             server.quit()
             server.close()
@@ -1853,77 +1853,77 @@ def test_tls(hostname, ssl_context=None, cache=None):
             return tls
 
     except socket.gaierror:
-        error = "DNS resolution failed"
+        error: str = "DNS resolution failed"
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionRefusedError:
-        error = "Connection refused"
+        error: str = "Connection refused"
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionResetError:
-        error = "Connection reset"
+        error: str = "Connection reset"
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionAbortedError:
-        error = "Connection aborted"
+        error: str = "Connection aborted"
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except TimeoutError:
-        error = "Connection timed out"
+        error: str = "Connection timed out"
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except BlockingIOError as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except SSLError as e:
-        error = "SSL error: {0}".format(e.__str__())
+        error: str = "SSL error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except CertificateError as e:
-        error = "Certificate error: {0}".format(e.__str__())
+        error: str = "Certificate error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPConnectError as e:
         message = e.__str__()
         error_code = int(message.lstrip("(").split(",")[0])
         if error_code == 554:
-            message = " SMTP error code 554 - Not allowed"
+            message: str = " SMTP error code 554 - Not allowed"
         else:
-            message = " SMTP error code {0}".format(error_code)
-        error = "Could not connect: {0}".format(message)
+            message: str = " SMTP error code {0}".format(error_code)
+        error: str = "Could not connect: {0}".format(message)
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPHeloError as e:
-        error = "HELO error: {0}".format(e.__str__())
+        error: str = "HELO error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPException as e:
         error = e.__str__()
         error_code = error.lstrip("(").split(",")[0]
-        error = "SMTP error code {0}".format(error_code)
+        error: str = "SMTP error code {0}".format(error_code)
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except OSError as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     except Exception as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(tls=False, error=error)
+            cache[hostname] = dict(tls=bool(), error=error)
         raise SMTPError(error)
     finally:
         if cache:
@@ -1945,7 +1945,7 @@ def test_starttls(hostname, ssl_context=None, cache=None):
     Returns:
         bool: STARTTLS supported
     """
-    starttls = False
+    starttls=bool()
     if cache:
         cached_result = cache.get(hostname, None)
         if cached_result is not None:
@@ -1961,7 +1961,7 @@ def test_starttls(hostname, ssl_context=None, cache=None):
         if server.has_extn("starttls"):
             server.starttls(context=ssl_context)
             server.ehlo()
-            starttls = True
+            starttls: bool = True
         try:
             server.quit()
             server.close()
@@ -1973,77 +1973,77 @@ def test_starttls(hostname, ssl_context=None, cache=None):
             return starttls
 
     except socket.gaierror:
-        error = "DNS resolution failed"
+        error: str = "DNS resolution failed"
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionRefusedError:
-        error = "Connection refused"
+        error: str = "Connection refused"
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionResetError:
-        error = "Connection reset"
+        error: str = "Connection reset"
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except ConnectionAbortedError:
-        error = "Connection aborted"
+        error: str = "Connection aborted"
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except TimeoutError:
-        error = "Connection timed out"
+        error: str = "Connection timed out"
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except BlockingIOError as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except SSLError as e:
-        error = "SSL error: {0}".format(e.__str__())
+        error: str = "SSL error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except CertificateError as e:
-        error = "Certificate error: {0}".format(e.__str__())
+        error: str = "Certificate error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPConnectError as e:
         message = e.__str__()
         error_code = int(message.lstrip("(").split(",")[0])
         if error_code == 554:
-            message = " SMTP error code 554 - Not allowed"
+            message: str = " SMTP error code 554 - Not allowed"
         else:
-            message = " SMTP error code {0}".format(error_code)
-        error = "Could not connect: {0}".format(message)
+            message: str = " SMTP error code {0}".format(error_code)
+        error: str = "Could not connect: {0}".format(message)
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPHeloError as e:
-        error = "HELO error: {0}".format(e.__str__())
+        error: str = "HELO error: {0}".format(e.__str__())
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except smtplib.SMTPException as e:
         error = e.__str__()
         error_code = error.lstrip("(").split(",")[0]
-        error = "SMTP error code {0}".format(error_code)
+        error: str = "SMTP error code {0}".format(error_code)
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except OSError as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
     except Exception as e:
         error = e.__str__()
         if cache:
-            cache[hostname] = dict(starttls=False, error=error)
+            cache[hostname] = dict(starttls=bool(), error=error)
         raise SMTPError(error)
 
 
@@ -2071,8 +2071,8 @@ def get_mx_hosts(domain, skip_tls=False,
                      - ``warnings`` - A ``list`` of MX resolution warnings
 
     """
-    hosts = []
-    warnings = []
+    hosts: list = list()
+    warnings: list = list()
     hostnames = set()
     dupe_hostnames = set()
     mx_records = _get_mx_hosts(domain, nameservers=nameservers,
@@ -2099,10 +2099,10 @@ def get_mx_hosts(domain, skip_tls=False,
             continue
         hostnames.add(host["hostname"])
         if approved_hostnames:
-            approved = False
+            approved: bool = bool()
             for approved_hostname in approved_hostnames:
                 if approved_hostname in host["hostname"]:
-                    approved = True
+                    approved: bool = True
                     break
             if not approved:
                 warnings.append("Unapproved MX hostname: {0}".format(
@@ -2110,7 +2110,7 @@ def get_mx_hosts(domain, skip_tls=False,
                 ))
 
         try:
-            host["addresses"] = []
+            host["addresses"]: list = list()
             host["addresses"] = _get_a_records(host["hostname"],
                                                nameservers=nameservers,
                                                timeout=timeout)
@@ -2140,7 +2140,7 @@ def get_mx_hosts(domain, skip_tls=False,
                     _addresses = _get_a_records(hostname)
                 except DNSException as warning:
                     warnings.append(str(warning))
-                    _addresses = []
+                    _addresses: list = list()
                 if address not in _addresses:
                     warnings.append("The reverse DNS of {1} is {0}, but "
                                     "the A/AAAA DNS records for "
@@ -2148,7 +2148,7 @@ def get_mx_hosts(domain, skip_tls=False,
                                     "{1}".format(hostname, address))
         if not skip_tls and platform.system() == "Windows":
             logging.warning("Testing TLS is not supported on Windows")
-            skip_tls = True
+            skip_tls: bool = True
         if skip_tls:
             logging.debug("Skipping TLS/SSL tests on {0}".format(
                 host["hostname"]))
@@ -2168,13 +2168,13 @@ def get_mx_hosts(domain, skip_tls=False,
                 host["starttls"] = starttls
             except DNSException as warning:
                 warnings.append(str(warning))
-                tls = False
-                starttls = False
+                tls=bool()
+                starttls=bool()
                 host["tls"] = tls
                 host["starttls"] = starttls
             except SMTPError as error:
-                tls = False
-                starttls = False
+                tls=bool()
+                starttls=bool()
                 warnings.append("{0}: {1}".format(host["hostname"], error))
 
                 host["tls"] = tls
@@ -2200,7 +2200,7 @@ def get_nameservers(domain, approved_nameservers=None,
               - ``warnings``  - A list of warnings
     """
     logging.debug("Getting NS records on {0}".format(domain))
-    warnings = []
+    warnings: list = list()
 
     ns_records = _get_nameservers(domain, nameservers=nameservers,
                                   timeout=timeout)
@@ -2210,10 +2210,10 @@ def get_nameservers(domain, approved_nameservers=None,
                                         approved_nameservers))
     for nameserver in ns_records:
         if approved_nameservers:
-            approved = False
+            approved: bool = bool()
             for approved_nameserver in approved_nameservers:
                 if approved_nameserver in nameserver.lower():
-                    approved = True
+                    approved: bool = True
                     break
             if not approved:
                 warnings.append("Unapproved nameserver: {0}".format(
@@ -2292,7 +2292,7 @@ def check_domains(domains, parked=False,
     domains = sorted(list(set(
         map(lambda d: d.rstrip(".\r\n").strip().lower().split(",")[0],
             domains))))
-    not_domains = []
+    not_domains: list = list()
     for domain in domains:
         if "." not in domain:
             not_domains.append(domain)
@@ -2300,7 +2300,7 @@ def check_domains(domains, parked=False,
         domains.remove(domain)
     while "" in domains:
         domains.remove("")
-    results = []
+    results: list = list()
     for domain in domains:
         domain = domain.lower()
         logging.debug("Checking: {0}".format(domain))
@@ -2351,7 +2351,7 @@ def check_domains(domains, parked=False,
         except SPFError as error:
             domain_results["spf"]["error"] = str(error)
             del domain_results["spf"]["dns_lookups"]
-            domain_results["spf"]["valid"] = False
+            domain_results["spf"]["valid"]: bool = bool()
             if hasattr(error, "data") and error.data:
                 for key in error.data:
                     domain_results["spf"][key] = error.data[key]
@@ -2380,7 +2380,7 @@ def check_domains(domains, parked=False,
                 "warnings"]
         except DMARCError as error:
             domain_results["dmarc"]["error"] = str(error)
-            domain_results["dmarc"]["valid"] = False
+            domain_results["dmarc"]["valid"]: bool = bool()
             if hasattr(error, "data") and error.data:
                 for key in error.data:
                     domain_results["dmarc"][key] = error.data[key]
@@ -2404,7 +2404,7 @@ def results_to_json(results):
     Returns:
         str: Results in JSON format
     """
-    return json.dumps(results, ensure_ascii=False, indent=2)
+    return json.dumps(results, ensure_ascii=bool(), indent=2)
 
 
 def results_to_csv_rows(results):
@@ -2417,7 +2417,7 @@ def results_to_csv_rows(results):
     Returns:
         list: A list of CSV row dicts
     """
-    rows = []
+    rows: list = list()
 
     if type(results) == OrderedDict:
         results = [results]
@@ -2431,12 +2431,12 @@ def results_to_csv_rows(results):
         row["domain"] = result["domain"]
         row["base_domain"] = result["base_domain"]
         row["dnssec"] = result["dnssec"]
-        row["ns"] = "|".join(ns["hostnames"])
+        row["ns"]: str = "|".join(ns["hostnames"])
         if "error" in ns:
             row["ns_error"] = ns["error"]
         else:
-            row["ns_warnings"] = "|".join(ns["warnings"])
-        row["mx"] = "|".join(list(
+            row["ns_warnings"]: str = "|".join(ns["warnings"])
+        row["mx"]: str = "|".join(list(
             map(lambda r: "{0} {1}".format(r["preference"], r["hostname"]),
                 mx["hosts"])))
         tls = None
@@ -2447,7 +2447,7 @@ def results_to_csv_rows(results):
             for tls_result in tls_results:
                 tls = tls_result
                 if tls_result is False:
-                    tls = False
+                    tls=bool()
                     break
         except KeyError:
             # The user might opt to skip the STARTTLS test
@@ -2463,7 +2463,7 @@ def results_to_csv_rows(results):
             for starttls_result in starttls_results:
                 starttls = starttls_result
                 if starttls_result is False:
-                    starttls = False
+                    starttls=bool()
         except KeyError:
             # The user might opt to skip the STARTTLS test
             pass
@@ -2473,13 +2473,13 @@ def results_to_csv_rows(results):
         if "error" in mx:
             row["mx_error"] = mx["error"]
         else:
-            row["mx_warnings"] = "|".join(mx["warnings"])
+            row["mx_warnings"]: str = "|".join(mx["warnings"])
         row["spf_record"] = spf["record"]
         row["spf_valid"] = spf["valid"]
         if "error" in spf:
             row["spf_error"] = spf["error"]
         else:
-            row["spf_warnings"] = "|".join(spf["warnings"])
+            row["spf_warnings"]: str = "|".join(spf["warnings"])
 
         row["dmarc_record"] = dmarc["record"]
         row["dmarc_record_location"] = dmarc["location"]
@@ -2489,22 +2489,22 @@ def results_to_csv_rows(results):
         else:
             row["dmarc_adkim"] = dmarc["tags"]["adkim"]["value"]
             row["dmarc_aspf"] = dmarc["tags"]["aspf"]["value"]
-            row["dmarc_fo"] = ":".join(dmarc["tags"]["fo"]["value"])
+            row["dmarc_fo"]: str = ":".join(dmarc["tags"]["fo"]["value"])
             row["dmarc_p"] = dmarc["tags"]["p"]["value"]
             row["dmarc_pct"] = dmarc["tags"]["pct"]["value"]
-            row["dmarc_rf"] = ":".join(dmarc["tags"]["rf"]["value"])
+            row["dmarc_rf"]: str = ":".join(dmarc["tags"]["rf"]["value"])
             row["dmarc_ri"] = dmarc["tags"]["ri"]["value"]
             row["dmarc_sp"] = dmarc["tags"]["sp"]["value"]
             if "rua" in dmarc["tags"]:
                 addresses = dmarc["tags"]["rua"]["value"]
                 addresses = list(map(lambda u: u["scheme"] + ":" +
                                                u["address"], addresses))
-                row["dmarc_rua"] = "|".join(addresses)
+                row["dmarc_rua"]: str = "|".join(addresses)
             if "ruf" in dmarc["tags"]:
                 addresses = dmarc["tags"]["ruf"]["value"]
                 addresses = list(map(lambda u: u["address"], addresses))
-                row["dmarc_ruf"] = "|".join(addresses)
-            row["dmarc_warnings"] = "|".join(dmarc["warnings"])
+                row["dmarc_ruf"]: str = "|".join(addresses)
+            row["dmarc_warnings"]: str = "|".join(dmarc["warnings"])
         rows.append(row)
     return rows
 
@@ -2593,7 +2593,7 @@ def _main():
 
     args = arg_parser.parse_args()
 
-    logging_format = "%(asctime)s - %(levelname)s: %(message)s"
+    logging_format: str = "%(asctime)s - %(levelname)s: %(message)s"
     logging.basicConfig(level=logging.WARNING, format=logging_format)
 
     if args.debug:
@@ -2605,7 +2605,7 @@ def _main():
             domains = sorted(list(set(
                 map(lambda d: d.rstrip(".\r\n").strip().lower().split(",")[0],
                     domains_file.readlines()))))
-            not_domains = []
+            not_domains: list = list()
             for domain in domains:
                 if "." not in domain:
                     not_domains.append(domain)

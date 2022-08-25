@@ -4,14 +4,14 @@ from shodan import Shodan
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "Shodan"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Shodan"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "shodan.io"
-        self.Result_Type = "Domain Information"
+        self.Domain: str = "shodan.io"
+        self.Result_Type: str = "Domain Information"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
@@ -28,7 +28,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -65,7 +65,7 @@ class Plugin_Search:
                             Shodan_Item_Module = Shodan_Item_Module.replace('-simple-new', '')
 
                             if Shodan_Item_Module.startswith("http"):
-                                Shodan_Item_Host = ""
+                                Shodan_Item_Host: str = str()
                                 Shodan_Item_Port = 0
 
                                 if 'http' in Shodan_Item:
@@ -93,7 +93,7 @@ class Plugin_Search:
                                     else:
                                         Shodan_Item_URL = f"{Shodan_Item_Module}://{Shodan_Item_Host}"
 
-                                    Title = f"{self.Plugin_Name} | {str(Shodan_Item_Host)}"
+                                    Title = f"{self.Plugin_Name} | {Common.Fang().Defang(str(Shodan_Item_Host))}"
 
                                     if Shodan_Item_URL not in Cached_Data and Shodan_Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                                         Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Shodan_Item_Response, Shodan_Item_Host, self.The_File_Extensions["Query"])
@@ -127,10 +127,10 @@ class Plugin_Search:
                         Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                         Output_Connections = General.Connections(Query, Local_Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Plugin_Name.lower())
                         Shodan_URL = f"https://www.{self.Domain}/host/{Query}"
-                        Title = f"{self.Plugin_Name} | {Query}"
+                        Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Query)}"
 
                         if Shodan_URL not in Cached_Data and Shodan_URL not in Data_to_Cache:
-                            Shodan_Responses = Common.Request_Handler(Shodan_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                            Shodan_Responses = Common.Request_Handler(url=Shodan_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                             Shodan_Response = Shodan_Responses["Filtered"]
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Shodan_Response, Query, self.The_File_Extensions["Query"])
 

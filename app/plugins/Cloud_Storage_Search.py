@@ -3,14 +3,14 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Cloud Storage"
-        self.Concat_Plugin_Name = "cloudstorage"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Cloud Storage"
+        self.Concat_Plugin_Name: str = "cloudstorage"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "osint.sh"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "osint.sh"
         self.Limit = General.Get_Limit(Limit)
         self.Pagination_Size = 20
         self.Result_Regex = r"\<tr\>\s+\<td.+\s+.*\s+.*\s+.*\s+.*\s+.*\s+\<a\shref\=\"([^\"]+)\".*\s+.*\s+.*File\sName.*\s+([^\s]+)"
@@ -18,7 +18,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -32,7 +32,7 @@ class Plugin_Search:
             for Query in self.Query_List:
                 Main_URL = f'https://{self.Domain}/buckets/'
                 Data = {"keyword": Query, "ext": ""}
-                Responses = Common.Request_Handler(Main_URL, Method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
+                Responses = Common.Request_Handler(url=Main_URL, method="POST", Data=Data, Filter=True, Host=f"https://{self.Domain}")
                 Response = Responses["Regular"]
                 Filtered_Response = Responses["Filtered"]
                 Regex = Common.Regex_Handler(Response, Custom_Regex=self.Result_Regex, Findall=True)
@@ -44,11 +44,11 @@ class Plugin_Search:
 
                         if "amazon" in Current_URL:
                             Title = f"AWS S3 Bucket | {File}"
-                            self.Result_Type = "Cloud Storage - AWS S3"
+                            self.Result_Type: str = "Cloud Storage - AWS S3"
 
                         else:
                             Title = f"Azure Blob Storage | {File}"
-                            self.Result_Type = "Cloud Storage - Azure Blob"
+                            self.Result_Type: str = "Cloud Storage - Azure Blob"
 
                         if Current_URL not in Cached_Data and Current_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                             Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)

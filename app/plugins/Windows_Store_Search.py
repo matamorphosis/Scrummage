@@ -3,15 +3,15 @@ import logging, os, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Windows Store"
-        self.Concat_Plugin_Name = "windowsstore"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Windows Store"
+        self.Concat_Plugin_Name: str = "windowsstore"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".html"
-        self.Domain = "microsoft.com"
-        self.Result_Type = "Application"
+        self.The_File_Extension: str = ".html"
+        self.Domain: str = "microsoft.com"
+        self.Result_Type: str = "Application"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -41,7 +41,7 @@ class Plugin_Search:
 
             for Query in self.Query_List:
                 Main_URL = f"https://www.{self.Domain}/en-{Location}/search?q={Query}"
-                Win_Store_Response = Common.Request_Handler(Main_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
+                Win_Store_Response = Common.Request_Handler(url=Main_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True)
                 Main_File = General.Main_File_Create(Directory, self.Plugin_Name, Win_Store_Response, Query, self.The_File_Extension)
                 Win_Store_Regex = Common.Regex_Handler(Win_Store_Response, Custom_Regex=r"\/en\-au\/p\/([\w\-]+)\/([\w\d]+)", Findall=True)
                 Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)
@@ -51,7 +51,7 @@ class Plugin_Search:
 
                     for Regex_Group_1, Regex_Group_2 in Win_Store_Regex:
                         Item_URL = f"https://www.microsoft.com/en-au/p/{Regex_Group_1}/{Regex_Group_2}"
-                        Win_Store_Responses = Common.Request_Handler(Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                        Win_Store_Responses = Common.Request_Handler(url=Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                         Win_Store_Response = Win_Store_Responses["Filtered"]
                         Title = f"{self.Plugin_Name} | " + General.Get_Title(Item_URL)
 

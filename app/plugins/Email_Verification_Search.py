@@ -3,20 +3,20 @@ import plugins.common.General as General, plugins.common.Common as Common, os, l
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "Email Verification"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "Email Verification"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Main_Converted": ".html"}
-        self.Concat_Plugin_Name = "emailverify"
-        self.Domain = "verify-email.org"
-        self.Result_Type = "Email Information"
+        self.Concat_Plugin_Name: str = "emailverify"
+        self.Domain: str = "verify-email.org"
+        self.Result_Type: str = "Email Information"
 
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -31,13 +31,13 @@ class Plugin_Search:
 
                 if Common.Regex_Handler(Query, Type="Email"):
                     Link = f"https://{self.Domain}/home/verify-as-guest/{Query}"
-                    JSON_Response = Common.Request_Handler(Link)
+                    JSON_Response = Common.Request_Handler(url=Link)
                     JSON_Object = Common.JSON_Handler(JSON_Response)
 
                     if JSON_Object.Is_JSON():
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
-                        Table_JSON = {}
+                        Table_JSON: dict = dict()
 
                         for Key, Value in JSON_Response.items():
 
@@ -53,7 +53,7 @@ class Plugin_Search:
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)
 
                         if Query not in Cached_Data and Query not in Data_to_Cache:
-                            Title = f"{self.Plugin_Name} | {Query}"
+                            Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Query)}"
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Concat_Plugin_Name, JSON_Output_Response, Title, self.The_File_Extensions["Main"])
                             HTML_Output_File_Data = General.JSONDict_to_HTML(Filter_JSON, JSON_Output_Response, f"{self.Plugin_Name} Query {Query}")
                             HTML_Output_File = General.Create_Query_Results_Output_File(Directory, Query, self.Concat_Plugin_Name, HTML_Output_File_Data, Title, self.The_File_Extensions["Main_Converted"])

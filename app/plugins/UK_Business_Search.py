@@ -3,15 +3,15 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "UK Business"
-        self.Concat_Plugin_Name = "ukbusiness"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "UK Business"
+        self.Concat_Plugin_Name: str = "ukbusiness"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "companieshouse.gov.uk"
-        self.Result_Type = "Company Details"
+        self.Domain: str = "companieshouse.gov.uk"
+        self.Result_Type: str = "Company Details"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
@@ -20,7 +20,7 @@ class Plugin_Search:
         Result = Common.Configuration(Input=True).Load_Configuration(Object=self.Concat_Plugin_Name, Details_to_Load=["api_key"])
 
         if Result:
-            return General.Encoder(Result)
+            return Common.Coder(Result).b64_encode()
 
         else:
             return None
@@ -28,7 +28,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -47,10 +47,10 @@ class Plugin_Search:
                         Authorization_Key = self.Load_Configuration()
 
                         if Authorization_Key:
-                            Authorization_Key = "Basic " + Authorization_Key
+                            Authorization_Key: str = f"Basic {Authorization_Key}"
                             headers_auth = {"Authorization": Authorization_Key}
                             Main_URL = f'https://api.{self.Domain}/company/{Query}'
-                            Response = Common.Request_Handler(Main_URL, Optional_Headers=headers_auth)
+                            Response = Common.Request_Handler(url=Main_URL, Optional_Headers=headers_auth)
                             JSON_Object = Common.JSON_Handler(Response)
                             JSON_Response = JSON_Object.To_JSON_Loads()
                             Indented_JSON_Response = JSON_Object.Dump_JSON()
@@ -63,7 +63,7 @@ class Plugin_Search:
                                     if Main_URL not in Cached_Data and Main_URL not in Data_to_Cache:
                                         Current_Company_Number = str(JSON_Response["company_number"])
                                         Result_URL = f'https://beta.{self.Domain}/company/{Current_Company_Number}'
-                                        Result_Responses = Common.Request_Handler(Result_URL, Filter=True, Host=f"https://beta.{self.Domain}")
+                                        Result_Responses = Common.Request_Handler(url=Result_URL, Filter=True, Host=f"https://beta.{self.Domain}")
                                         Result_Response = Result_Responses["Filtered"]
                                         UKCN = str(JSON_Response["company_name"])
                                         Main_Output_File = General.Main_File_Create(Directory, self.Plugin_Name, Indented_JSON_Response, Query, self.The_File_Extensions["Main"])
@@ -87,12 +87,12 @@ class Plugin_Search:
                         Authorization_Key = self.Load_Configuration()
 
                         if Authorization_Key:
-                            Authorization_Key = "Basic " + Authorization_Key.decode('ascii')
+                            Authorization_Key: str = "Basic " + Authorization_Key.decode('ascii')
 
                             try:
                                 Main_URL = f'https://api.{self.Domain}/search/companies?q={Query}&items_per_page={self.Limit}'
                                 headers_auth = {"Authorization": Authorization_Key}
-                                Response = Common.Request_Handler(Main_URL, Optional_Headers=headers_auth)
+                                Response = Common.Request_Handler(url=Main_URL, Optional_Headers=headers_auth)
                                 JSON_Object = Common.JSON_Handler(Response)
                                 JSON_Response = JSON_Object.To_JSON_Loads()
                                 Indented_JSON_Response = JSON_Object.Dump_JSON()
@@ -110,7 +110,7 @@ class Plugin_Search:
 
                                             if Full_UKBN_URL not in Cached_Data and Full_UKBN_URL not in Data_to_Cache:
                                                 UKCN = Item['title']
-                                                Current_Responses = Common.Request_Handler(Full_UKBN_URL, Filter=True, Host=f"https://beta.{self.Domain}")
+                                                Current_Responses = Common.Request_Handler(url=Full_UKBN_URL, Filter=True, Host=f"https://beta.{self.Domain}")
                                                 Current_Response = Current_Responses["Filtered"]
                                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, str(Current_Response), UKCN, self.The_File_Extensions["Query"])
 

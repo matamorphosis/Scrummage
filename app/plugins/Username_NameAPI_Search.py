@@ -3,14 +3,14 @@ import os, logging, plugins.common.General as General, plugins.common.Common as 
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type):
-        self.Plugin_Name = "NameAPI"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str()):
+        self.Plugin_Name: str = "NameAPI"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "nameapi.org"
-        self.Result_Type = "Account"
+        self.Domain: str = "nameapi.org"
+        self.Result_Type: str = "Account"
         self.Type = Type
 
     def Load_Configuration(self):
@@ -26,7 +26,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -44,7 +44,7 @@ class Plugin_Search:
                 if self.Type == "Gender":
                     URL = f"http://rc50-api.{self.Domain}/rest/v5.0/genderizer/persongenderizer?apiKey={API_Key}"
                     Data = {"inputPerson":{"type":"NaturalInputPerson","personName":{"nameFields":[{"string":Query,"fieldType":"FULLNAME"}]}}}
-                    Response = Common.Request_Handler(URL, Method="POST", JSON_Data=Data)
+                    Response = Common.Request_Handler(url=URL, method="POST", JSON_Data=Data)
                     JSON_Object = Common.JSON_Handler(Response)
                     JSON_Response = JSON_Object.To_JSON_Loads()
                     JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -72,7 +72,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type="Email"):
                         Search_Query = Query.replace("@", "%40")
                         URL = f"http://rc50-api.{self.Domain}/rest/v5.0/email/emailnameparser?apiKey={API_Key}&emailAddress={Search_Query}"
-                        Response = Common.Request_Handler(URL)
+                        Response = Common.Request_Handler(url=URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()
@@ -103,7 +103,7 @@ class Plugin_Search:
                     if Common.Regex_Handler(Query, Type="Email"):
                         Search_Query = Query.replace("@", "%40")
                         URL = f"http://rc50-api.{self.Domain}/rest/v5.0/email/disposableemailaddressdetector?apiKey={API_Key}&emailAddress={Search_Query}"
-                        Response = Common.Request_Handler(URL)
+                        Response = Common.Request_Handler(url=URL)
                         JSON_Object = Common.JSON_Handler(Response)
                         JSON_Response = JSON_Object.To_JSON_Loads()
                         JSON_Output_Response = JSON_Object.Dump_JSON()

@@ -4,14 +4,14 @@ from ebaysdk.finding import Connection
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Ebay"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Ebay"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "ebay.com"
-        self.Result_Type = "Search Result"
+        self.Domain: str = "ebay.com"
+        self.Result_Type: str = "Search Result"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Plugin_Name.lower())
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -56,11 +56,11 @@ class Plugin_Search:
 
                         for JSON_Line in JSON_Response['searchResult']['item']:
                             Ebay_Item_URL = JSON_Line['viewItemURL']
-                            Title = "Ebay | " + General.Get_Title(Ebay_Item_URL)
+                            Title: str = "Ebay | " + General.Get_Title(Ebay_Item_URL)
 
                             if Ebay_Item_URL not in Cached_Data and Ebay_Item_URL not in Data_to_Cache and Current_Step < int(self.Limit):
                                 Ebay_Item_Regex = Common.Regex_Handler(Ebay_Item_URL, Custom_Regex=r"https\:\/\/www\.ebay\.com\/itm\/([\w\d\-]+)\-\/\d+")
-                                Ebay_Item_Responses = Common.Request_Handler(Ebay_Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
+                                Ebay_Item_Responses = Common.Request_Handler(url=Ebay_Item_URL, Application_JSON_CT=True, Accept_XML=True, Accept_Language_EN_US=True, Filter=True, Host=f"https://www.{self.Domain}")
                                 Ebay_Item_Response = Ebay_Item_Responses["Filtered"]
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Plugin_Name, Ebay_Item_Response, Ebay_Item_Regex.group(1).rstrip("-"), self.The_File_Extensions["Query"])
 

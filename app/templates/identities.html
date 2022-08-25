@@ -42,7 +42,7 @@
                     }
                 </script>
                 {% endif %}
-                <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="arrow" class="left_pop_out_inner"><p id="functions">&nbsp;</p></div><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Task Management</p><br />
+                <div id="outerleftpop" class="left_pop_out_outer" style="display: none;"><div class="left_pop_out_mid"><div id="innerleftpop" class="left_pop_out_inner_lower" style="height: 100%;"><div><p class="left_title_top">Task Management</p><br />
                         <a id="createuser" onclick="sendRequest('Create')" class="left_button">Create Identity</a>
                         <a id="bottom_upload_button" class="left_button" onclick="sendRequest('Bulk');">Bulk Upload Identities</a>
                         <a id="bottom_delete_button" class="left_button-disabled" onclick="return confirm('Are you sure you want to delete the selected identities: ' + getSelectValues() + '?') && sendRequest('Delete');" disabled="true">Delete</a>
@@ -220,7 +220,7 @@
                         if (use_xhr === true) {
                             var csrf_token = "{{ csrf_token() }}";
                             xhr.open("POST", uri, true);
-                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                            xhr.setRequestHeader(window.drf.csrfHeaderName, csrf_token);
                             xhr.send();
                             xhr.onreadystatechange = function(e) {
                                 if (xhr.readyState === 4) {

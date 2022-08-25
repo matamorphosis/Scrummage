@@ -3,15 +3,15 @@ import logging, os, urllib.parse, plugins.common.General as General, plugins.com
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Limit=10):
-        self.Plugin_Name = "Apple Store"
-        self.Concat_Plugin_Name = "applestore"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Apple Store"
+        self.Concat_Plugin_Name: str = "applestore"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Domain = "itunes.apple.com"
-        self.Result_Type = "Application"
+        self.Domain: str = "itunes.apple.com"
+        self.Result_Type: str = "Application"
         self.Limit = General.Get_Limit(Limit)
 
     def Load_Configuration(self):
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -44,7 +44,7 @@ class Plugin_Search:
                 try:
                     Request_Query = urllib.parse.quote(Query)
                     Main_URL = f"http://{self.Domain}/search?term={Request_Query}&country={Location}&entity=software&limit={str(self.Limit)}"
-                    Response = Common.Request_Handler(Main_URL)
+                    Response = Common.Request_Handler(url=Main_URL)
 
                 except:
                     logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to make request, are you connected to the internet?")
@@ -60,7 +60,7 @@ class Plugin_Search:
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)
 
                         for JSON_Resp_Item in JSON_Response['results']:
-                            JSON_Object_Responses = Common.Request_Handler(JSON_Resp_Item['artistViewUrl'], Filter=True, Host=f"https://{self.Domain}")
+                            JSON_Object_Responses = Common.Request_Handler(url=JSON_Resp_Item['artistViewUrl'], Filter=True, Host=f"https://{self.Domain}")
                             JSON_Object_Response = JSON_Object_Responses["Filtered"]
 
                             if JSON_Resp_Item['artistViewUrl'] not in Cached_Data and JSON_Resp_Item['artistViewUrl'] not in Data_to_Cache:

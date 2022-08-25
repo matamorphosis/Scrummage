@@ -19,7 +19,7 @@ class Plugin_Caller:
         try:
             Connection = Object.Load_Configuration(Postgres_Database=True, Object="postgresql")
             Cursor = Connection.cursor()
-            PSQL_Update_Query = 'UPDATE tasks SET status = %s WHERE task_id = %s'
+            PSQL_Update_Query: str = 'UPDATE tasks SET status = %s WHERE task_id = %s'
             Cursor.execute(PSQL_Update_Query, ("Running", int(self.task_id),))
             Connection.commit()
 
@@ -31,7 +31,7 @@ class Plugin_Caller:
         try:
             Connection = Object.Load_Configuration(Postgres_Database=True, Object="postgresql")
             Cursor = Connection.cursor()
-            PSQL_Update_Query = 'UPDATE tasks SET status = %s WHERE task_id = %s'
+            PSQL_Update_Query: str = 'UPDATE tasks SET status = %s WHERE task_id = %s'
             Cursor.execute(PSQL_Update_Query, ("Stopped", int(self.task_id),))
             Connection.commit()
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         Arguments = Parser.parse_args()
         Scrummage_Working_Directory = pathlib.Path(sys.argv[0]).parent.absolute()
         os.chdir(Scrummage_Working_Directory)
-        Task_ID = 0
+        Task_ID: int = int()
 
         if str(Scrummage_Working_Directory) == str(os.getcwd()):
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                 Valid_Plugins = plugin_definitions.Get(Scrummage_Working_Directory)
                 Connection = Common.Configuration(Output=True).Load_Configuration(Postgres_Database=True, Object="postgresql")
                 cursor = Connection.cursor()
-                PSQL_Select_Query = 'SELECT * FROM tasks WHERE task_id = %s;'
+                PSQL_Select_Query: str = 'SELECT * FROM tasks WHERE task_id = %s;'
                 cursor.execute(PSQL_Select_Query, (Task_ID,))
                 result = cursor.fetchone()
 
@@ -97,8 +97,7 @@ if __name__ == "__main__":
                             ID_DB_Results = cursor.fetchall()
 
                         Filtered_Data = [Row[0] for Row in ID_DB_Results]
-
-                        Query = ", ".join(Filtered_Data)
+                        Query: str = ", ".join(Filtered_Data)
 
                     else:
                         Query = None

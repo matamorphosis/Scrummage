@@ -4,15 +4,15 @@ from emailrep import EmailRep
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID):
-        self.Plugin_Name = "Email Reputation"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str()):
+        self.Plugin_Name: str = "Email Reputation"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
         self.The_File_Extensions = {"Main": ".json", "Query": ".html"}
-        self.Concat_Plugin_Name = "emailrep"
-        self.Domain = "emailrep.io"
-        self.Result_Type = "Email Information"
+        self.Concat_Plugin_Name: str = "emailrep"
+        self.Domain: str = "emailrep.io"
+        self.Result_Type: str = "Email Information"
 
     def Load_Configuration(self):
         logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Loading configuration data.")
@@ -27,7 +27,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -53,9 +53,9 @@ class Plugin_Search:
                         Output_Connections = General.Connections(Query, self.Plugin_Name, self.Domain, self.Result_Type, self.Task_ID, self.Concat_Plugin_Name)
 
                         if Query not in Cached_Data and Query not in Data_to_Cache:
-                            Responses = Common.Request_Handler(Link, Filter=True, Host=f"https://{self.Domain}")
+                            Responses = Common.Request_Handler(url=Link, Filter=True, Host=f"https://{self.Domain}")
                             Filtered_Response = Responses["Filtered"]
-                            Title = f"{self.Plugin_Name} | {Query}"
+                            Title = f"{self.Plugin_Name} | {Common.Fang().Defang(Query)}"
                             Main_File = General.Main_File_Create(Directory, self.Concat_Plugin_Name, JSON_Output_Response, Query, self.The_File_Extensions["Main"])
                             Output_file = General.Create_Query_Results_Output_File(Directory, Query, self.Concat_Plugin_Name, Filtered_Response, Title, self.The_File_Extensions["Query"])
 

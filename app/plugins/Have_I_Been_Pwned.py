@@ -5,16 +5,16 @@ from pyhibp import pwnedpasswords as pw
 
 class Plugin_Search:
 
-    def __init__(self, Query_List, Task_ID, Type, Limit=10):
-        self.Plugin_Name = "Have I Been Pwned"
-        self.Concat_Plugin_Name = "haveibeenpwned"
-        self.Logging_Plugin_Name = General.Get_Plugin_Logging_Name(self.Plugin_Name)
+    def __init__(self, Query_List: list = list(), Task_ID: str = str(), Type: str = str(), Limit: int = 10):
+        self.Plugin_Name: str = "Have I Been Pwned"
+        self.Concat_Plugin_Name: str = "haveibeenpwned"
+        self.Logging_Plugin_Name: str = General.Get_Plugin_Logging_Name(self.Plugin_Name)
         self.Task_ID = Task_ID
         self.Query_List = General.Convert_to_List(Query_List)
-        self.The_File_Extension = ".json"
-        self.Domain = "haveibeenpwned.com"
-        self.Result_Type_1 = "Account"
-        self.Result_Type_2 = "Credentials"
+        self.The_File_Extension: str = ".json"
+        self.Domain: str = "haveibeenpwned.com"
+        self.Result_Type_1: str = "Account"
+        self.Result_Type_2: str = "Credentials"
         self.Type = Type
         self.Limit = General.Get_Limit(Limit)
 
@@ -31,7 +31,7 @@ class Plugin_Search:
     def Search(self):
 
         try:
-            Data_to_Cache = []
+            Data_to_Cache: list = list()
             Directory = General.Make_Directory(self.Concat_Plugin_Name)
             logger = logging.getLogger()
             logger.setLevel(logging.INFO)
@@ -146,7 +146,7 @@ class Plugin_Search:
                         for Response in Query_Response:
                             Current_Response = pyhibp.get_single_breach(breach_name=Response['Name'])
                             JSON_Query_Response = Common.JSON_Handler(Query_Response).Dump_JSON()
-                            Link = "https://" + Current_Response['self.Domain']
+                            Link: str = "https://" + Current_Response['self.Domain']
 
                             if Current_Response['self.Domain'] not in Cached_Data and Current_Response['self.Domain'] not in Data_to_Cache and Current_Step < int(self.Limit):
                                 Output_file = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, JSON_Query_Response, "account", self.The_File_Extension)
