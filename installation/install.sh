@@ -80,7 +80,7 @@ else
     echo $LINE
     curl -sSL https://install.python-poetry.org/ | python3 -
     cd ..
-    echo "PATH=~/.local/bin:$PATH"
+    echo "PATH=~/.local/bin:$PATH" >> ~/.bashrc
     poetry shell
     poetry install
     done
