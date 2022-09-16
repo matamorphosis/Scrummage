@@ -79,8 +79,10 @@ else
     echo "[+] Setting up python3 dependencies."
     echo $LINE
     curl -sSL https://install.python-poetry.org/ | python3 -
-    cat ./support_files/python_requirements.txt | while read line; do
-        poetry add $line@latest
+    cd ..
+    echo "PATH=~/.local/bin:$PATH"
+    poetry shell
+    poetry install
     done
     echo $LINE
     echo "[+] Dependency installation complete. Configuring."
