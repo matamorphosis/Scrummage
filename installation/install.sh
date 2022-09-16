@@ -79,9 +79,7 @@ else
     echo "[+] Setting up python3 dependencies."
     echo $LINE
     curl -sSL https://install.python-poetry.org/ | python3 -
-    cd ..
-    echo "export PATH=~/.local/bin:$PATH" >> ~/.bashrc
-    poetry shell
+    export PATH=~/.local/share/pypoetry/venv/bin:$PATH
     poetry install
     done
     echo $LINE
