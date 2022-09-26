@@ -605,7 +605,7 @@ def Elasticsearch_Main(Object, Title, Plugin_Name, Domain, Link, Result_Type, Ou
         try:
 
             if Elasticsearch_Details[4]:
-                Timestamp = Date(Just_Date=True, Elastic=True)
+                Timestamp = Date(Date_Only=True, Elastic=True)
                 Index = Elasticsearch_Details[3] + "-" + Concat_Plugin_Name + "-" + Timestamp
 
             else:
