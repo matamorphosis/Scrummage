@@ -620,7 +620,7 @@ def Elasticsearch_Main(Object, Title, Plugin_Name, Domain, Link, Result_Type, Ou
             URI = Service + Elasticsearch_Details[1] + ":" + str(Elasticsearch_Details[2]) + Index
             data = {"title": Title, "plugin": Plugin_Name, "domain": Domain, "link": Link, "output_file": Output_File, "result_type": Result_Type, "created_at": Date(), "associated_task_id": str(Task_ID)}
             data = JSON_Handler(data).Dump_JSON()
-            resp = Request_Handler(URI, method="POST", Application_JSON_CT=True, Full_Response=True, Data=data)
+            resp = Request_Handler(url=URI, method="POST", Application_JSON_CT=True, Full_Response=True, Data=data)
 
             if resp.status_code == 200:
                 logging.info(f"{Date()} - Common Library - New result created in Elasticsearch, using the URI {URI}.")
