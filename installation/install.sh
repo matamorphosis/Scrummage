@@ -4,36 +4,19 @@ if [[ $EUID -ne 0 ]]; then
     echo "[-] This script must be run as root." 
     exit 0
 else
-    if [ -f /etc/redhat-release ]; then
-        yum update
-        yum install -y yum-utils python36-setuptools postgresql postgresql-contrib python3-psycopg2 wget unzip git openssl
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-        yum install ./google-chrome-stable_current_*.rpm
-        easy_install-3.6 pip
-    fi
-
-    if [ -e /etc/os-release ]; then
-        . /etc/os-release
-    else
-        . /usr/lib/os-release
-    fi
-
-    if [ -f /etc/lsb-release ] || [ -f /etc/os-release ] || [ -f /usr/lib/os-release ]; then
-        if [[ "$ID_LIKE" = *"suse"* ]]; then
-            echo "[i] This installer does not currently support the installation of Google Chrome on SUSE systems. To enable screenshot functionality, please manually install Google Chrome on this system."
-            zypper update
-            zypper install -n python3 python3-pip python3-psycopg2 postgresql postgresql-contrib wget unzip git openssl
-            zypper install -n -t pattern devel_basis
-            systemctl start postgresql
-        else
-            apt update
-            apt install -y python3 python3-pip postgresql postgresql-contrib build-essential wget unzip git openssl
-            service postgresql start
-            wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-            apt install ./google-chrome-stable_current_amd64.deb -y
-        fi
-    fi
-
+    export DEBIAN_FRONTEND=noninteractive
+    export POETRY_HOME=/opt/poetry
+    export POETRY_VIRTUALENVS_IN_PROJECT=true
+    export PATH="$POETRY_HOME/bin:$PATH"
+    apt update
+    apt install software-properties-common -y
+    add-apt-repository ppa:deadsnakes/ppa -y
+    apt install -y python3.9 python3-distutils python3-distutils-extra postgresql postgresql-contrib build-essential wget unzip git openssl
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python3.9 get-pip.py
+    service postgresql start
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    apt install ./google-chrome-stable_current_amd64.deb -y
     LINE=$(printf %"$COLUMNS"s | tr " " "-")
 
     echo "[+] Creating protected directory."
@@ -78,10 +61,9 @@ else
 
     echo "[+] Setting up python3 dependencies."
     echo $LINE
-    curl -sSL https://install.python-poetry.org/ | python3 -
-    export PATH=~/.local/share/pypoetry/venv/bin:$PATH
+    curl -sSL https://install.python-poetry.org/ | python3.9 -
+    poetry self update
     poetry install
-    done
     echo $LINE
     echo "[+] Dependency installation complete. Configuring."
     echo $LINE
@@ -112,7 +94,7 @@ else
     CERTIFICATE_CRT="../certs/certificate.crt"
     API_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${1:-64} | head -n 1)
     echo "[+] Generating JSON configuration for the web application."
-    python3 ./support_files/generate_configuration_files.py
+    poetry run python3 ./support_files/generate_configuration_files.py
     chown $SUDO_USER:$SUDO_USER ../app/plugins/common/config/config.config
     chmod 770 ./app/plugins/common/config/config.config
     chown $SUDO_USER:$SUDO_USER ./support_files/db.json
@@ -120,7 +102,7 @@ else
     echo $LINE
     pushd support_files
     echo "[+] Creating Tables using Create_Tables.py"
-    python3 ./Create_Tables.py
+    poetry run python3 ./Create_Tables.py
     popd
     echo $LINE
 
@@ -129,7 +111,7 @@ else
     pushd support_files
     ADMIN_USER="admin"
     ADMIN_PASSWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w 30 | head -n 1)
-    python3 ./Create_User.py -u $ADMIN_USER -p $ADMIN_PASSWD -a True -b False
+    poetry run python3 ./Create_User.py -u $ADMIN_USER -p $ADMIN_PASSWD -a True -b False
     popd
     echo $LINE
     echo "[+] Admin user created, user details:"
@@ -138,6 +120,24 @@ else
     echo $ADMIN_USER
     echo $ADMIN_PASSWD
     echo $LINE
+    echo "[+] Setting up Self-Signed Certificates. Creating Private Key: $PRIVATE_KEY and Certificate File: $CERTIFICATE_CRT. If you want to replace these, please do so in the ../certs directory"
+    mkdir ../certs
+    #Change to your company details
+    country=AU
+    state=NSW
+    locality=Sydney
+    commonname=$(domainname)
+    organization=Scrummage
+    organizationalunit=Scrummage
+    email=Scrummage@Scrummage.com
+
+    if [ -z $commonname ]; then
+        commonname=Scrummage
+    fi
+
+    openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $PRIVATE_KEY -out $CERTIFICATE_CRT -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
+    echo "[+] Script finished."
+fi
     echo "[+] Setting up Self-Signed Certificates. Creating Private Key: $PRIVATE_KEY and Certificate File: $CERTIFICATE_CRT. If you want to replace these, please do so in the ../certs directory"
     mkdir ../certs
     #Change to your company details
