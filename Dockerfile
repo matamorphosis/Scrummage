@@ -22,8 +22,6 @@ ENV PATH="$POETRY_HOME/bin:$PATH"
 #----------------------------------------------------------------------------------------------------
 ENV TZ=Australia/Sydney
 RUN apt install -y tzdata python3.9 python3.9-distutils python3-psycopg2 postgresql postgresql-contrib build-essential wget unzip git openssl curl sudo fonts-font-awesome
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-RUN python3.9 get-pip.py
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN apt install -y ./google-chrome-stable_current_amd64.deb
 #----------------------------------------------------------------------------------------------------
@@ -76,7 +74,8 @@ RUN ./GetChromeDriver.sh
 # Install poetry packages
 #----------------------------------------------------------------------------------------------------
 WORKDIR /Scrummage
-RUN curl -sSL https://install.python-poetry.org/ | python3.9 -
+RUN python3.9 /Scrummage/installation/support_files/get-pip.py
+RUN python3.9 /Scrummage/installation/support_files/poetry-install.py
 RUN poetry self update
 RUN poetry install
 #----------------------------------------------------------------------------------------------------
