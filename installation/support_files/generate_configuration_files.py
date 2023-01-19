@@ -140,7 +140,7 @@ if __name__ == "__main__":
             "csv": {
                 "use_csv": Empty_Bool
             },
-            "docx_report": {
+            "docx": {
                 "use_docx": Empty_Bool
             },
             "defectdojo": {

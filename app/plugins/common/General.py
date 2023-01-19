@@ -302,6 +302,7 @@ class Connections:
             logging.info(f"{Common.Date()} - General Library - Adding item to Scrummage database and other configured outputs.")
             Connector_Object = Common.Configuration(Output=True)
             CSV_File = Common.CSV_Output(Connector_Object, DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, ", ".join(Complete_File_List), self.Task_ID, Directory_Plugin_Name)
+            print("Printing DOCX Output")
             DOCX_File = Common.DOCX_Output(Connector_Object, DB_Title, self.Plugin_Name, self.Domain, Link, self.Result_Type, "\n".join(Complete_File_List), self.Task_ID, Directory_Plugin_Name)
 
             if CSV_File:

@@ -354,15 +354,18 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
         Use_DOCX = Load_Output(Object, "docx")
 
         if Use_DOCX:
+            print(1)
             File_Dir: str = os.path.dirname(os.path.realpath('__file__'))
             Template_File: str = f"{File_Dir}/plugins/common/templates/Scrummage_Report_Template.docx"
             Output_File: str = f"{File_Dir}/static/protected/output/{Directory}/{Plugin_Name}-Output.docx"
+            print(2)
 
             if os.path.exists(Output_File):
                 document = Document(Output_File)
                 Finding_Style = document.styles['Finding Sub Heading']
 
             else:
+                print(3)
                 from docx.enum.text import WD_ALIGN_PARAGRAPH
                 Document_Title = f"Scrummage Finding Report for the {Plugin_Name} Plugin"
                 document = Document(Template_File)
@@ -374,6 +377,7 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
                 header = document.sections[0].header
                 h = header.paragraphs[0]
                 h.text = Document_Title
+                print(4)
                 h.style = document.styles["Normal"]
                 document.add_heading("About", 1)
                 document.add_paragraph("Scrummage is an Open-Source Intelligence (OSINT) gathering tool. It helps individuals and organisations alike to measure their online security posture by correlating information offered by various, third-party, services. Scrummage is under the GNU Public Licence, version 3, which provides no warranty for the software. Scrummage is Free, Open-Source, Software (FOSS).\n\nIf assistance is needed, the Scrummage project offers focused support in the form of sponsorship on the main GitHub page, the level of support depends on the level of sponsorship. Any issues with the product or this report, that are not unique to you or your organisation can also be raised as an issue on GitHub.")
@@ -382,6 +386,7 @@ def DOCX_Output(Object, Title, Plugin_Name, Domain, Link, Result_Type, Output_Fi
                 document.add_page_break()
                 document.add_heading("Detailed Technical Findings", 1)
                 document.add_paragraph("\n")
+                print(5)
 
             document.add_heading(Title, 2)
 

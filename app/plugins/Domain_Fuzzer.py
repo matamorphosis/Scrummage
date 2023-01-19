@@ -60,10 +60,11 @@ class Plugin_Search:
 
                     self.Valid_Results.append(f"{Query},{Response}")
                     self.Data_to_Cache.append(Cache)
+                    logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - {[Web_Host, Response]}")
                     self.Valid_Hosts.append([Web_Host, Response])
 
         except:
-            logging.info(f"{Common.Date()} - {self.Logging_Plugin_Name} - Failed to resolve hostname {Query} to an IP address.")
+            pass
 
     def Character_Switch(self, Alphabets, Comprehensive=False):
 
@@ -95,67 +96,33 @@ class Plugin_Search:
                 logging.info(f'{Common.Date()} - Provided domain body - {self.URL_Body}')
                 URL_List = list(self.URL_Body.lower())
                 Local_Plugin_Name = f"{Local_Plugin_Name} {Alphabets}"
-                Non_Comprehensive_Latin_Limit = 15
-                Other_Limit = 10
+                Limit = 15 if Alphabets == "Latin" and not Comprehensive else 10
+
+                if len(self.URL_Body) > Limit:
+                    logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Limit)} characters in length.")
+                    return None
 
                 if Alphabets == "Latin":
 
                     if not Comprehensive:
-
-                        if len(self.URL_Body) > Non_Comprehensive_Latin_Limit:
-                            logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Non_Comprehensive_Latin_Limit)} characters in length. Condensed punycode domain fuzzing only allows a maximum of {str(Non_Comprehensive_Latin_Limit)} characters.")
-                            return None
-
-                        else:
-                            Altered_URLs = Rotor.Iterator(Query=URL_List, Latin=True, Latin_Alternatives=True).Search()
+                        Altered_URLs = Rotor.Iterator(Query=URL_List, Latin=True, Latin_Alternatives=True).Search()
 
                     else:
-
-                        if len(self.URL_Body) > Other_Limit:
-                            logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Other_Limit)} characters in length. Comprehensive punycode domain fuzzing searching only allows a maximum of {str(Other_Limit)} characters.")
-                            return None
-
-                        else:
-                            Altered_URLs = Rotor.Iterator(Query=URL_List, Latin=True, Latin_Alternatives=True, Comprehensive=True).Search()
+                        Altered_URLs = Rotor.Iterator(Query=URL_List, Latin=True, Latin_Alternatives=True, Comprehensive=True).Search()
 
                 elif Alphabets == "Asian":
-
-                    if len(self.URL_Body) > Other_Limit:
-                        logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Other_Limit)} characters in length. Punycode domain fuzzing for Asian alphabets only allows a maximum of {str(Other_Limit)} characters.")
-                        return None
-
-                    else:
-                        Altered_URLs = Rotor.Iterator(Query=URL_List, Asian=True).Search()
+                    Altered_URLs = Rotor.Iterator(Query=URL_List, Asian=True).Search()
 
                 elif Alphabets == "Middle Eastern":
-
-                    if len(self.URL_Body) > Other_Limit:
-                        logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Other_Limit)} characters in length. Punycode domain fuzzing for Middle Eastern alphabets only allows a maximum of {str(Other_Limit)} characters.")
-                        return None
-
-                    else:
-                        Altered_URLs = Rotor.Iterator(Query=URL_List, Middle_Eastern=True).Search()
+                    Altered_URLs = Rotor.Iterator(Query=URL_List, Middle_Eastern=True).Search()
 
                 elif Alphabets == "Native American":
-
-                    if len(self.URL_Body) > Other_Limit:
-                        logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Other_Limit)} characters in length. Punycode domain fuzzing for Asian alphabets only allows a maximum of {str(Other_Limit)} characters.")
-                        return None
-
-                    else:
-                        Altered_URLs = Rotor.Iterator(Query=URL_List, Native_American=True).Search()
+                    Altered_URLs = Rotor.Iterator(Query=URL_List, Native_American=True).Search()
 
                 elif Alphabets == "North African":
+                    Altered_URLs = Rotor.Iterator(Query=URL_List, North_African=True).Search()
 
-                    if len(self.URL_Body) > Other_Limit:
-                        logging.error(f"{Common.Date()} - {self.Logging_Plugin_Name} - The length of the body of the provided query: {Query} is greater than {str(Other_Limit)} characters in length. Punycode domain fuzzing for Middle Eastern alphabets only allows a maximum of {str(Other_Limit)} characters.")
-                        return None
-
-                    else:
-                        Altered_URLs = Rotor.Iterator(Query=URL_List, North_African=True).Search()
-
-
-                logging.info(f'{Common.Date()} - Generated domain combinations - {", ".join(Altered_URLs)}')
+                logging.info(f'{Common.Date()} - {self.Logging_Plugin_Name} - Generated domain combinations - {", ".join(Altered_URLs)}')
                 Pool = mpool.ThreadPool(int(multiprocessing.cpu_count())*int(multiprocessing.cpu_count()))
                 Pool_Threads: list = list()
 
@@ -166,7 +133,7 @@ class Plugin_Search:
                         Pool_Threads.append(Thread)
 
                 [Pool_Thread.wait() for Pool_Thread in Pool_Threads]
-                logging.info(f'{Common.Date()} {Directory}')
+                logging.info(f'{Common.Date()} - {self.Logging_Plugin_Name} - Finished checking domains.')
                 URL_Domain = self.URL_Body + self.URL_Extension
                 Main_File = General.Main_File_Create(Directory, Local_Plugin_Name, "\n".join(self.Valid_Results), self.URL_Body, self.The_File_Extensions["Main"])
                 Main_File_JSON_Data = General.CSV_to_JSON(Query, self.Valid_Results)
@@ -177,22 +144,28 @@ class Plugin_Search:
                 if Main_File and Main_File_HTML and Main_File_JSON:
 
                     for Host in self.Valid_Hosts:
-                        Current_Domain = Host[0].strip('https://').strip('http://')
-                        Current_Responses = Common.Request_Handler(url=Host[0], Filter=True, Host=Host[0], Risky_Plugin=True, verify=False)
-                        Current_Response = Current_Responses["Filtered"]
-                        Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
-                        Defanged_Title_Objects = Common.Fang().Defang_List([URL_Domain, Current_Domain, Host[1]])
-                        Title = f"Domain Spoof for {Defanged_Title_Objects[0]} - {Defanged_Title_Objects[1]} : {Defanged_Title_Objects[2]}"
 
-                        if Output_File:
-                            Output_File_List = [Main_File, Main_File_HTML, Main_File_JSON, Output_File]
-                            Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
-                            Output_Connections.Output(Output_File_List, Host[0], Title, Directory_Plugin_Name=self.Concat_Plugin_Name)
+                        try:
+                            Current_Domain = Host[0].strip('https://').strip('http://')
+                            Current_Responses = Common.Request_Handler(url=Host[0], Filter=True, Host=Host[0], Risky_Plugin=True, verify=False)
+                            Output_Connections = None
 
-                        else:
+                            if Current_Responses:
+                                Current_Response = Current_Responses["Filtered"]
+                                Output_File = General.Create_Query_Results_Output_File(Directory, Query, Local_Plugin_Name, Current_Response, Current_Domain, self.The_File_Extensions["Query"])
+
+                            Defanged_Title_Objects = Common.Fang().Defang_List([URL_Domain, Current_Domain, Host[1]])
+                            Title = f"Domain Spoof for {Defanged_Title_Objects[0]} - {Defanged_Title_Objects[1]} : {Defanged_Title_Objects[2]}"
                             Output_File_List = [Main_File, Main_File_HTML, Main_File_JSON]
+
+                            if Output_File:
+                                Output_File_List.append(Output_File)
+
                             Output_Connections = General.Connections(Query, Local_Plugin_Name, Current_Domain, "Domain Spoof", self.Task_ID, Local_Plugin_Name.lower())
                             Output_Connections.Output(Output_File_List, Host[0], Title, Directory_Plugin_Name=self.Concat_Plugin_Name)
+
+                        except Exception as e:
+                            logging.warning(f"{Common.Date()} - {self.Logging_Plugin_Name} - Error creating result - {str(e)}")
 
             Cached_Data_Object.Write_Cache(self.Data_to_Cache)
 

@@ -2189,23 +2189,6 @@ if __name__ == '__main__':
 
                                     else:
 
-                                        if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
-                                            return render_template('tasks.html', username=session.get('user'),
-                                                                    form_step=session.get('task_form_step'), new_task=True,
-                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                    is_admin=session.get('is_admin'),
-                                                                    error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
-
-                                        elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
-                                            sess_form_type = session["task_form_type"]
-                                            return render_template('tasks.html', username=session.get('user'),
-                                                                    form_step=session.get('task_form_step'), new_task=True,
-                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(),
-                                                                    is_admin=session.get('is_admin'),
-                                                                    error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
-
                                         if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
                                                                         form_type=session.get('task_form_type'),
@@ -2549,23 +2532,6 @@ if __name__ == '__main__':
                                                                 error="Invalid limit specified, please provide a valid limit represented by a number.")
 
                                     else:
-
-                                        if session["task_form_type"] == "Domain Fuzzer - Punycode (Latin Condensed)" and len(Current_Query) > 15:
-                                            return render_template('tasks.html', username=session.get('user'),
-                                                                    form_step=session.get('task_form_step'), edit_task=True,
-                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                    is_admin=session.get('is_admin'),
-                                                                    error="For the task Domain Fuzzer - Punycode (Latin Condensed), the length of the query cannot be longer than 15 characters.")
-
-                                        elif session["task_form_type"] in ["Domain Fuzzer - Punycode (Latin Comprehensive)", "Domain Fuzzer - Punycode (Middle Eastern)", "Domain Fuzzer - Punycode (Asian)", "Domain Fuzzer - Punycode (Native American)", "Domain Fuzzer - Punycode (North African)"] and len(Current_Query) > 10:
-                                            sess_form_type = session["task_form_type"]
-                                            return render_template('tasks.html', username=session.get('user'),
-                                                                    form_step=session.get('task_form_step'), edit_task=True,
-                                                                    form_type=session.get('task_form_type'), suggestion=Suggestion,
-                                                                    Valid_Plugins=list(Valid_Plugins.keys()), Plugins_without_Limit=No_Limit_Plugins(), Without_Limit=(not Valid_Plugins[results[2]]["Requires_Limit"]), results=results,
-                                                                    is_admin=session.get('is_admin'),
-                                                                    error=f"For the task {sess_form_type}, the length of the query cannot be longer than 10 characters.")
 
                                         if not Validator(String_to_Check=str(Current_Query), Safe_Characters=Safe_Chars) and not (Current_Query == session['task_query'] and Current_Query == "[IDENTITIES_DATABASE]"):
                                             return render_template('tasks.html', username=session.get('user'),
