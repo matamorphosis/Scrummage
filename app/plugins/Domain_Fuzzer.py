@@ -11,9 +11,9 @@ class Plugin_Search:
         self.Cached_Data: list = list()
         self.Valid_Results: list = ["Domain,IP Address"]
         self.Valid_Hosts: list = list()
-        self.Generic_Extensions: tuple = tuple(sorted([".com", ".edu", ".gov", ".net", ".info"]))
-        self.Expired_Global_Domain_Suffixes: tuple = tuple(sorted([".cs", ".dd", ".gb", ".su", ".yu", ".zr"]))
-        self.Global_Domain_Suffixes: tuple = (
+        self.Purpose_Based_TLDs: tuple = tuple(sorted([".com", ".edu", ".gov", ".govt", ".net", ".info"]))
+        self.Expired_Country_Code_TLDs: tuple = tuple(sorted([".cs", ".dd", ".gb", ".su", ".yu", ".zr"]))
+        self.Country_Code_TLDs: tuple = (
             '.ac', '.ad', '.ae', '.af', '.ag', '.ai', '.al', '.am', '.an', '.ao', '.aq', '.ar', '.as', '.at', '.au', '.aw', '.ax', '.az', '.ba', '.bb', '.bd', '.be', '.bf', '.bg', '.bh', '.bi', '.bj', '.bm','.bn', '.bo', '.br', '.bs', '.bt',
             '.bv', '.bw', '.by', '.bz', '.ca', '.cat', '.cc', '.cd', '.cf', '.cg', '.ch', '.ci', '.ck', '.cl', '.cm', '.cn', '.cr', '.cu', '.cv', '.cw', '.cx', '.cy', '.cz', '.de', '.dj', '.dk', '.dm', '.do', '.dz', '.ec', '.ee', '.eg', '.er',
             '.es', '.et', '.eu', '.eus', '.fi', '.fj', '.fk', '.fm', '.fo', '.fr', '.ga', '.gal', '.gb', '.gd', '.ge', '.gf', '.gg', '.gh', '.gi', '.gl', '.gm', '.gn', '.gp', '.gq', '.gr', '.gs', '.gt', '.gu', '.gw', '.gy', '.hk', '.hm', '.hn',
@@ -203,7 +203,7 @@ class Plugin_Search:
                 Pool = mpool.ThreadPool(int(multiprocessing.cpu_count()) * int(multiprocessing.cpu_count()))
                 Pool_Threads: list = list()
 
-                for Extension in self.Generic_Extensions:
+                for Extension in self.Purpose_Based_TLDs:
 
                     if not self.URL_Extension == Extension:
                         Thread = Pool.apply_async(self.Query_URL, args=(self.URL_Body, Extension,))
@@ -273,7 +273,7 @@ class Plugin_Search:
                 Pool = mpool.ThreadPool(int(multiprocessing.cpu_count()) * int(multiprocessing.cpu_count()))
                 Pool_Threads: list = list()
 
-                for suffix in self.Global_Domain_Suffixes:
+                for suffix in self.Country_Code_TLDs:
 
                     if not self.URL_Extension == suffix:
                         Thread = Pool.apply_async(self.Query_URL, args=(self.URL_Body, suffix,))
@@ -343,7 +343,7 @@ class Plugin_Search:
                 Pool = mpool.ThreadPool(int(multiprocessing.cpu_count()) * int(multiprocessing.cpu_count()))
                 Pool_Threads: list = list()
 
-                for suffix in self.Expired_Global_Domain_Suffixes:
+                for suffix in self.Expired_Country_Code_TLDs:
 
                     if not self.URL_Extension == suffix:
                         Thread = Pool.apply_async(self.Query_URL, args=(self.URL_Body, suffix,))
@@ -413,10 +413,10 @@ class Plugin_Search:
                 Pool = mpool.ThreadPool(int(multiprocessing.cpu_count()) * int(multiprocessing.cpu_count()))
                 Pool_Threads: list = list()
 
-                for Extension in self.Generic_Extensions:
+                for Extension in self.Purpose_Based_TLDs:
                     All_Domain_Suffixes: list = list()
-                    All_Domain_Suffixes.extend(self.Global_Domain_Suffixes)
-                    All_Domain_Suffixes.extend(self.Expired_Global_Domain_Suffixes)
+                    All_Domain_Suffixes.extend(self.Country_Code_TLDs)
+                    All_Domain_Suffixes.extend(self.Expired_Country_Code_TLDs)
 
                     for suffix in All_Domain_Suffixes:
                         suffix = suffix.replace(".com", "")

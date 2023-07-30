@@ -836,7 +836,8 @@ def Request_Handler(User_Agent=True, Application_JSON_Accept: bool = bool(), App
                 Response_Dict["Scraped"] = Scrape_URLs
 
             if Filter and str(Host) != str():
-                Filtered_Response = Response_Filter(Response, str(Host), Risky_Plugin=Risky_Plugin)
+                To_Check = Response if not Full_Response else Response.text
+                Filtered_Response = Response_Filter(To_Check, str(Host), Risky_Plugin=Risky_Plugin)
 
                 if not Response_Dict.get("Regular"):
                     Response_Dict["Regular"] = Response
