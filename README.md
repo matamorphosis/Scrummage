@@ -112,15 +112,8 @@ Identities can be created one of three ways:
 We welcome and encourage you to contribute to the Scrummage project through creation of new plugins. If you are interested please refer to the plugin development guide [here](https://github.com/matamorphosis/Scrummage/wiki/Plugin-Development-Guide), this will give you a run through of how to develop a Scrummage plugin, using the custom libraries provided.
 
 # List of Current Monthly Sponsors
-[Endure Secure Pty Ltd](https://endsec.au/)
-<p align="left">
-  <img width="231" height="72" src="./installation/images_dark_theme/Sponsor_Endure_Secure.png">
-</p>
 
 [Tines](https://www.tines.com/?utm_source=oss&utm_medium=sponsorship&utm_campaign=matamorphosis)
 <p align="left">
   <img width="200" height="72" src="./installation/images_dark_theme/Tines-Sponsorship-Badge-Purple.png">
 </p>
-
-## Become a Sponsor Now!
-[![Github Sponsorship](/installation/images_dark_theme/github_sponsor_btn.svg)](https://github.com/sponsors/matamorphosis)
